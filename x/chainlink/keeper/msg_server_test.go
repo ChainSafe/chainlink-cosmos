@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/ChainSafe/chainlink/x/chainlink/types"
+	"github.com/ChainSafe/chainlink-cosmos/x/chainlink/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 

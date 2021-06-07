@@ -1,7 +1,7 @@
 package app
 
 import (
-	"github.com/ChainSafe/chainlink-cosmos/chainlink/app/params"
+	"github.com/ChainSafe/chainlink-cosmos/app/params"
 	"github.com/cosmos/cosmos-sdk/std"
 )
 

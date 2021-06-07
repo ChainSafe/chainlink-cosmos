@@ -12,9 +12,9 @@ import (
 
 	abci "github.com/tendermint/tendermint/abci/types"
 
-	"github.com/ChainSafe/chainlink/x/chainlink/client/cli"
-	"github.com/ChainSafe/chainlink/x/chainlink/keeper"
-	"github.com/ChainSafe/chainlink/x/chainlink/types"
+	"github.com/ChainSafe/chainlink-cosmos/x/chainlink/client/cli"
+	"github.com/ChainSafe/chainlink-cosmos/x/chainlink/keeper"
+	"github.com/ChainSafe/chainlink-cosmos/x/chainlink/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"

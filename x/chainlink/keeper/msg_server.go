@@ -1,7 +1,7 @@
 package keeper
 
 import (
-	"github.com/ChainSafe/chainlink/x/chainlink/types"
+	"github.com/ChainSafe/chainlink-cosmos/x/chainlink/types"
 )
 
 type msgServer struct {

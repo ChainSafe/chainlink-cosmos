@@ -3,8 +3,8 @@ package chainlink
 import (
 	"fmt"
 
-	"github.com/ChainSafe/chainlink/x/chainlink/keeper"
-	"github.com/ChainSafe/chainlink/x/chainlink/types"
+	"github.com/ChainSafe/chainlink-cosmos/x/chainlink/keeper"
+	"github.com/ChainSafe/chainlink-cosmos/x/chainlink/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )

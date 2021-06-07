@@ -3,7 +3,7 @@ package keeper
 import (
 	"testing"
 
-	"github.com/ChainSafe/chainlink/x/chainlink/types"
+	"github.com/ChainSafe/chainlink-cosmos/x/chainlink/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/store"
