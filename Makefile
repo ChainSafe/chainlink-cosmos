@@ -7,6 +7,10 @@ CHAINLINK_DAEMON_BINARY = chainlinkd
 ###                                  Build                                  ###
 ###############################################################################
 
+update:
+	${GO_MOD} go mod tidy
+	${GO_MOD} go mod vendor
+
 install:
 	${GO_MOD} go install ./cmd/$(CHAINLINK_DAEMON_BINARY)
 
@@ -34,5 +38,9 @@ lint: get-lint
 ###                                Testing                                  ###
 ###############################################################################
 
+check:
+	gosec ./...
+
 test:
-	go test ./...
+	go test --race ./...
+
