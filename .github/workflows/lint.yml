@@ -8,15 +8,15 @@ on:
     branches:
       - "*" 
 
-  jobs:
-    lint:
-      name: Lint
-      runs-on: ubuntu-latest
-      timeout-minutes: 5
-      steps:
-        - uses: actions/checkout@v2
-        - name: golangci-lint
-          uses: golangci/golangci-lint-action@v2
-          with:
-            version: v1.36
-            args: --timeout=5m
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v2
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v2
+        with:
+          version: v1.36
+          args: --timeout=5m
