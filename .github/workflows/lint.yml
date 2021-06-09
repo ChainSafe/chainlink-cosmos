@@ -20,5 +20,3 @@ on:
           with:
             version: v1.36
             args: --timeout=5m
-            github-token: ${{ secrets.github_token }}
-          if: "env.GIT_DIFF != '
