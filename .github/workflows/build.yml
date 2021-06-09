@@ -1,18 +1,19 @@
 # Copyright 2020 ChainSafe Systems
 # SPDX-License-Identifier: LGPL-3.0-only
 
-name: Tests
+name: Build
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened]
+    branches:
+      - "*"
 
 jobs:
-  test:
-    name: Test
+  build:
+    name: 
     strategy:
       matrix:
-        go-version: [ 1.15.x ]
+        go-version: [ 1.36.x ]
         platform: [ ubuntu-latest ]
     runs-on: ${{ matrix.platform }}
     steps:
@@ -28,17 +29,8 @@ jobs:
           key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-go-
-      - name: Test
+      - name: Build binary
         run: |
-          make test
+          make install
 
-  lint:
-    name: Lint
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: golangci-lint
-        uses: golangci/golangci-lint-action@v2
-        with:
-          version: v1.36
-          args: --timeout=5m
+
