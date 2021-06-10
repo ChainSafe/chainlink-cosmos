@@ -1,6 +1,22 @@
 PROJECTNAME=$(shell basename "$(PWD)")
 GOLANGCI := $(GOPATH)/bin/golangci-lint
 
+CHAINLINK_DAEMON_BINARY = chainlinkd
+
+###############################################################################
+###                                  Build                                  ###
+###############################################################################
+
+update:
+	${GO_MOD} go mod tidy
+	${GO_MOD} go mod vendor
+
+install:
+	${GO_MOD} go install ./cmd/$(CHAINLINK_DAEMON_BINARY)
+
+clean:
+	@rm -rf ./vendor
+
 .PHONY: help lint test
 all: help
 help: Makefile
@@ -18,6 +34,13 @@ get-lint:
 lint: get-lint
 	./bin/golangci-lint run ./... --timeout 5m0s
 
+###############################################################################
+###                                Testing                                  ###
+###############################################################################
+
+check:
+	gosec ./...
+
 test:
-	go test ./...
+	go test --race ./...
 
