@@ -16,10 +16,12 @@ func RegisterRoutes(clientCtx client.Context, r *mux.Router) {
 	// this line is used by starport scaffolding # 2
 }
 
+// nolint
 func registerQueryRoutes(clientCtx client.Context, r *mux.Router) {
 	// this line is used by starport scaffolding # 3
 }
 
+// nolint
 func registerTxHandlers(clientCtx client.Context, r *mux.Router) {
 	// this line is used by starport scaffolding # 4
 }

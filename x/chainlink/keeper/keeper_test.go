@@ -15,6 +15,7 @@ import (
 	tmdb "github.com/tendermint/tm-db"
 )
 
+// nolint
 func setupKeeper(t testing.TB) (*Keeper, sdk.Context) {
 	storeKey := sdk.NewKVStoreKey(types.StoreKey)
 	memStoreKey := storetypes.NewMemoryStoreKey(types.MemStoreKey)

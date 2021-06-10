@@ -16,6 +16,7 @@ var (
 )
 
 const (
+	// nolint
 	flagPacketTimeoutTimestamp = "packet-timeout-timestamp"
 )
 
