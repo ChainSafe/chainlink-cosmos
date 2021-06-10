@@ -1,15 +1,22 @@
 syntax = "proto3";
-package ChainSafe.chainlink.chainlink;
+package chainlink.v1beta;
 
-import "google/api/annotations.proto";
 import "cosmos/base/query/v1beta1/pagination.proto";
-// this line is used by starport scaffolding # 1
+import "chainlink/v1beta/tx.proto";
 
 option go_package = "github.com/ChainSafe/chainlink-cosmos/x/chainlink/types";
 
 // Query defines the gRPC querier service.
 service Query {
-    // this line is used by starport scaffolding # 2
+    rpc AllFeedData(QueryAllFeedDataRequest) returns (QueryAllFeedDataResponse);
 }
 
-// this line is used by starport scaffolding # 3
+message QueryAllFeedDataRequest {
+    string feedId = 1;
+    cosmos.base.query.v1beta1.PageRequest pagination = 2;
+}
+
+message QueryAllFeedDataResponse {
+    repeated MsgFeed feedData = 1;
+    cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
