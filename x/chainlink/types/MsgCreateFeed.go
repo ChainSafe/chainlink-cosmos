@@ -7,10 +7,10 @@ import (
 
 var _ sdk.Msg = &MsgFeed{}
 
-func NewMsgFeed(creator sdk.Address, feedId string, feedData string) *MsgFeed {
+func NewMsgFeed(submitter sdk.Address, feedId string, feedData string) *MsgFeed {
 	return &MsgFeed{
 		FeedId:    feedId,
-		Submitter: creator.Bytes(),
+		Submitter: submitter.Bytes(),
 		FeedData:  feedData,
 	}
 }

@@ -3,12 +3,15 @@ package chainlink.v1beta;
 
 import "cosmos/base/query/v1beta1/pagination.proto";
 import "chainlink/v1beta/tx.proto";
+import "google/api/annotations.proto";
 
 option go_package = "github.com/ChainSafe/chainlink-cosmos/x/chainlink/types";
 
 // Query defines the gRPC querier service.
 service Query {
-    rpc AllFeedData(QueryAllFeedDataRequest) returns (QueryAllFeedDataResponse);
+    rpc AllFeedData(QueryAllFeedDataRequest) returns (QueryAllFeedDataResponse) {
+        option (google.api.http).get = "/chainlink/v1/feed/{feedId}";
+    }
 }
 
 message QueryAllFeedDataRequest {

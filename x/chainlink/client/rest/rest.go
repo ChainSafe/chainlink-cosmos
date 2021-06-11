@@ -1,6 +1,7 @@
 package rest
 
 import (
+	"github.com/ChainSafe/chainlink-cosmos/x/chainlink/types"
 	"github.com/gorilla/mux"
 
 	"github.com/cosmos/cosmos-sdk/client"
@@ -8,20 +9,22 @@ import (
 )
 
 const (
-	MethodGet = "GET"
+	MethodGet  = "GET"
+	MethodPOST = "post"
 )
 
 // RegisterRoutes registers blog-related REST handlers to a router
 func RegisterRoutes(clientCtx client.Context, r *mux.Router) {
-	// this line is used by starport scaffolding # 2
+	registerQueryRoutes(clientCtx, r)
+	registerTxHandlers(clientCtx, r)
 }
 
 // nolint
 func registerQueryRoutes(clientCtx client.Context, r *mux.Router) {
-	// this line is used by starport scaffolding # 3
+	r.HandleFunc("feed/"+types.QueryListFeed, listFeedHandler(clientCtx)).Methods(MethodGet)
 }
 
 // nolint
 func registerTxHandlers(clientCtx client.Context, r *mux.Router) {
-	// this line is used by starport scaffolding # 4
+	r.Handle("feed/", createFeedHandler(clientCtx)).Methods(MethodPOST)
 }
