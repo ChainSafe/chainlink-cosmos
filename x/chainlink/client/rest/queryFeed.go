@@ -8,7 +8,7 @@ import (
 	"net/http"
 )
 
-func listFeedHandler(clientCtx client.Context) http.HandlerFunc {
+func listFeedDataHandler(clientCtx client.Context) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		res, height, err := clientCtx.QueryWithData(fmt.Sprintf("%s/list-feed", types.QuerierRoute), nil) // TODO:
 		if err != nil {

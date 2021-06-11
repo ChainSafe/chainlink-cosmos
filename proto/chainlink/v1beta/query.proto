@@ -9,17 +9,17 @@ option go_package = "github.com/ChainSafe/chainlink-cosmos/x/chainlink/types";
 
 // Query defines the gRPC querier service.
 service Query {
-    rpc AllFeedData(QueryAllFeedDataRequest) returns (QueryAllFeedDataResponse) {
-        option (google.api.http).get = "/chainlink/v1/feed/{feedId}";
+    rpc FeedDataByID(QueryFeedDataRequest) returns (QueryFeedDataResponse) {
+        option (google.api.http).get = "/chainlink/v1/feed/data/{feedId}";
     }
 }
 
-message QueryAllFeedDataRequest {
+message QueryFeedDataRequest {
     string feedId = 1;
     cosmos.base.query.v1beta1.PageRequest pagination = 2;
 }
 
-message QueryAllFeedDataResponse {
-    repeated MsgFeed feedData = 1;
+message QueryFeedDataResponse {
+    repeated MsgFeedData feedData = 1;
     cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }

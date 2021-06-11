@@ -19,12 +19,10 @@ func RegisterRoutes(clientCtx client.Context, r *mux.Router) {
 	registerTxHandlers(clientCtx, r)
 }
 
-// nolint
 func registerQueryRoutes(clientCtx client.Context, r *mux.Router) {
-	r.HandleFunc("feed/"+types.QueryListFeed, listFeedHandler(clientCtx)).Methods(MethodGet)
+	r.HandleFunc("feed/data/{feedId}"+types.QueryFeedData, listFeedDataHandler(clientCtx)).Methods(MethodGet)
 }
 
-// nolint
 func registerTxHandlers(clientCtx client.Context, r *mux.Router) {
-	r.Handle("feed/", createFeedHandler(clientCtx)).Methods(MethodPOST)
+	r.Handle("feed/data/", createFeedHandler(clientCtx)).Methods(MethodPOST)
 }

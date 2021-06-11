@@ -10,7 +10,7 @@ service Msg {
     // this line is used by starport scaffolding # proto/tx/rpc
 }
 
-message MsgFeed {
+message MsgFeedData {
   string feedId = 1;
   bytes submitter = 2 [(gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"];
   string feedData = 3;

@@ -6,9 +6,8 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/cosmos/cosmos-sdk/client"
-	// "github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/ChainSafe/chainlink-cosmos/x/chainlink/types"
+	"github.com/cosmos/cosmos-sdk/client"
 )
 
 var (
@@ -16,7 +15,6 @@ var (
 )
 
 const (
-	// nolint
 	flagPacketTimeoutTimestamp = "packet-timeout-timestamp"
 )
 
@@ -30,7 +28,7 @@ func GetTxCmd() *cobra.Command {
 		RunE:                       client.ValidateCmd,
 	}
 
-	cmd.AddCommand(CmdCreateFeed())
+	cmd.AddCommand(CmdSubmitFeed())
 
 	return cmd
 }

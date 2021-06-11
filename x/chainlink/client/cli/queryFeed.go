@@ -11,8 +11,8 @@ import (
 
 func CmdListFeed() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "list-feed [feedId]",
-		Short: "list all feed data",
+		Use:   "list-feedData [feedId]",
+		Short: "List feed data by feedId",
 		Args:  cobra.MinimumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if args[0] == "" {
@@ -33,12 +33,12 @@ func CmdListFeed() *cobra.Command {
 
 			queryClient := types.NewQueryClient(clientCtx)
 
-			params := &types.QueryAllFeedDataRequest{
+			params := &types.QueryFeedDataRequest{
 				FeedId:     feedId,
 				Pagination: pageReq,
 			}
 
-			res, err := queryClient.AllFeedData(context.Background(), params)
+			res, err := queryClient.FeedDataByID(context.Background(), params)
 			if err != nil {
 				return err
 			}

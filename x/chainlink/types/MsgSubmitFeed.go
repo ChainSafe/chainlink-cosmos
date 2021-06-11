@@ -5,39 +5,43 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
-var _ sdk.Msg = &MsgFeed{}
+const (
+	SubmitFeedData = "SubmitFeedData"
+)
 
-func NewMsgFeed(submitter sdk.Address, feedId string, feedData string) *MsgFeed {
-	return &MsgFeed{
+var _ sdk.Msg = &MsgFeedData{}
+
+func NewMsgFeed(submitter sdk.Address, feedId string, feedData string) *MsgFeedData {
+	return &MsgFeedData{
 		FeedId:    feedId,
 		Submitter: submitter.Bytes(),
 		FeedData:  feedData,
 	}
 }
 
-func (m *MsgFeed) Route() string {
+func (m *MsgFeedData) Route() string {
 	return RouterKey
 }
 
-func (m *MsgFeed) Type() string {
-	return "CreateFeed"
+func (m *MsgFeedData) Type() string {
+	return SubmitFeedData
 }
 
-func (m *MsgFeed) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{sdk.AccAddress(m.Submitter)}
+func (m *MsgFeedData) GetSigners() []sdk.AccAddress {
+	return []sdk.AccAddress{m.Submitter}
 }
 
-func (m *MsgFeed) GetSignBytes() []byte {
+func (m *MsgFeedData) GetSignBytes() []byte {
 	bz := ModuleCdc.MustMarshalJSON(m)
 	return sdk.MustSortJSON(bz)
 }
 
-func (m *MsgFeed) ValidateBasic() error {
+func (m *MsgFeedData) ValidateBasic() error {
 	if m.FeedId == "" {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, "feedId can not be empty")
 	}
 	if m.FeedData == "" {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, "feed data can not be empty")
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, "feedData can not be empty")
 	}
 	if m.Submitter.Empty() {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, "submitter can not be empty")

@@ -2,5 +2,5 @@ package types
 
 // Supported endpoints
 const (
-	QueryListFeed = "list-feed"
+	QueryFeedData = "list-feedData"
 )

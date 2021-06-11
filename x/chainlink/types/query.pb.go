@@ -29,23 +29,23 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-type QueryAllFeedDataRequest struct {
+type QueryFeedDataRequest struct {
 	FeedId     string             `protobuf:"bytes,1,opt,name=feedId,proto3" json:"feedId,omitempty"`
 	Pagination *query.PageRequest `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
 }
 
-func (m *QueryAllFeedDataRequest) Reset()         { *m = QueryAllFeedDataRequest{} }
-func (m *QueryAllFeedDataRequest) String() string { return proto.CompactTextString(m) }
-func (*QueryAllFeedDataRequest) ProtoMessage()    {}
-func (*QueryAllFeedDataRequest) Descriptor() ([]byte, []int) {
+func (m *QueryFeedDataRequest) Reset()         { *m = QueryFeedDataRequest{} }
+func (m *QueryFeedDataRequest) String() string { return proto.CompactTextString(m) }
+func (*QueryFeedDataRequest) ProtoMessage()    {}
+func (*QueryFeedDataRequest) Descriptor() ([]byte, []int) {
 	return fileDescriptor_21ba17f95e61a418, []int{0}
 }
-func (m *QueryAllFeedDataRequest) XXX_Unmarshal(b []byte) error {
+func (m *QueryFeedDataRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *QueryAllFeedDataRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *QueryFeedDataRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_QueryAllFeedDataRequest.Marshal(b, m, deterministic)
+		return xxx_messageInfo_QueryFeedDataRequest.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -55,49 +55,49 @@ func (m *QueryAllFeedDataRequest) XXX_Marshal(b []byte, deterministic bool) ([]b
 		return b[:n], nil
 	}
 }
-func (m *QueryAllFeedDataRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_QueryAllFeedDataRequest.Merge(m, src)
+func (m *QueryFeedDataRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryFeedDataRequest.Merge(m, src)
 }
-func (m *QueryAllFeedDataRequest) XXX_Size() int {
+func (m *QueryFeedDataRequest) XXX_Size() int {
 	return m.Size()
 }
-func (m *QueryAllFeedDataRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_QueryAllFeedDataRequest.DiscardUnknown(m)
+func (m *QueryFeedDataRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryFeedDataRequest.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_QueryAllFeedDataRequest proto.InternalMessageInfo
+var xxx_messageInfo_QueryFeedDataRequest proto.InternalMessageInfo
 
-func (m *QueryAllFeedDataRequest) GetFeedId() string {
+func (m *QueryFeedDataRequest) GetFeedId() string {
 	if m != nil {
 		return m.FeedId
 	}
 	return ""
 }
 
-func (m *QueryAllFeedDataRequest) GetPagination() *query.PageRequest {
+func (m *QueryFeedDataRequest) GetPagination() *query.PageRequest {
 	if m != nil {
 		return m.Pagination
 	}
 	return nil
 }
 
-type QueryAllFeedDataResponse struct {
-	FeedData   []*MsgFeed          `protobuf:"bytes,1,rep,name=feedData,proto3" json:"feedData,omitempty"`
+type QueryFeedDataResponse struct {
+	FeedData   []*MsgFeedData      `protobuf:"bytes,1,rep,name=feedData,proto3" json:"feedData,omitempty"`
 	Pagination *query.PageResponse `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
 }
 
-func (m *QueryAllFeedDataResponse) Reset()         { *m = QueryAllFeedDataResponse{} }
-func (m *QueryAllFeedDataResponse) String() string { return proto.CompactTextString(m) }
-func (*QueryAllFeedDataResponse) ProtoMessage()    {}
-func (*QueryAllFeedDataResponse) Descriptor() ([]byte, []int) {
+func (m *QueryFeedDataResponse) Reset()         { *m = QueryFeedDataResponse{} }
+func (m *QueryFeedDataResponse) String() string { return proto.CompactTextString(m) }
+func (*QueryFeedDataResponse) ProtoMessage()    {}
+func (*QueryFeedDataResponse) Descriptor() ([]byte, []int) {
 	return fileDescriptor_21ba17f95e61a418, []int{1}
 }
-func (m *QueryAllFeedDataResponse) XXX_Unmarshal(b []byte) error {
+func (m *QueryFeedDataResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *QueryAllFeedDataResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *QueryFeedDataResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_QueryAllFeedDataResponse.Marshal(b, m, deterministic)
+		return xxx_messageInfo_QueryFeedDataResponse.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -107,26 +107,26 @@ func (m *QueryAllFeedDataResponse) XXX_Marshal(b []byte, deterministic bool) ([]
 		return b[:n], nil
 	}
 }
-func (m *QueryAllFeedDataResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_QueryAllFeedDataResponse.Merge(m, src)
+func (m *QueryFeedDataResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryFeedDataResponse.Merge(m, src)
 }
-func (m *QueryAllFeedDataResponse) XXX_Size() int {
+func (m *QueryFeedDataResponse) XXX_Size() int {
 	return m.Size()
 }
-func (m *QueryAllFeedDataResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_QueryAllFeedDataResponse.DiscardUnknown(m)
+func (m *QueryFeedDataResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryFeedDataResponse.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_QueryAllFeedDataResponse proto.InternalMessageInfo
+var xxx_messageInfo_QueryFeedDataResponse proto.InternalMessageInfo
 
-func (m *QueryAllFeedDataResponse) GetFeedData() []*MsgFeed {
+func (m *QueryFeedDataResponse) GetFeedData() []*MsgFeedData {
 	if m != nil {
 		return m.FeedData
 	}
 	return nil
 }
 
-func (m *QueryAllFeedDataResponse) GetPagination() *query.PageResponse {
+func (m *QueryFeedDataResponse) GetPagination() *query.PageResponse {
 	if m != nil {
 		return m.Pagination
 	}
@@ -134,38 +134,38 @@ func (m *QueryAllFeedDataResponse) GetPagination() *query.PageResponse {
 }
 
 func init() {
-	proto.RegisterType((*QueryAllFeedDataRequest)(nil), "chainlink.v1beta.QueryAllFeedDataRequest")
-	proto.RegisterType((*QueryAllFeedDataResponse)(nil), "chainlink.v1beta.QueryAllFeedDataResponse")
+	proto.RegisterType((*QueryFeedDataRequest)(nil), "chainlink.v1beta.QueryFeedDataRequest")
+	proto.RegisterType((*QueryFeedDataResponse)(nil), "chainlink.v1beta.QueryFeedDataResponse")
 }
 
 func init() { proto.RegisterFile("chainlink/v1beta/query.proto", fileDescriptor_21ba17f95e61a418) }
 
 var fileDescriptor_21ba17f95e61a418 = []byte{
-	// 370 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x8c, 0x92, 0x4f, 0x4b, 0x02, 0x41,
-	0x18, 0xc6, 0x1d, 0x23, 0xa9, 0xf1, 0x12, 0x73, 0xa8, 0xd5, 0x6c, 0x11, 0x83, 0x32, 0xa1, 0x19,
-	0x34, 0xa2, 0x73, 0x7f, 0x30, 0x3a, 0x04, 0xb9, 0xdd, 0xba, 0xcd, 0xea, 0xeb, 0xba, 0xb4, 0xee,
-	0xac, 0xce, 0x18, 0x4a, 0x74, 0xe9, 0xd6, 0x2d, 0xf0, 0xd6, 0x27, 0xea, 0x28, 0x74, 0xe9, 0x18,
-	0xda, 0x07, 0x89, 0x75, 0x16, 0x5d, 0xb2, 0xa8, 0xe3, 0xee, 0xf3, 0x3e, 0xcf, 0xf3, 0x9b, 0x77,
-	0x06, 0xe7, 0xea, 0x2d, 0xee, 0xfa, 0x9e, 0xeb, 0xdf, 0xb2, 0xbb, 0xb2, 0x0d, 0x8a, 0xb3, 0x4e,
-	0x0f, 0xba, 0x03, 0x1a, 0x74, 0x85, 0x12, 0x64, 0x6d, 0xa6, 0x52, 0xad, 0x66, 0x4b, 0x75, 0x21,
-	0xdb, 0x42, 0x32, 0x9b, 0x4b, 0xd0, 0xa3, 0x91, 0xaf, 0xcc, 0x02, 0xee, 0xb8, 0x3e, 0x57, 0xae,
-	0xf0, 0xb5, 0x3b, 0x9b, 0x59, 0xc8, 0x56, 0xfd, 0x48, 0xca, 0x39, 0x42, 0x38, 0x1e, 0x30, 0x1e,
-	0xb8, 0x8c, 0xfb, 0xbe, 0x50, 0x53, 0x9f, 0xd4, 0x6a, 0x61, 0x80, 0x37, 0x6a, 0x61, 0xf4, 0xb1,
-	0xe7, 0x55, 0x01, 0x1a, 0x67, 0x5c, 0x71, 0x0b, 0x3a, 0x3d, 0x90, 0x8a, 0xac, 0xe3, 0x54, 0x13,
-	0xa0, 0x71, 0xd1, 0x30, 0x50, 0x1e, 0x15, 0x57, 0xad, 0xe8, 0x8b, 0x54, 0x31, 0x9e, 0xf7, 0x1b,
-	0xc9, 0x3c, 0x2a, 0xa6, 0x2b, 0x3b, 0x54, 0xc3, 0xd2, 0x10, 0x96, 0xea, 0x73, 0x45, 0xb0, 0xf4,
-	0x8a, 0x3b, 0x10, 0x65, 0x5a, 0x31, 0x67, 0xe1, 0x05, 0x61, 0x63, 0xb1, 0x5b, 0x06, 0xc2, 0x97,
-	0x40, 0x0e, 0xf1, 0x4a, 0x33, 0xfa, 0x67, 0xa0, 0xfc, 0x52, 0x31, 0x5d, 0xc9, 0xd0, 0xef, 0x1b,
-	0xa2, 0x97, 0xd2, 0x09, 0x8d, 0xd6, 0x6c, 0x94, 0x9c, 0xff, 0xc0, 0xb6, 0xfb, 0x27, 0x9b, 0xee,
-	0x8c, 0xc3, 0x55, 0x86, 0x08, 0x2f, 0x4f, 0xe1, 0xc8, 0x13, 0xc2, 0xe9, 0x18, 0x21, 0xd9, 0x5b,
-	0xe4, 0xf8, 0x65, 0x83, 0xd9, 0xd2, 0x7f, 0x46, 0x75, 0x79, 0x61, 0xfb, 0xf1, 0xed, 0x73, 0x98,
-	0xdc, 0x22, 0x9b, 0x2c, 0x7e, 0x95, 0x2c, 0x3c, 0x19, 0xbb, 0xd7, 0x9b, 0x7f, 0x38, 0xa9, 0xbd,
-	0x8e, 0x4d, 0x34, 0x1a, 0x9b, 0xe8, 0x63, 0x6c, 0xa2, 0xe7, 0x89, 0x99, 0x18, 0x4d, 0xcc, 0xc4,
-	0xfb, 0xc4, 0x4c, 0xdc, 0x1c, 0x39, 0xae, 0x6a, 0xf5, 0x6c, 0x5a, 0x17, 0x6d, 0x76, 0x1a, 0x06,
-	0x5c, 0xf3, 0x26, 0xcc, 0xa3, 0xf6, 0xa3, 0xb7, 0xd4, 0x8f, 0xa5, 0xab, 0x41, 0x00, 0xd2, 0x4e,
-	0x4d, 0xdf, 0xc1, 0xc1, 0x57, 0x00, 0x00, 0x00, 0xff, 0xff, 0xfe, 0xfb, 0x07, 0x8a, 0x9e, 0x02,
-	0x00, 0x00,
+	// 375 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x84, 0x92, 0x41, 0x4b, 0x32, 0x41,
+	0x1c, 0xc6, 0x1d, 0x5f, 0x5e, 0x79, 0xdf, 0xb1, 0x43, 0x0c, 0x15, 0x26, 0xb6, 0x2c, 0x7b, 0xd0,
+	0x25, 0x68, 0x06, 0xed, 0x10, 0x5d, 0x4d, 0x0c, 0x0f, 0x41, 0xda, 0xad, 0xdb, 0xac, 0x3b, 0xae,
+	0x4b, 0xba, 0xb3, 0x3a, 0xa3, 0x28, 0xd1, 0xa5, 0x5b, 0xb7, 0xc0, 0x63, 0x5f, 0xa8, 0xa3, 0xd0,
+	0xa5, 0x63, 0x68, 0x1f, 0x24, 0xd6, 0x99, 0x74, 0x51, 0xc1, 0xe3, 0xee, 0xf3, 0x7f, 0x9e, 0xe7,
+	0x37, 0xff, 0x19, 0x98, 0x6b, 0xb6, 0xa9, 0x1f, 0x74, 0xfc, 0xe0, 0x81, 0x0c, 0x8b, 0x0e, 0x93,
+	0x94, 0xf4, 0x06, 0xac, 0x3f, 0xc6, 0x61, 0x9f, 0x4b, 0x8e, 0xf6, 0x97, 0x2a, 0x56, 0x6a, 0xf6,
+	0xb4, 0xc9, 0x45, 0x97, 0x0b, 0xe2, 0x50, 0xc1, 0xd4, 0xa8, 0xf6, 0x15, 0x49, 0x48, 0x3d, 0x3f,
+	0xa0, 0xd2, 0xe7, 0x81, 0x72, 0x67, 0x8f, 0x37, 0xb2, 0xe5, 0x48, 0x4b, 0x39, 0x8f, 0x73, 0xaf,
+	0xc3, 0x08, 0x0d, 0x7d, 0x42, 0x83, 0x80, 0xcb, 0x85, 0x4f, 0x28, 0xd5, 0x1a, 0xc2, 0x83, 0x7a,
+	0x14, 0x5d, 0x65, 0xcc, 0xad, 0x50, 0x49, 0x1b, 0xac, 0x37, 0x60, 0x42, 0xa2, 0x23, 0x98, 0x6a,
+	0x31, 0xe6, 0xd6, 0xdc, 0x0c, 0x30, 0x81, 0xfd, 0xbf, 0xa1, 0xbf, 0x50, 0x15, 0xc2, 0x55, 0x79,
+	0x26, 0x69, 0x02, 0x3b, 0x5d, 0xca, 0x63, 0x45, 0x8a, 0x23, 0x52, 0xac, 0x0e, 0xa5, 0x49, 0xf1,
+	0x2d, 0xf5, 0x98, 0xce, 0x6c, 0xc4, 0x9c, 0xd6, 0x1b, 0x80, 0x87, 0x6b, 0xc5, 0x22, 0xe4, 0x81,
+	0x60, 0xe8, 0x12, 0xfe, 0x6b, 0xe9, 0x7f, 0x19, 0x60, 0xfe, 0xb1, 0xd3, 0xa5, 0x13, 0xbc, 0xbe,
+	0x1b, 0x7c, 0x23, 0xbc, 0xa5, 0x71, 0x39, 0x8e, 0xae, 0xb7, 0xc0, 0x15, 0x76, 0xc2, 0xa9, 0xde,
+	0x38, 0x5d, 0x69, 0x02, 0xe0, 0xdf, 0x05, 0x1d, 0x7a, 0x01, 0x70, 0xef, 0xb7, 0xa9, 0x3c, 0xae,
+	0x55, 0x50, 0x7e, 0x13, 0x66, 0xdb, 0x02, 0xb3, 0x85, 0x9d, 0x73, 0xaa, 0xd7, 0xb2, 0x9f, 0x3f,
+	0xbe, 0x27, 0x49, 0x0b, 0x99, 0x24, 0x7e, 0x87, 0x24, 0x3a, 0x14, 0x71, 0xa9, 0xa4, 0xe4, 0x51,
+	0xad, 0xfe, 0xa9, 0x5c, 0x7f, 0x9f, 0x19, 0x60, 0x3a, 0x33, 0xc0, 0xd7, 0xcc, 0x00, 0xaf, 0x73,
+	0x23, 0x31, 0x9d, 0x1b, 0x89, 0xcf, 0xb9, 0x91, 0xb8, 0xbf, 0xf0, 0x7c, 0xd9, 0x1e, 0x38, 0xb8,
+	0xc9, 0xbb, 0xe4, 0x2a, 0x4a, 0xb9, 0xa3, 0x2d, 0xb6, 0xca, 0x3b, 0xd3, 0x2f, 0x69, 0x14, 0xab,
+	0x90, 0xe3, 0x90, 0x09, 0x27, 0xb5, 0x78, 0x05, 0xe7, 0x3f, 0x01, 0x00, 0x00, 0xff, 0xff, 0x9e,
+	0x25, 0x51, 0x76, 0x9c, 0x02, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -180,7 +180,7 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type QueryClient interface {
-	AllFeedData(ctx context.Context, in *QueryAllFeedDataRequest, opts ...grpc.CallOption) (*QueryAllFeedDataResponse, error)
+	FeedDataByID(ctx context.Context, in *QueryFeedDataRequest, opts ...grpc.CallOption) (*QueryFeedDataResponse, error)
 }
 
 type queryClient struct {
@@ -191,9 +191,9 @@ func NewQueryClient(cc grpc1.ClientConn) QueryClient {
 	return &queryClient{cc}
 }
 
-func (c *queryClient) AllFeedData(ctx context.Context, in *QueryAllFeedDataRequest, opts ...grpc.CallOption) (*QueryAllFeedDataResponse, error) {
-	out := new(QueryAllFeedDataResponse)
-	err := c.cc.Invoke(ctx, "/chainlink.v1beta.Query/AllFeedData", in, out, opts...)
+func (c *queryClient) FeedDataByID(ctx context.Context, in *QueryFeedDataRequest, opts ...grpc.CallOption) (*QueryFeedDataResponse, error) {
+	out := new(QueryFeedDataResponse)
+	err := c.cc.Invoke(ctx, "/chainlink.v1beta.Query/FeedDataByID", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -202,35 +202,35 @@ func (c *queryClient) AllFeedData(ctx context.Context, in *QueryAllFeedDataReque
 
 // QueryServer is the server API for Query service.
 type QueryServer interface {
-	AllFeedData(context.Context, *QueryAllFeedDataRequest) (*QueryAllFeedDataResponse, error)
+	FeedDataByID(context.Context, *QueryFeedDataRequest) (*QueryFeedDataResponse, error)
 }
 
 // UnimplementedQueryServer can be embedded to have forward compatible implementations.
 type UnimplementedQueryServer struct {
 }
 
-func (*UnimplementedQueryServer) AllFeedData(ctx context.Context, req *QueryAllFeedDataRequest) (*QueryAllFeedDataResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method AllFeedData not implemented")
+func (*UnimplementedQueryServer) FeedDataByID(ctx context.Context, req *QueryFeedDataRequest) (*QueryFeedDataResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method FeedDataByID not implemented")
 }
 
 func RegisterQueryServer(s grpc1.Server, srv QueryServer) {
 	s.RegisterService(&_Query_serviceDesc, srv)
 }
 
-func _Query_AllFeedData_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(QueryAllFeedDataRequest)
+func _Query_FeedDataByID_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryFeedDataRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(QueryServer).AllFeedData(ctx, in)
+		return srv.(QueryServer).FeedDataByID(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/chainlink.v1beta.Query/AllFeedData",
+		FullMethod: "/chainlink.v1beta.Query/FeedDataByID",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueryServer).AllFeedData(ctx, req.(*QueryAllFeedDataRequest))
+		return srv.(QueryServer).FeedDataByID(ctx, req.(*QueryFeedDataRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -240,15 +240,15 @@ var _Query_serviceDesc = grpc.ServiceDesc{
 	HandlerType: (*QueryServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "AllFeedData",
-			Handler:    _Query_AllFeedData_Handler,
+			MethodName: "FeedDataByID",
+			Handler:    _Query_FeedDataByID_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
 	Metadata: "chainlink/v1beta/query.proto",
 }
 
-func (m *QueryAllFeedDataRequest) Marshal() (dAtA []byte, err error) {
+func (m *QueryFeedDataRequest) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -258,12 +258,12 @@ func (m *QueryAllFeedDataRequest) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *QueryAllFeedDataRequest) MarshalTo(dAtA []byte) (int, error) {
+func (m *QueryFeedDataRequest) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *QueryAllFeedDataRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *QueryFeedDataRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -290,7 +290,7 @@ func (m *QueryAllFeedDataRequest) MarshalToSizedBuffer(dAtA []byte) (int, error)
 	return len(dAtA) - i, nil
 }
 
-func (m *QueryAllFeedDataResponse) Marshal() (dAtA []byte, err error) {
+func (m *QueryFeedDataResponse) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -300,12 +300,12 @@ func (m *QueryAllFeedDataResponse) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *QueryAllFeedDataResponse) MarshalTo(dAtA []byte) (int, error) {
+func (m *QueryFeedDataResponse) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *QueryAllFeedDataResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *QueryFeedDataResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -350,7 +350,7 @@ func encodeVarintQuery(dAtA []byte, offset int, v uint64) int {
 	dAtA[offset] = uint8(v)
 	return base
 }
-func (m *QueryAllFeedDataRequest) Size() (n int) {
+func (m *QueryFeedDataRequest) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -367,7 +367,7 @@ func (m *QueryAllFeedDataRequest) Size() (n int) {
 	return n
 }
 
-func (m *QueryAllFeedDataResponse) Size() (n int) {
+func (m *QueryFeedDataResponse) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -392,7 +392,7 @@ func sovQuery(x uint64) (n int) {
 func sozQuery(x uint64) (n int) {
 	return sovQuery(uint64((x << 1) ^ uint64((int64(x) >> 63))))
 }
-func (m *QueryAllFeedDataRequest) Unmarshal(dAtA []byte) error {
+func (m *QueryFeedDataRequest) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -415,10 +415,10 @@ func (m *QueryAllFeedDataRequest) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: QueryAllFeedDataRequest: wiretype end group for non-group")
+			return fmt.Errorf("proto: QueryFeedDataRequest: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: QueryAllFeedDataRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: QueryFeedDataRequest: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
@@ -513,7 +513,7 @@ func (m *QueryAllFeedDataRequest) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *QueryAllFeedDataResponse) Unmarshal(dAtA []byte) error {
+func (m *QueryFeedDataResponse) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -536,10 +536,10 @@ func (m *QueryAllFeedDataResponse) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: QueryAllFeedDataResponse: wiretype end group for non-group")
+			return fmt.Errorf("proto: QueryFeedDataResponse: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: QueryAllFeedDataResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: QueryFeedDataResponse: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
@@ -571,7 +571,7 @@ func (m *QueryAllFeedDataResponse) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.FeedData = append(m.FeedData, &MsgFeed{})
+			m.FeedData = append(m.FeedData, &MsgFeedData{})
 			if err := m.FeedData[len(m.FeedData)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}

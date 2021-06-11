@@ -7,15 +7,14 @@ import (
 )
 
 func RegisterCodec(cdc *codec.LegacyAmino) {
-	cdc.RegisterConcrete(MsgFeed{}, "chainlink/CreateFeed", nil)
+	cdc.RegisterConcrete(MsgFeedData{}, "chainlink/SubmitFeedData", nil)
 }
 
 func RegisterInterfaces(registry cdctypes.InterfaceRegistry) {
-	registry.RegisterImplementations((*sdk.Msg)(nil), &MsgFeed{})
+	registry.RegisterImplementations((*sdk.Msg)(nil), &MsgFeedData{})
 }
 
 var (
-	// nolint
 	amino     = codec.NewLegacyAmino()
 	ModuleCdc = codec.NewAminoCodec(amino)
 )
