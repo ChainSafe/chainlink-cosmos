@@ -1,5 +1,5 @@
 syntax = "proto3";
-package ChainSafe.chainlink.chainlink;
+package chainlink.v1beta;
 
 // this line is used by starport scaffolding # genesis/proto/import
 

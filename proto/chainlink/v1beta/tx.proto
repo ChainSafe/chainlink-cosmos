@@ -1,7 +1,7 @@
 syntax = "proto3";
-package ChainSafe.chainlink.chainlink;
+package chainlink.v1beta;
 
-// this line is used by starport scaffolding # proto/tx/import
+import "gogoproto/gogo.proto";
 
 option go_package = "github.com/ChainSafe/chainlink-cosmos/x/chainlink/types";
 
@@ -10,4 +10,8 @@ service Msg {
     // this line is used by starport scaffolding # proto/tx/rpc
 }
 
-// this line is used by starport scaffolding # proto/tx/message
+message MsgFeedData {
+  string feedId = 1;
+  bytes submitter = 2 [(gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"];
+  string feedData = 3;
+}

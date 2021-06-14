@@ -8,20 +8,20 @@ import (
 )
 
 const (
-	MethodGet = "GET"
+	MethodGet  = "GET"
+	MethodPOST = "POST"
 )
 
 // RegisterRoutes registers blog-related REST handlers to a router
 func RegisterRoutes(clientCtx client.Context, r *mux.Router) {
-	// this line is used by starport scaffolding # 2
+	registerQueryRoutes(clientCtx, r)
+	registerTxHandlers(clientCtx, r)
 }
 
-// nolint
 func registerQueryRoutes(clientCtx client.Context, r *mux.Router) {
-	// this line is used by starport scaffolding # 3
+	r.HandleFunc("chainlink/feed/data/{feedId}", listFeedDataHandler(clientCtx)).Methods(MethodGet)
 }
 
-// nolint
 func registerTxHandlers(clientCtx client.Context, r *mux.Router) {
-	// this line is used by starport scaffolding # 4
+	r.Handle("chainlink/feed/data", createFeedHandler(clientCtx)).Methods(MethodPOST)
 }
