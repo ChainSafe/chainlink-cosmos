@@ -17,11 +17,14 @@ func CmdSubmitFeed() *cobra.Command {
 			argsFeedId := args[0]
 			argsFeedData := args[1]
 
-			clientCtx := client.GetClientContextFromCmd(cmd)
-			clientCtx, err := client.ReadPersistentCommandFlags(clientCtx, cmd.Flags())
+			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
 				return err
 			}
+
+			//fmt.Printf("%+v\n", clientCtx)
+			//fmt.Println("////", argsFeedId)
+			//fmt.Println("////", argsFeedData)
 
 			msg := types.NewMsgFeed(clientCtx.GetFromAddress(), argsFeedId, argsFeedData)
 			if err := msg.ValidateBasic(); err != nil {

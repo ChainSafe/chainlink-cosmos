@@ -28,7 +28,7 @@ func (m *MsgFeedData) Type() string {
 }
 
 func (m *MsgFeedData) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{m.Submitter}
+	return []sdk.AccAddress{sdk.AccAddress(m.Submitter)}
 }
 
 func (m *MsgFeedData) GetSignBytes() []byte {
