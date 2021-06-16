@@ -1,7 +1,6 @@
 package rest
 
 import (
-	"context"
 	"fmt"
 	"net/http"
 
@@ -11,31 +10,18 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func listFeedDataHandler(clientCtx client.Context) http.HandlerFunc {
+func listFeedDataByFeedIdHandler(clientCtx client.Context) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		feedId := vars["feedId"]
 
-		fmt.Println("???????", feedId)
-
-		params := &types.QueryFeedDataRequest{
-			FeedId:     feedId,
-			Pagination: nil,
-		}
-
-		queryClient := types.NewQueryClient(clientCtx)
-		res, err := queryClient.FeedDataByID(context.Background(), params)
+		res, height, err := clientCtx.QueryWithData(fmt.Sprintf("custom/%s/%s/%s", types.StoreKey, types.QueryFeedData, feedId), nil)
 		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusNotFound, err.Error())
 			return
 		}
 
-		//res, height, err := clientCtx.QueryWithData(fmt.Sprintf("%s/list-feedData", types.QuerierRoute), nil)
-		//if err != nil {
-		//	rest.WriteErrorResponse(w, http.StatusNotFound, err.Error())
-		//	return
-		//}
-
-		//clientCtx = clientCtx.WithHeight(height)
+		clientCtx = clientCtx.WithHeight(height)
 		rest.PostProcessResponse(w, clientCtx, res)
 	}
 }
