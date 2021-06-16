@@ -29,23 +29,24 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-type QueryFeedDataRequest struct {
+type GetRoundDataRequest struct {
 	FeedId     string             `protobuf:"bytes,1,opt,name=feedId,proto3" json:"feedId,omitempty"`
-	Pagination *query.PageRequest `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
+	RoundId    uint64             `protobuf:"varint,2,opt,name=roundId,proto3" json:"roundId,omitempty"`
+	Pagination *query.PageRequest `protobuf:"bytes,3,opt,name=pagination,proto3" json:"pagination,omitempty"`
 }
 
-func (m *QueryFeedDataRequest) Reset()         { *m = QueryFeedDataRequest{} }
-func (m *QueryFeedDataRequest) String() string { return proto.CompactTextString(m) }
-func (*QueryFeedDataRequest) ProtoMessage()    {}
-func (*QueryFeedDataRequest) Descriptor() ([]byte, []int) {
+func (m *GetRoundDataRequest) Reset()         { *m = GetRoundDataRequest{} }
+func (m *GetRoundDataRequest) String() string { return proto.CompactTextString(m) }
+func (*GetRoundDataRequest) ProtoMessage()    {}
+func (*GetRoundDataRequest) Descriptor() ([]byte, []int) {
 	return fileDescriptor_21ba17f95e61a418, []int{0}
 }
-func (m *QueryFeedDataRequest) XXX_Unmarshal(b []byte) error {
+func (m *GetRoundDataRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *QueryFeedDataRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *GetRoundDataRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_QueryFeedDataRequest.Marshal(b, m, deterministic)
+		return xxx_messageInfo_GetRoundDataRequest.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -55,49 +56,56 @@ func (m *QueryFeedDataRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte
 		return b[:n], nil
 	}
 }
-func (m *QueryFeedDataRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_QueryFeedDataRequest.Merge(m, src)
+func (m *GetRoundDataRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GetRoundDataRequest.Merge(m, src)
 }
-func (m *QueryFeedDataRequest) XXX_Size() int {
+func (m *GetRoundDataRequest) XXX_Size() int {
 	return m.Size()
 }
-func (m *QueryFeedDataRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_QueryFeedDataRequest.DiscardUnknown(m)
+func (m *GetRoundDataRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_GetRoundDataRequest.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_QueryFeedDataRequest proto.InternalMessageInfo
+var xxx_messageInfo_GetRoundDataRequest proto.InternalMessageInfo
 
-func (m *QueryFeedDataRequest) GetFeedId() string {
+func (m *GetRoundDataRequest) GetFeedId() string {
 	if m != nil {
 		return m.FeedId
 	}
 	return ""
 }
 
-func (m *QueryFeedDataRequest) GetPagination() *query.PageRequest {
+func (m *GetRoundDataRequest) GetRoundId() uint64 {
+	if m != nil {
+		return m.RoundId
+	}
+	return 0
+}
+
+func (m *GetRoundDataRequest) GetPagination() *query.PageRequest {
 	if m != nil {
 		return m.Pagination
 	}
 	return nil
 }
 
-type QueryFeedDataResponse struct {
-	FeedData   []*MsgFeedData      `protobuf:"bytes,1,rep,name=feedData,proto3" json:"feedData,omitempty"`
+type GetRoundDataResponse struct {
+	RoundData  []*RoundData        `protobuf:"bytes,1,rep,name=roundData,proto3" json:"roundData,omitempty"`
 	Pagination *query.PageResponse `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
 }
 
-func (m *QueryFeedDataResponse) Reset()         { *m = QueryFeedDataResponse{} }
-func (m *QueryFeedDataResponse) String() string { return proto.CompactTextString(m) }
-func (*QueryFeedDataResponse) ProtoMessage()    {}
-func (*QueryFeedDataResponse) Descriptor() ([]byte, []int) {
+func (m *GetRoundDataResponse) Reset()         { *m = GetRoundDataResponse{} }
+func (m *GetRoundDataResponse) String() string { return proto.CompactTextString(m) }
+func (*GetRoundDataResponse) ProtoMessage()    {}
+func (*GetRoundDataResponse) Descriptor() ([]byte, []int) {
 	return fileDescriptor_21ba17f95e61a418, []int{1}
 }
-func (m *QueryFeedDataResponse) XXX_Unmarshal(b []byte) error {
+func (m *GetRoundDataResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *QueryFeedDataResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *GetRoundDataResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_QueryFeedDataResponse.Marshal(b, m, deterministic)
+		return xxx_messageInfo_GetRoundDataResponse.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -107,65 +115,215 @@ func (m *QueryFeedDataResponse) XXX_Marshal(b []byte, deterministic bool) ([]byt
 		return b[:n], nil
 	}
 }
-func (m *QueryFeedDataResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_QueryFeedDataResponse.Merge(m, src)
+func (m *GetRoundDataResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GetRoundDataResponse.Merge(m, src)
 }
-func (m *QueryFeedDataResponse) XXX_Size() int {
+func (m *GetRoundDataResponse) XXX_Size() int {
 	return m.Size()
 }
-func (m *QueryFeedDataResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_QueryFeedDataResponse.DiscardUnknown(m)
+func (m *GetRoundDataResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_GetRoundDataResponse.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_QueryFeedDataResponse proto.InternalMessageInfo
+var xxx_messageInfo_GetRoundDataResponse proto.InternalMessageInfo
 
-func (m *QueryFeedDataResponse) GetFeedData() []*MsgFeedData {
+func (m *GetRoundDataResponse) GetRoundData() []*RoundData {
 	if m != nil {
-		return m.FeedData
+		return m.RoundData
 	}
 	return nil
 }
 
-func (m *QueryFeedDataResponse) GetPagination() *query.PageResponse {
+func (m *GetRoundDataResponse) GetPagination() *query.PageResponse {
 	if m != nil {
 		return m.Pagination
 	}
 	return nil
 }
 
+type GetLatestRoundDataRequest struct {
+	FeedId string `protobuf:"bytes,1,opt,name=feedId,proto3" json:"feedId,omitempty"`
+}
+
+func (m *GetLatestRoundDataRequest) Reset()         { *m = GetLatestRoundDataRequest{} }
+func (m *GetLatestRoundDataRequest) String() string { return proto.CompactTextString(m) }
+func (*GetLatestRoundDataRequest) ProtoMessage()    {}
+func (*GetLatestRoundDataRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_21ba17f95e61a418, []int{2}
+}
+func (m *GetLatestRoundDataRequest) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *GetLatestRoundDataRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_GetLatestRoundDataRequest.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *GetLatestRoundDataRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GetLatestRoundDataRequest.Merge(m, src)
+}
+func (m *GetLatestRoundDataRequest) XXX_Size() int {
+	return m.Size()
+}
+func (m *GetLatestRoundDataRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_GetLatestRoundDataRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_GetLatestRoundDataRequest proto.InternalMessageInfo
+
+func (m *GetLatestRoundDataRequest) GetFeedId() string {
+	if m != nil {
+		return m.FeedId
+	}
+	return ""
+}
+
+type GetLatestRoundDataResponse struct {
+	RoundData []*RoundData `protobuf:"bytes,1,rep,name=roundData,proto3" json:"roundData,omitempty"`
+}
+
+func (m *GetLatestRoundDataResponse) Reset()         { *m = GetLatestRoundDataResponse{} }
+func (m *GetLatestRoundDataResponse) String() string { return proto.CompactTextString(m) }
+func (*GetLatestRoundDataResponse) ProtoMessage()    {}
+func (*GetLatestRoundDataResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_21ba17f95e61a418, []int{3}
+}
+func (m *GetLatestRoundDataResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *GetLatestRoundDataResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_GetLatestRoundDataResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *GetLatestRoundDataResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GetLatestRoundDataResponse.Merge(m, src)
+}
+func (m *GetLatestRoundDataResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *GetLatestRoundDataResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_GetLatestRoundDataResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_GetLatestRoundDataResponse proto.InternalMessageInfo
+
+func (m *GetLatestRoundDataResponse) GetRoundData() []*RoundData {
+	if m != nil {
+		return m.RoundData
+	}
+	return nil
+}
+
+type RoundData struct {
+	FeedId   string         `protobuf:"bytes,1,opt,name=feedId,proto3" json:"feedId,omitempty"`
+	FeedData *OCRAbiEncoded `protobuf:"bytes,2,opt,name=feedData,proto3" json:"feedData,omitempty"`
+}
+
+func (m *RoundData) Reset()         { *m = RoundData{} }
+func (m *RoundData) String() string { return proto.CompactTextString(m) }
+func (*RoundData) ProtoMessage()    {}
+func (*RoundData) Descriptor() ([]byte, []int) {
+	return fileDescriptor_21ba17f95e61a418, []int{4}
+}
+func (m *RoundData) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *RoundData) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_RoundData.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *RoundData) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RoundData.Merge(m, src)
+}
+func (m *RoundData) XXX_Size() int {
+	return m.Size()
+}
+func (m *RoundData) XXX_DiscardUnknown() {
+	xxx_messageInfo_RoundData.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_RoundData proto.InternalMessageInfo
+
+func (m *RoundData) GetFeedId() string {
+	if m != nil {
+		return m.FeedId
+	}
+	return ""
+}
+
+func (m *RoundData) GetFeedData() *OCRAbiEncoded {
+	if m != nil {
+		return m.FeedData
+	}
+	return nil
+}
+
 func init() {
-	proto.RegisterType((*QueryFeedDataRequest)(nil), "chainlink.v1beta.QueryFeedDataRequest")
-	proto.RegisterType((*QueryFeedDataResponse)(nil), "chainlink.v1beta.QueryFeedDataResponse")
+	proto.RegisterType((*GetRoundDataRequest)(nil), "chainlink.v1beta.GetRoundDataRequest")
+	proto.RegisterType((*GetRoundDataResponse)(nil), "chainlink.v1beta.GetRoundDataResponse")
+	proto.RegisterType((*GetLatestRoundDataRequest)(nil), "chainlink.v1beta.GetLatestRoundDataRequest")
+	proto.RegisterType((*GetLatestRoundDataResponse)(nil), "chainlink.v1beta.GetLatestRoundDataResponse")
+	proto.RegisterType((*RoundData)(nil), "chainlink.v1beta.RoundData")
 }
 
 func init() { proto.RegisterFile("chainlink/v1beta/query.proto", fileDescriptor_21ba17f95e61a418) }
 
 var fileDescriptor_21ba17f95e61a418 = []byte{
-	// 375 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x84, 0x92, 0x41, 0x4b, 0x32, 0x41,
-	0x1c, 0xc6, 0x1d, 0x5f, 0x5e, 0x79, 0xdf, 0xb1, 0x43, 0x0c, 0x15, 0x26, 0xb6, 0x2c, 0x7b, 0xd0,
-	0x25, 0x68, 0x06, 0xed, 0x10, 0x5d, 0x4d, 0x0c, 0x0f, 0x41, 0xda, 0xad, 0xdb, 0xac, 0x3b, 0xae,
-	0x4b, 0xba, 0xb3, 0x3a, 0xa3, 0x28, 0xd1, 0xa5, 0x5b, 0xb7, 0xc0, 0x63, 0x5f, 0xa8, 0xa3, 0xd0,
-	0xa5, 0x63, 0x68, 0x1f, 0x24, 0xd6, 0x99, 0x74, 0x51, 0xc1, 0xe3, 0xee, 0xf3, 0x7f, 0x9e, 0xe7,
-	0x37, 0xff, 0x19, 0x98, 0x6b, 0xb6, 0xa9, 0x1f, 0x74, 0xfc, 0xe0, 0x81, 0x0c, 0x8b, 0x0e, 0x93,
-	0x94, 0xf4, 0x06, 0xac, 0x3f, 0xc6, 0x61, 0x9f, 0x4b, 0x8e, 0xf6, 0x97, 0x2a, 0x56, 0x6a, 0xf6,
-	0xb4, 0xc9, 0x45, 0x97, 0x0b, 0xe2, 0x50, 0xc1, 0xd4, 0xa8, 0xf6, 0x15, 0x49, 0x48, 0x3d, 0x3f,
-	0xa0, 0xd2, 0xe7, 0x81, 0x72, 0x67, 0x8f, 0x37, 0xb2, 0xe5, 0x48, 0x4b, 0x39, 0x8f, 0x73, 0xaf,
-	0xc3, 0x08, 0x0d, 0x7d, 0x42, 0x83, 0x80, 0xcb, 0x85, 0x4f, 0x28, 0xd5, 0x1a, 0xc2, 0x83, 0x7a,
-	0x14, 0x5d, 0x65, 0xcc, 0xad, 0x50, 0x49, 0x1b, 0xac, 0x37, 0x60, 0x42, 0xa2, 0x23, 0x98, 0x6a,
-	0x31, 0xe6, 0xd6, 0xdc, 0x0c, 0x30, 0x81, 0xfd, 0xbf, 0xa1, 0xbf, 0x50, 0x15, 0xc2, 0x55, 0x79,
-	0x26, 0x69, 0x02, 0x3b, 0x5d, 0xca, 0x63, 0x45, 0x8a, 0x23, 0x52, 0xac, 0x0e, 0xa5, 0x49, 0xf1,
-	0x2d, 0xf5, 0x98, 0xce, 0x6c, 0xc4, 0x9c, 0xd6, 0x1b, 0x80, 0x87, 0x6b, 0xc5, 0x22, 0xe4, 0x81,
-	0x60, 0xe8, 0x12, 0xfe, 0x6b, 0xe9, 0x7f, 0x19, 0x60, 0xfe, 0xb1, 0xd3, 0xa5, 0x13, 0xbc, 0xbe,
-	0x1b, 0x7c, 0x23, 0xbc, 0xa5, 0x71, 0x39, 0x8e, 0xae, 0xb7, 0xc0, 0x15, 0x76, 0xc2, 0xa9, 0xde,
-	0x38, 0x5d, 0x69, 0x02, 0xe0, 0xdf, 0x05, 0x1d, 0x7a, 0x01, 0x70, 0xef, 0xb7, 0xa9, 0x3c, 0xae,
-	0x55, 0x50, 0x7e, 0x13, 0x66, 0xdb, 0x02, 0xb3, 0x85, 0x9d, 0x73, 0xaa, 0xd7, 0xb2, 0x9f, 0x3f,
-	0xbe, 0x27, 0x49, 0x0b, 0x99, 0x24, 0x7e, 0x87, 0x24, 0x3a, 0x14, 0x71, 0xa9, 0xa4, 0xe4, 0x51,
-	0xad, 0xfe, 0xa9, 0x5c, 0x7f, 0x9f, 0x19, 0x60, 0x3a, 0x33, 0xc0, 0xd7, 0xcc, 0x00, 0xaf, 0x73,
-	0x23, 0x31, 0x9d, 0x1b, 0x89, 0xcf, 0xb9, 0x91, 0xb8, 0xbf, 0xf0, 0x7c, 0xd9, 0x1e, 0x38, 0xb8,
-	0xc9, 0xbb, 0xe4, 0x2a, 0x4a, 0xb9, 0xa3, 0x2d, 0xb6, 0xca, 0x3b, 0xd3, 0x2f, 0x69, 0x14, 0xab,
-	0x90, 0xe3, 0x90, 0x09, 0x27, 0xb5, 0x78, 0x05, 0xe7, 0x3f, 0x01, 0x00, 0x00, 0xff, 0xff, 0x9e,
-	0x25, 0x51, 0x76, 0x9c, 0x02, 0x00, 0x00,
+	// 494 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xa4, 0x93, 0x41, 0x6b, 0xd4, 0x40,
+	0x14, 0xc7, 0x77, 0xb6, 0x5a, 0xdd, 0xa9, 0xa0, 0x8c, 0x22, 0x69, 0x2c, 0x71, 0x09, 0xba, 0x2e,
+	0xda, 0xce, 0xd0, 0x2d, 0x22, 0xe2, 0x49, 0xab, 0x2e, 0x05, 0x41, 0x1b, 0x0f, 0x82, 0x27, 0x27,
+	0xc9, 0x34, 0x0d, 0x6e, 0x67, 0xd2, 0xcc, 0x44, 0x5a, 0x4a, 0x2f, 0x7e, 0x01, 0x05, 0x3d, 0xf5,
+	0xab, 0xf8, 0x05, 0x3c, 0x16, 0xbc, 0x78, 0x94, 0x5d, 0x3f, 0x88, 0x24, 0x33, 0x4d, 0x76, 0xbb,
+	0x91, 0x2e, 0xf4, 0x96, 0xcc, 0x7b, 0xff, 0xf7, 0x7e, 0xff, 0x37, 0x6f, 0xe0, 0x52, 0xb0, 0x4d,
+	0x63, 0x3e, 0x88, 0xf9, 0x47, 0xf2, 0x69, 0xd5, 0x67, 0x8a, 0x92, 0xdd, 0x8c, 0xa5, 0xfb, 0x38,
+	0x49, 0x85, 0x12, 0xe8, 0x5a, 0x19, 0xc5, 0x3a, 0x6a, 0xdf, 0x0f, 0x84, 0xdc, 0x11, 0x92, 0xf8,
+	0x54, 0x32, 0x9d, 0x6a, 0x74, 0xab, 0x24, 0xa1, 0x51, 0xcc, 0xa9, 0x8a, 0x05, 0xd7, 0x6a, 0x7b,
+	0x71, 0xaa, 0xb6, 0xda, 0x33, 0xa1, 0xa5, 0x48, 0x88, 0x68, 0xc0, 0x08, 0x4d, 0x62, 0x42, 0x39,
+	0x17, 0xaa, 0xd0, 0x49, 0x1d, 0x75, 0xbf, 0x00, 0x78, 0xbd, 0xcf, 0x94, 0x27, 0x32, 0x1e, 0x3e,
+	0xa7, 0x8a, 0x7a, 0x6c, 0x37, 0x63, 0x52, 0xa1, 0x9b, 0x70, 0x7e, 0x8b, 0xb1, 0x70, 0x23, 0xb4,
+	0x40, 0x1b, 0x74, 0x5b, 0x9e, 0xf9, 0x43, 0x16, 0xbc, 0x94, 0xe6, 0xb9, 0x1b, 0xa1, 0xd5, 0x6c,
+	0x83, 0xee, 0x05, 0xef, 0xe4, 0x17, 0xbd, 0x84, 0xb0, 0xc2, 0xb2, 0xe6, 0xda, 0xa0, 0xbb, 0xd0,
+	0xeb, 0x60, 0xed, 0x01, 0xe7, 0x1e, 0xb0, 0xb6, 0x6b, 0x3c, 0xe0, 0x37, 0x34, 0x62, 0xa6, 0x9b,
+	0x37, 0xa6, 0x74, 0x8f, 0x00, 0xbc, 0x31, 0x49, 0x24, 0x13, 0xc1, 0x25, 0x43, 0x8f, 0x61, 0x2b,
+	0x3d, 0x39, 0xb4, 0x40, 0x7b, 0xae, 0xbb, 0xd0, 0xbb, 0x85, 0x4f, 0x4f, 0x0d, 0x57, 0xba, 0x2a,
+	0x1b, 0xf5, 0x27, 0xd8, 0x9a, 0x05, 0xdb, 0xbd, 0x33, 0xd9, 0x74, 0xdf, 0x09, 0xb8, 0x35, 0xb8,
+	0xd8, 0x67, 0xea, 0x15, 0x55, 0x39, 0xf5, 0x8c, 0x33, 0x73, 0xdf, 0x41, 0xbb, 0x4e, 0x74, 0x6e,
+	0x5b, 0xee, 0x07, 0xd8, 0x2a, 0xcf, 0xff, 0x7b, 0x63, 0x4f, 0xe0, 0xe5, 0xfc, 0xab, 0x28, 0xaf,
+	0x9d, 0xdf, 0x9e, 0x2e, 0xff, 0x7a, 0xdd, 0x7b, 0xea, 0xc7, 0x2f, 0x78, 0x20, 0x42, 0x16, 0x7a,
+	0xa5, 0xa0, 0xf7, 0xa3, 0x09, 0x2f, 0x6e, 0xe6, 0xa3, 0x41, 0xdf, 0x01, 0xbc, 0x32, 0x7e, 0x2d,
+	0xe8, 0xee, 0x74, 0x95, 0x9a, 0x45, 0xb2, 0x3b, 0x67, 0xa5, 0xe9, 0x31, 0xb8, 0x0f, 0x3f, 0xff,
+	0xfa, 0xfb, 0xad, 0x49, 0xd0, 0x0a, 0xa9, 0x56, 0x39, 0xc7, 0x20, 0x21, 0x55, 0x94, 0x14, 0x9e,
+	0xc9, 0x81, 0xd9, 0xb5, 0x43, 0x72, 0xa0, 0xcd, 0x1d, 0xa2, 0x23, 0x00, 0xaf, 0x9e, 0x9a, 0x2c,
+	0x7a, 0x50, 0xdb, 0xb2, 0xfe, 0xd2, 0xec, 0xe5, 0xd9, 0x92, 0x0d, 0xe5, 0x72, 0x41, 0xd9, 0x41,
+	0x77, 0x6a, 0x29, 0x07, 0x85, 0xaa, 0x84, 0x7b, 0xb6, 0xf9, 0x73, 0xe8, 0x80, 0xe3, 0xa1, 0x03,
+	0xfe, 0x0c, 0x1d, 0xf0, 0x75, 0xe4, 0x34, 0x8e, 0x47, 0x4e, 0xe3, 0xf7, 0xc8, 0x69, 0xbc, 0x7f,
+	0x14, 0xc5, 0x6a, 0x3b, 0xf3, 0x71, 0x20, 0x76, 0xc8, 0x7a, 0x5e, 0xe9, 0x2d, 0xdd, 0x62, 0x55,
+	0xcd, 0x15, 0xf3, 0xf4, 0xf7, 0xc6, 0xda, 0xa8, 0xfd, 0x84, 0x49, 0x7f, 0xbe, 0x78, 0xb6, 0x6b,
+	0xff, 0x02, 0x00, 0x00, 0xff, 0xff, 0x9b, 0xb4, 0xd6, 0xea, 0x4d, 0x04, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -180,7 +338,8 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type QueryClient interface {
-	FeedDataByID(ctx context.Context, in *QueryFeedDataRequest, opts ...grpc.CallOption) (*QueryFeedDataResponse, error)
+	GetRoundData(ctx context.Context, in *GetRoundDataRequest, opts ...grpc.CallOption) (*GetRoundDataResponse, error)
+	LatestRoundData(ctx context.Context, in *GetLatestRoundDataRequest, opts ...grpc.CallOption) (*GetLatestRoundDataResponse, error)
 }
 
 type queryClient struct {
@@ -191,9 +350,18 @@ func NewQueryClient(cc grpc1.ClientConn) QueryClient {
 	return &queryClient{cc}
 }
 
-func (c *queryClient) FeedDataByID(ctx context.Context, in *QueryFeedDataRequest, opts ...grpc.CallOption) (*QueryFeedDataResponse, error) {
-	out := new(QueryFeedDataResponse)
-	err := c.cc.Invoke(ctx, "/chainlink.v1beta.Query/FeedDataByID", in, out, opts...)
+func (c *queryClient) GetRoundData(ctx context.Context, in *GetRoundDataRequest, opts ...grpc.CallOption) (*GetRoundDataResponse, error) {
+	out := new(GetRoundDataResponse)
+	err := c.cc.Invoke(ctx, "/chainlink.v1beta.Query/GetRoundData", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *queryClient) LatestRoundData(ctx context.Context, in *GetLatestRoundDataRequest, opts ...grpc.CallOption) (*GetLatestRoundDataResponse, error) {
+	out := new(GetLatestRoundDataResponse)
+	err := c.cc.Invoke(ctx, "/chainlink.v1beta.Query/LatestRoundData", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -202,35 +370,57 @@ func (c *queryClient) FeedDataByID(ctx context.Context, in *QueryFeedDataRequest
 
 // QueryServer is the server API for Query service.
 type QueryServer interface {
-	FeedDataByID(context.Context, *QueryFeedDataRequest) (*QueryFeedDataResponse, error)
+	GetRoundData(context.Context, *GetRoundDataRequest) (*GetRoundDataResponse, error)
+	LatestRoundData(context.Context, *GetLatestRoundDataRequest) (*GetLatestRoundDataResponse, error)
 }
 
 // UnimplementedQueryServer can be embedded to have forward compatible implementations.
 type UnimplementedQueryServer struct {
 }
 
-func (*UnimplementedQueryServer) FeedDataByID(ctx context.Context, req *QueryFeedDataRequest) (*QueryFeedDataResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method FeedDataByID not implemented")
+func (*UnimplementedQueryServer) GetRoundData(ctx context.Context, req *GetRoundDataRequest) (*GetRoundDataResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetRoundData not implemented")
+}
+func (*UnimplementedQueryServer) LatestRoundData(ctx context.Context, req *GetLatestRoundDataRequest) (*GetLatestRoundDataResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method LatestRoundData not implemented")
 }
 
 func RegisterQueryServer(s grpc1.Server, srv QueryServer) {
 	s.RegisterService(&_Query_serviceDesc, srv)
 }
 
-func _Query_FeedDataByID_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(QueryFeedDataRequest)
+func _Query_GetRoundData_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetRoundDataRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(QueryServer).FeedDataByID(ctx, in)
+		return srv.(QueryServer).GetRoundData(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/chainlink.v1beta.Query/FeedDataByID",
+		FullMethod: "/chainlink.v1beta.Query/GetRoundData",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueryServer).FeedDataByID(ctx, req.(*QueryFeedDataRequest))
+		return srv.(QueryServer).GetRoundData(ctx, req.(*GetRoundDataRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Query_LatestRoundData_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetLatestRoundDataRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(QueryServer).LatestRoundData(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/chainlink.v1beta.Query/LatestRoundData",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(QueryServer).LatestRoundData(ctx, req.(*GetLatestRoundDataRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -240,15 +430,19 @@ var _Query_serviceDesc = grpc.ServiceDesc{
 	HandlerType: (*QueryServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "FeedDataByID",
-			Handler:    _Query_FeedDataByID_Handler,
+			MethodName: "GetRoundData",
+			Handler:    _Query_GetRoundData_Handler,
+		},
+		{
+			MethodName: "LatestRoundData",
+			Handler:    _Query_LatestRoundData_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
 	Metadata: "chainlink/v1beta/query.proto",
 }
 
-func (m *QueryFeedDataRequest) Marshal() (dAtA []byte, err error) {
+func (m *GetRoundDataRequest) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -258,12 +452,12 @@ func (m *QueryFeedDataRequest) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *QueryFeedDataRequest) MarshalTo(dAtA []byte) (int, error) {
+func (m *GetRoundDataRequest) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *QueryFeedDataRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *GetRoundDataRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -271,6 +465,169 @@ func (m *QueryFeedDataRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	if m.Pagination != nil {
 		{
 			size, err := m.Pagination.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintQuery(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x1a
+	}
+	if m.RoundId != 0 {
+		i = encodeVarintQuery(dAtA, i, uint64(m.RoundId))
+		i--
+		dAtA[i] = 0x10
+	}
+	if len(m.FeedId) > 0 {
+		i -= len(m.FeedId)
+		copy(dAtA[i:], m.FeedId)
+		i = encodeVarintQuery(dAtA, i, uint64(len(m.FeedId)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *GetRoundDataResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *GetRoundDataResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *GetRoundDataResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.Pagination != nil {
+		{
+			size, err := m.Pagination.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintQuery(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.RoundData) > 0 {
+		for iNdEx := len(m.RoundData) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.RoundData[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintQuery(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0xa
+		}
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *GetLatestRoundDataRequest) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *GetLatestRoundDataRequest) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *GetLatestRoundDataRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.FeedId) > 0 {
+		i -= len(m.FeedId)
+		copy(dAtA[i:], m.FeedId)
+		i = encodeVarintQuery(dAtA, i, uint64(len(m.FeedId)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *GetLatestRoundDataResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *GetLatestRoundDataResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *GetLatestRoundDataResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.RoundData) > 0 {
+		for iNdEx := len(m.RoundData) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.RoundData[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintQuery(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0xa
+		}
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *RoundData) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *RoundData) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *RoundData) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.FeedData != nil {
+		{
+			size, err := m.FeedData.MarshalToSizedBuffer(dAtA[:i])
 			if err != nil {
 				return 0, err
 			}
@@ -290,55 +647,6 @@ func (m *QueryFeedDataRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *QueryFeedDataResponse) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *QueryFeedDataResponse) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *QueryFeedDataResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	if m.Pagination != nil {
-		{
-			size, err := m.Pagination.MarshalToSizedBuffer(dAtA[:i])
-			if err != nil {
-				return 0, err
-			}
-			i -= size
-			i = encodeVarintQuery(dAtA, i, uint64(size))
-		}
-		i--
-		dAtA[i] = 0x12
-	}
-	if len(m.FeedData) > 0 {
-		for iNdEx := len(m.FeedData) - 1; iNdEx >= 0; iNdEx-- {
-			{
-				size, err := m.FeedData[iNdEx].MarshalToSizedBuffer(dAtA[:i])
-				if err != nil {
-					return 0, err
-				}
-				i -= size
-				i = encodeVarintQuery(dAtA, i, uint64(size))
-			}
-			i--
-			dAtA[i] = 0xa
-		}
-	}
-	return len(dAtA) - i, nil
-}
-
 func encodeVarintQuery(dAtA []byte, offset int, v uint64) int {
 	offset -= sovQuery(v)
 	base := offset
@@ -350,7 +658,7 @@ func encodeVarintQuery(dAtA []byte, offset int, v uint64) int {
 	dAtA[offset] = uint8(v)
 	return base
 }
-func (m *QueryFeedDataRequest) Size() (n int) {
+func (m *GetRoundDataRequest) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -360,6 +668,9 @@ func (m *QueryFeedDataRequest) Size() (n int) {
 	if l > 0 {
 		n += 1 + l + sovQuery(uint64(l))
 	}
+	if m.RoundId != 0 {
+		n += 1 + sovQuery(uint64(m.RoundId))
+	}
 	if m.Pagination != nil {
 		l = m.Pagination.Size()
 		n += 1 + l + sovQuery(uint64(l))
@@ -367,14 +678,14 @@ func (m *QueryFeedDataRequest) Size() (n int) {
 	return n
 }
 
-func (m *QueryFeedDataResponse) Size() (n int) {
+func (m *GetRoundDataResponse) Size() (n int) {
 	if m == nil {
 		return 0
 	}
 	var l int
 	_ = l
-	if len(m.FeedData) > 0 {
-		for _, e := range m.FeedData {
+	if len(m.RoundData) > 0 {
+		for _, e := range m.RoundData {
 			l = e.Size()
 			n += 1 + l + sovQuery(uint64(l))
 		}
@@ -386,13 +697,58 @@ func (m *QueryFeedDataResponse) Size() (n int) {
 	return n
 }
 
+func (m *GetLatestRoundDataRequest) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.FeedId)
+	if l > 0 {
+		n += 1 + l + sovQuery(uint64(l))
+	}
+	return n
+}
+
+func (m *GetLatestRoundDataResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if len(m.RoundData) > 0 {
+		for _, e := range m.RoundData {
+			l = e.Size()
+			n += 1 + l + sovQuery(uint64(l))
+		}
+	}
+	return n
+}
+
+func (m *RoundData) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.FeedId)
+	if l > 0 {
+		n += 1 + l + sovQuery(uint64(l))
+	}
+	if m.FeedData != nil {
+		l = m.FeedData.Size()
+		n += 1 + l + sovQuery(uint64(l))
+	}
+	return n
+}
+
 func sovQuery(x uint64) (n int) {
 	return (math_bits.Len64(x|1) + 6) / 7
 }
 func sozQuery(x uint64) (n int) {
 	return sovQuery(uint64((x << 1) ^ uint64((int64(x) >> 63))))
 }
-func (m *QueryFeedDataRequest) Unmarshal(dAtA []byte) error {
+func (m *GetRoundDataRequest) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -415,10 +771,10 @@ func (m *QueryFeedDataRequest) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: QueryFeedDataRequest: wiretype end group for non-group")
+			return fmt.Errorf("proto: GetRoundDataRequest: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: QueryFeedDataRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: GetRoundDataRequest: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
@@ -454,6 +810,25 @@ func (m *QueryFeedDataRequest) Unmarshal(dAtA []byte) error {
 			m.FeedId = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		case 2:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field RoundId", wireType)
+			}
+			m.RoundId = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.RoundId |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 3:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Pagination", wireType)
 			}
@@ -510,7 +885,7 @@ func (m *QueryFeedDataRequest) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *QueryFeedDataResponse) Unmarshal(dAtA []byte) error {
+func (m *GetRoundDataResponse) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -533,15 +908,15 @@ func (m *QueryFeedDataResponse) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: QueryFeedDataResponse: wiretype end group for non-group")
+			return fmt.Errorf("proto: GetRoundDataResponse: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: QueryFeedDataResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: GetRoundDataResponse: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field FeedData", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field RoundData", wireType)
 			}
 			var msglen int
 			for shift := uint(0); ; shift += 7 {
@@ -568,8 +943,8 @@ func (m *QueryFeedDataResponse) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.FeedData = append(m.FeedData, &MsgFeedData{})
-			if err := m.FeedData[len(m.FeedData)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+			m.RoundData = append(m.RoundData, &RoundData{})
+			if err := m.RoundData[len(m.RoundData)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
@@ -606,6 +981,290 @@ func (m *QueryFeedDataResponse) Unmarshal(dAtA []byte) error {
 				m.Pagination = &query.PageResponse{}
 			}
 			if err := m.Pagination.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *GetLatestRoundDataRequest) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: GetLatestRoundDataRequest: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: GetLatestRoundDataRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field FeedId", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.FeedId = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *GetLatestRoundDataResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: GetLatestRoundDataResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: GetLatestRoundDataResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field RoundData", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.RoundData = append(m.RoundData, &RoundData{})
+			if err := m.RoundData[len(m.RoundData)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *RoundData) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: RoundData: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: RoundData: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field FeedId", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.FeedId = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field FeedData", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.FeedData == nil {
+				m.FeedData = &OCRAbiEncoded{}
+			}
+			if err := m.FeedData.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex

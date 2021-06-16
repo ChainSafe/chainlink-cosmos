@@ -7,11 +7,15 @@ import (
 )
 
 func handlerMsgSubmitFeedData(ctx sdk.Context, k keeper.Keeper, feedData *types.MsgFeedData) (*sdk.Result, error) {
-	k.SubmitFeedData(ctx, *feedData)
+	msgResult, err := k.SubmitFeedData(sdk.WrapSDKContext(ctx), feedData)
+	if err != nil {
+		return nil, err
+	}
 
-	return &sdk.Result{
-		Data:   nil,
-		Log:    "",
-		Events: ctx.EventManager().ABCIEvents(),
-	}, nil
+	result, err := sdk.WrapServiceResult(ctx, msgResult, err)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
 }
