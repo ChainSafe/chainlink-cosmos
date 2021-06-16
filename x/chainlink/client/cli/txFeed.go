@@ -22,10 +22,6 @@ func CmdSubmitFeed() *cobra.Command {
 				return err
 			}
 
-			//fmt.Printf("%+v\n", clientCtx)
-			//fmt.Println("////", argsFeedId)
-			//fmt.Println("////", argsFeedData)
-
 			msg := types.NewMsgFeed(clientCtx.GetFromAddress(), argsFeedId, argsFeedData)
 			if err := msg.ValidateBasic(); err != nil {
 				return err

@@ -1,14 +1,15 @@
 package rest
 
 import (
-	"github.com/gorilla/mux"
-
 	"github.com/cosmos/cosmos-sdk/client"
-	// this line is used by starport scaffolding # 1
+	clientrest "github.com/cosmos/cosmos-sdk/client/rest"
+	authrest "github.com/cosmos/cosmos-sdk/x/auth/client/rest"
+	"github.com/gorilla/mux"
 )
 
 const (
 	MethodGet  = "GET"
+	MethodPUT  = "PUT"
 	MethodPOST = "POST"
 )
 
@@ -18,10 +19,18 @@ func RegisterRoutes(clientCtx client.Context, r *mux.Router) {
 	registerTxHandlers(clientCtx, r)
 }
 
-func registerQueryRoutes(clientCtx client.Context, r *mux.Router) {
-	r.HandleFunc("chainlink/feed/data/{feedId}", listFeedDataHandler(clientCtx)).Methods(MethodGet)
+func registerQueryRoutes(clientCtx client.Context, rtr *mux.Router) {
+	r := clientrest.WithHTTPDeprecationHeaders(rtr)
+
+	r.HandleFunc("/chainlink/feed/data/{feedId}", listFeedDataByFeedIdHandler(clientCtx)).Methods(MethodGet) // query feed data by feedId
 }
 
-func registerTxHandlers(clientCtx client.Context, r *mux.Router) {
-	r.Handle("chainlink/feed/data", createFeedHandler(clientCtx)).Methods(MethodPOST)
+func registerTxHandlers(clientCtx client.Context, rtr *mux.Router) {
+	r := clientrest.WithHTTPDeprecationHeaders(rtr)
+
+	r.HandleFunc("/txs/encode", authrest.EncodeTxRequestHandlerFn(clientCtx)).Methods(MethodPOST)
+	r.HandleFunc("/txs/decode", authrest.DecodeTxRequestHandlerFn(clientCtx)).Methods(MethodPOST)
+	r.HandleFunc("/txs", authrest.BroadcastTxRequest(clientCtx)).Methods(MethodPOST)
+
+	r.Handle("/chainlink/feed/data", submitFeedDataHandler(clientCtx)).Methods(MethodPUT)
 }

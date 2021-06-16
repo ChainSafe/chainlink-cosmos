@@ -26,6 +26,9 @@ chainlinkd collect-gentxs
 # Make sure your genesis file is correct.
 chainlinkd validate-genesis
 
+# Replace app.toml API config to enable rest API server
+perl -0777 -i.original -pe 's/API server should be enabled.\nenable = false/API server should be enabled.\nenable = true/igs' ~/.chainlinkd/config/app.toml
+
 # Start chain
 chainlinkd start
 
