@@ -12,6 +12,22 @@ service Msg {
 
 message MsgFeedData {
   string feedId = 1;
-  bytes submitter = 2 [(gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"];
-  string feedData = 3;
+  bytes feedOwner = 2 [(gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"];
+  OCRAbiEncoded feedData = 3;
+}
+
+// this will be the implementation used later will use pseudo OCR ABI encoded data instead
+// because the structure of how the OCR will be generalized is still unknown
+// OCRAbiEncoded implments the OCR data that is ABCI encoded. The use and form will conform to the 
+// Chainlink protocol specification.
+message OCRAbiEncoded {
+  // Context should be a 32-byte array struct.
+  bytes Context = 1;
+  // Oracles should be a 32-byte record of all participating oracles.
+  bytes Oracles = 2;
+  // Observations should be an array on int192 containing the proviers' independent observations.
+  repeated bytes Observations = 3;
+  // Submitter is the Chainlink node address that has submitted the price feed data.
+  // The Submitter will be paid out the reward that has been set by the Feed Owner.
+  bytes Submitter = 4;
 }
