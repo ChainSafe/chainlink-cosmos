@@ -63,15 +63,6 @@ message OCRAbiEncoded {
   repeated Observation Observations = 3;
 }
 
-message ABC {
-  // Context should be a 32-byte array struct.
-  bytes Context = 1;
-  // Oracles should be a 32-byte record of all participating oracles. Assuming this is data provider address?
-  bytes Oracles = 2;
-  // Observations should be an array on int192 containing the providers' independent observations.
-  repeated Observation Observations = 3;
-}
-
 message Observation {
   bytes data = 1;
 }
