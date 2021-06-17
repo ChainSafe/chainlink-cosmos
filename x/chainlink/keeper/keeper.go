@@ -111,13 +111,30 @@ func (k Keeper) GetRoundFeedDataByFilter(ctx sdk.Context, req *types.GetRoundDat
 			return err
 		}
 
-		// TODO: filter out by feedId and roundId
+		feedRoundData = feedDataFilter(req.GetFeedId(), req.GetRoundId(), feedData)
 
-		roundData := types.RoundData{
-			FeedId:   feedData.GetFeedData().GetFeedId(),
-			FeedData: feedData.GetDeserializedOCRReport(),
-		}
-		feedRoundData = append(feedRoundData, &roundData)
+		//// filter result here
+		//requiredRound := req.GetRoundId()
+		//if feedData.GetRoundId() == requiredRound && req.GetFeedId() == feedData.GetFeedData().GetFeedId() {
+		//	roundData := types.RoundData{
+		//		FeedId:   feedData.GetFeedData().GetFeedId(),
+		//		FeedData: feedData.GetDeserializedOCRReport(),
+		//	}
+		//	feedRoundData = append(feedRoundData, &roundData)
+		//}
+		//if feedData.GetRoundId() == requiredRound && req.GetFeedId() == "" {
+		//	roundData := types.RoundData{
+		//		FeedId:   feedData.GetFeedData().GetFeedId(),
+		//		FeedData: feedData.GetDeserializedOCRReport(),
+		//	}
+		//	feedRoundData = append(feedRoundData, &roundData)
+		//}
+
+		//roundData := types.RoundData{
+		//	FeedId:   feedData.GetFeedData().GetFeedId(),
+		//	FeedData: feedData.GetDeserializedOCRReport(),
+		//}
+		//feedRoundData = append(feedRoundData, &roundData)
 
 		return nil
 	})
@@ -137,7 +154,7 @@ func (k Keeper) GetLatestRoundFeedDataByFilter(ctx sdk.Context, req *types.GetLa
 		return nil, status.Error(codes.InvalidArgument, "invalid request")
 	}
 
-	feedRoundData := make([]*types.RoundData, 0)
+	var feedRoundData []*types.RoundData
 
 	// use store with gas meter
 	store := ctx.KVStore(k.storeKey)
@@ -149,22 +166,23 @@ func (k Keeper) GetLatestRoundFeedDataByFilter(ctx sdk.Context, req *types.GetLa
 		var feedData types.OCRFeedDataInStore
 		k.cdc.MustUnmarshalBinaryBare(iterator.Value(), &feedData)
 
-		// filter result here
 		latestRoundId := roundId - 1
-		if feedData.GetRoundId() == latestRoundId && req.GetFeedId() == feedData.GetFeedData().GetFeedId() {
-			roundData := types.RoundData{
-				FeedId:   feedData.GetFeedData().GetFeedId(),
-				FeedData: feedData.GetDeserializedOCRReport(),
-			}
-			feedRoundData = append(feedRoundData, &roundData)
-		}
-		if feedData.GetRoundId() == latestRoundId && req.GetFeedId() == "" {
-			roundData := types.RoundData{
-				FeedId:   feedData.GetFeedData().GetFeedId(),
-				FeedData: feedData.GetDeserializedOCRReport(),
-			}
-			feedRoundData = append(feedRoundData, &roundData)
-		}
+		feedRoundData = feedDataFilter(req.GetFeedId(), latestRoundId, feedData)
+
+		//if feedData.GetRoundId() == latestRoundId && req.GetFeedId() == feedData.GetFeedData().GetFeedId() {
+		//	roundData := types.RoundData{
+		//		FeedId:   feedData.GetFeedData().GetFeedId(),
+		//		FeedData: feedData.GetDeserializedOCRReport(),
+		//	}
+		//	feedRoundData = append(feedRoundData, &roundData)
+		//}
+		//if feedData.GetRoundId() == latestRoundId && req.GetFeedId() == "" {
+		//	roundData := types.RoundData{
+		//		FeedId:   feedData.GetFeedData().GetFeedId(),
+		//		FeedData: feedData.GetDeserializedOCRReport(),
+		//	}
+		//	feedRoundData = append(feedRoundData, &roundData)
+		//}
 	}
 
 	return &types.GetLatestRoundDataResponse{

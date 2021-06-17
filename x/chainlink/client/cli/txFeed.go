@@ -24,6 +24,7 @@ func CmdSubmitFeedData() *cobra.Command {
 				return err
 			}
 
+			// TODO: this is dummy data to simulate the data providers signature set
 			signatures := strings.Split(argsSignatures, " ")
 			s := make([][]byte, 0)
 			for _, sign := range signatures {
