@@ -9,17 +9,34 @@ option go_package = "github.com/ChainSafe/chainlink-cosmos/x/chainlink/types";
 
 // Query defines the gRPC querier service.
 service Query {
-    rpc FeedDataByID(QueryFeedDataRequest) returns (QueryFeedDataResponse) {
-        option (google.api.http).get = "/chainlink/v1/feed/data/{feedId}";
-    }
+  rpc GetRoundData(GetRoundDataRequest) returns (GetRoundDataResponse) {
+    option (google.api.http).get = "/chainlink/feed/data/round/{roundId}/{feedId}";
+  }
+  rpc LatestRoundData(GetLatestRoundDataRequest) returns (GetLatestRoundDataResponse) {
+    option (google.api.http).get = "/chainlink/feed/data/latest/{feedId}";
+  }
 }
 
-message QueryFeedDataRequest {
-    string feedId = 1;
-    cosmos.base.query.v1beta1.PageRequest pagination = 2;
+message GetRoundDataRequest {
+  string feedId = 1;
+  uint64 roundId = 2;
+  cosmos.base.query.v1beta1.PageRequest pagination = 3;
 }
 
-message QueryFeedDataResponse {
-    repeated MsgFeedData feedData = 1;
-    cosmos.base.query.v1beta1.PageResponse pagination = 2;
+message GetRoundDataResponse {
+  repeated RoundData roundData = 1;
+  cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+
+message GetLatestRoundDataRequest {
+  string feedId = 1;
+}
+
+message GetLatestRoundDataResponse {
+  repeated RoundData roundData = 1;
+}
+
+message RoundData {
+  string feedId = 1;
+  OCRAbiEncoded feedData = 2;
 }

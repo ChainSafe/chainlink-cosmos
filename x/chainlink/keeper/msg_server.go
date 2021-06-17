@@ -1,17 +1,22 @@
 package keeper
 
 import (
+	"context"
+
 	"github.com/ChainSafe/chainlink-cosmos/x/chainlink/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-type msgServer struct {
-	Keeper
-}
+var _ types.MsgServer = Keeper{}
 
-// NewMsgServerImpl returns an implementation of the MsgServer interface
-// for the provided Keeper.
-func NewMsgServerImpl(keeper Keeper) types.MsgServer {
-	return &msgServer{Keeper: keeper}
-}
+// SubmitFeedData implements the tx/SubmitFeedData gRPC method
+func (k Keeper) SubmitFeedData(c context.Context, msg *types.MsgFeedData) (*types.MsgFeedDataResponse, error) {
+	ctx := sdk.UnwrapSDKContext(c)
+	k.SetFeedData(ctx, msg)
 
-var _ types.MsgServer = msgServer{}
+	// TODO: how to return txHash and height here?
+	return &types.MsgFeedDataResponse{
+		Height: uint64(ctx.BlockHeight()),
+		TxHash: string(ctx.TxBytes()),
+	}, nil
+}

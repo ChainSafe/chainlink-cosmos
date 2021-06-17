@@ -81,7 +81,7 @@ func (AppModuleBasic) RegisterRESTRoutes(clientCtx client.Context, rtr *mux.Rout
 
 // RegisterGRPCGatewayRoutes registers the gRPC Gateway routes for the module.
 func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *runtime.ServeMux) {
-	// TODO: enable this
+	// TODO: enable this using protoc-gen-grpc-gateway
 }
 
 // GetTxCmd returns the capability module's root tx command.

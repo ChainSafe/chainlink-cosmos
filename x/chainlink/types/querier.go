@@ -2,5 +2,6 @@ package types
 
 // Supported endpoints
 const (
-	QueryFeedData = "list-feedData"
+	QueryRoundFeedData  = "getRoundFeedData"
+	QueryLatestFeedData = "getLatestFeedData"
 )
