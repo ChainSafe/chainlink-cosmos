@@ -38,7 +38,9 @@ chainlinkd start
 # Query feed data by txHash
 #chainlinkd query tx FDD655DE6F4E1B0F7A04163F856A88E4BACAC9755402B90F77D9EF9F45570168 --chain-id testchain -o json
 
-# Query feed data by feedID with pagination
+# Query feed data by getRoundFeedData with pagination
 #chainlinkd query chainlink getRoundFeedData 1 "testfeedid1" --chain-id testchain -o json
+
+# Query feed data by getLatestFeedData
 #chainlinkd query chainlink getLatestFeedData "testfeedid1" --chain-id testchain -o json
 

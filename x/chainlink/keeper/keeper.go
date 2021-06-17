@@ -69,30 +69,10 @@ func (k Keeper) SetFeedData(ctx sdk.Context, feedData *types.MsgFeedData) {
 
 	// use store with gas meter
 	store := ctx.KVStore(k.storeKey)
-	//store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.FeedDataKey))
 
 	f := k.cdc.MustMarshalBinaryBare(&finalFeedDataInStore)
 	store.Set(types.KeyPrefix(types.FeedDataKey), f)
 }
-
-//func (k Keeper) GetFeedData(ctx sdk.Context) (feedData []types.MsgFeedData) {
-//	//store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.FeedDataKey))
-//	// use store with gas meter
-//	store := ctx.KVStore(k.storeKey)
-//	iterator := sdk.KVStorePrefixIterator(store, types.KeyPrefix(types.FeedDataKey))
-//
-//	defer iterator.Close()
-//
-//	for ; iterator.Valid(); iterator.Next() {
-//		var feed types.MsgFeedData
-//		k.cdc.MustUnmarshalBinaryBare(iterator.Value(), &feed)
-//
-//		// TODO: filter by feedId
-//		feedData = append(feedData, feed)
-//	}
-//
-//	return
-//}
 
 func (k Keeper) GetRoundFeedDataByFilter(ctx sdk.Context, req *types.GetRoundDataRequest) (*types.GetRoundDataResponse, error) {
 	if req == nil {
@@ -103,7 +83,6 @@ func (k Keeper) GetRoundFeedDataByFilter(ctx sdk.Context, req *types.GetRoundDat
 
 	// use store with gas meter
 	store := ctx.KVStore(k.storeKey)
-	//feedStore := prefix.NewStore(store, types.KeyPrefix(types.FeedDataKey))
 
 	pageRes, err := query.Paginate(store, req.Pagination, func(key []byte, value []byte) error {
 		var feedData types.OCRFeedDataInStore
@@ -112,29 +91,6 @@ func (k Keeper) GetRoundFeedDataByFilter(ctx sdk.Context, req *types.GetRoundDat
 		}
 
 		feedRoundData = feedDataFilter(req.GetFeedId(), req.GetRoundId(), feedData)
-
-		//// filter result here
-		//requiredRound := req.GetRoundId()
-		//if feedData.GetRoundId() == requiredRound && req.GetFeedId() == feedData.GetFeedData().GetFeedId() {
-		//	roundData := types.RoundData{
-		//		FeedId:   feedData.GetFeedData().GetFeedId(),
-		//		FeedData: feedData.GetDeserializedOCRReport(),
-		//	}
-		//	feedRoundData = append(feedRoundData, &roundData)
-		//}
-		//if feedData.GetRoundId() == requiredRound && req.GetFeedId() == "" {
-		//	roundData := types.RoundData{
-		//		FeedId:   feedData.GetFeedData().GetFeedId(),
-		//		FeedData: feedData.GetDeserializedOCRReport(),
-		//	}
-		//	feedRoundData = append(feedRoundData, &roundData)
-		//}
-
-		//roundData := types.RoundData{
-		//	FeedId:   feedData.GetFeedData().GetFeedId(),
-		//	FeedData: feedData.GetDeserializedOCRReport(),
-		//}
-		//feedRoundData = append(feedRoundData, &roundData)
 
 		return nil
 	})
@@ -168,21 +124,6 @@ func (k Keeper) GetLatestRoundFeedDataByFilter(ctx sdk.Context, req *types.GetLa
 
 		latestRoundId := roundId - 1
 		feedRoundData = feedDataFilter(req.GetFeedId(), latestRoundId, feedData)
-
-		//if feedData.GetRoundId() == latestRoundId && req.GetFeedId() == feedData.GetFeedData().GetFeedId() {
-		//	roundData := types.RoundData{
-		//		FeedId:   feedData.GetFeedData().GetFeedId(),
-		//		FeedData: feedData.GetDeserializedOCRReport(),
-		//	}
-		//	feedRoundData = append(feedRoundData, &roundData)
-		//}
-		//if feedData.GetRoundId() == latestRoundId && req.GetFeedId() == "" {
-		//	roundData := types.RoundData{
-		//		FeedId:   feedData.GetFeedData().GetFeedId(),
-		//		FeedData: feedData.GetDeserializedOCRReport(),
-		//	}
-		//	feedRoundData = append(feedRoundData, &roundData)
-		//}
 	}
 
 	return &types.GetLatestRoundDataResponse{
