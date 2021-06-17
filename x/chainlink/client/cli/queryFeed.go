@@ -73,7 +73,7 @@ func CmdGetLatestFeedData() *cobra.Command {
 
 			queryClient := types.NewQueryClient(clientCtx)
 			params := &types.GetLatestRoundDataRequest{
-				FeedId:     feedId,
+				FeedId: feedId,
 			}
 
 			res, err := queryClient.LatestRoundData(context.Background(), params)

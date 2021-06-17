@@ -2,7 +2,7 @@ package keeper
 
 import "github.com/ChainSafe/chainlink-cosmos/x/chainlink/types"
 
-// feedDataFilter filters the feedData query result by feedID and roundId
+// feedDataFilter filters the feedData query result by feedId and roundId
 func feedDataFilter(requiredFeedID string, requiredRoundID uint64, feedData types.OCRFeedDataInStore) []*types.RoundData {
 	feedRoundData := make([]*types.RoundData, 0)
 
