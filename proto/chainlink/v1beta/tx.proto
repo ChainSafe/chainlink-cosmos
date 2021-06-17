@@ -61,10 +61,15 @@ message OCRAbiEncoded {
   bytes Oracles = 2;
   // Observations should be an array on int192 containing the providers' independent observations.
   repeated Observation Observations = 3;
-  // Submitter is the Chainlink node address that has submitted the price feed data.
-  // The Submitter will be paid out the reward that has been set by the Feed Owner.
-  // TODO: will the submitter be included in each report?
-  bytes Submitter = 4;
+}
+
+message ABC {
+  // Context should be a 32-byte array struct.
+  bytes Context = 1;
+  // Oracles should be a 32-byte record of all participating oracles. Assuming this is data provider address?
+  bytes Oracles = 2;
+  // Observations should be an array on int192 containing the providers' independent observations.
+  repeated Observation Observations = 3;
 }
 
 message Observation {
@@ -73,7 +78,7 @@ message Observation {
 
 // OCRFeedDataInStore defines the type for OCR report that persists into the store
 message OCRFeedDataInStore {
-  uint64 RoundId = 3;
   MsgFeedData feedData = 1;
   OCRAbiEncoded deserializedOCRReport = 2;
+  uint64 RoundId = 3;
 }

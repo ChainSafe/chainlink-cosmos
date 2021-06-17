@@ -13,6 +13,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
+// TODO: implement a map to maintain roundId in memory for now
+// data structure:  map[feedId]roundId
 var roundId uint64 = 1
 
 type (
@@ -39,7 +41,7 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", fmt.Sprintf("x/%s", types.ModuleName))
 }
 
-func (k Keeper) SetFeedData(ctx sdk.Context, feedData *types.MsgFeedData) {
+func (k Keeper) SetFeedData(ctx sdk.Context, feedData *types.MsgFeedData) (int64, []byte) {
 	// TODO: add more complex feed validation here such as verify against other modules
 
 	// TODO: deserialize the feedData.FeedData if it's an OCR report, assume all the feedData is OCR report for now.
@@ -54,11 +56,9 @@ func (k Keeper) SetFeedData(ctx sdk.Context, feedData *types.MsgFeedData) {
 		Context:      []byte("testcontext"),
 		Oracles:      feedData.Submitter.Bytes(),
 		Observations: observations,
-		Submitter:    feedData.GetSubmitter(),
 	}
 	/****************/
 	// TODO: verify deserializedOCRReport here
-
 	finalFeedDataInStore := types.OCRFeedDataInStore{
 		FeedData:              feedData,
 		DeserializedOCRReport: &deserializedOCRReport,
@@ -72,6 +72,8 @@ func (k Keeper) SetFeedData(ctx sdk.Context, feedData *types.MsgFeedData) {
 
 	f := k.cdc.MustMarshalBinaryBare(&finalFeedDataInStore)
 	store.Set(types.KeyPrefix(types.FeedDataKey), f)
+
+	return ctx.BlockHeight(), ctx.TxBytes()
 }
 
 func (k Keeper) GetRoundFeedDataByFilter(ctx sdk.Context, req *types.GetRoundDataRequest) (*types.GetRoundDataResponse, error) {
@@ -90,6 +92,7 @@ func (k Keeper) GetRoundFeedDataByFilter(ctx sdk.Context, req *types.GetRoundDat
 			return err
 		}
 
+		// TODO: update the feedDataFilter according to the roundId
 		feedRoundData = feedDataFilter(req.GetFeedId(), req.GetRoundId(), feedData)
 
 		return nil
@@ -123,6 +126,7 @@ func (k Keeper) GetLatestRoundFeedDataByFilter(ctx sdk.Context, req *types.GetLa
 		k.cdc.MustUnmarshalBinaryBare(iterator.Value(), &feedData)
 
 		latestRoundId := roundId - 1
+		// TODO: update the feedDataFilter according to the in memory roundId
 		feedRoundData = feedDataFilter(req.GetFeedId(), latestRoundId, feedData)
 	}
 

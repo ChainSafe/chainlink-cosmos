@@ -10,10 +10,10 @@ import (
 	"strconv"
 )
 
-func CmdGetRoundFeedData() *cobra.Command {
+func CmdGetFeedDataByRound() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "getRoundFeedData [roundId] [feedId]",
-		Short: "List round feed data",
+		Short: "List feed data by round",
 		Args:  cobra.MinimumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if args[0] == "" {

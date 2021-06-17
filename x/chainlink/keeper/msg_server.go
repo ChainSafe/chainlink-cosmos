@@ -12,11 +12,10 @@ var _ types.MsgServer = Keeper{}
 // SubmitFeedData implements the tx/SubmitFeedData gRPC method
 func (k Keeper) SubmitFeedData(c context.Context, msg *types.MsgFeedData) (*types.MsgFeedDataResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
-	k.SetFeedData(ctx, msg)
+	height, txHash := k.SetFeedData(ctx, msg)
 
-	// TODO: how to return txHash and height here?
 	return &types.MsgFeedDataResponse{
-		Height: uint64(ctx.BlockHeight()),
-		TxHash: string(ctx.TxBytes()),
+		Height: uint64(height),
+		TxHash: string(txHash),
 	}, nil
 }
