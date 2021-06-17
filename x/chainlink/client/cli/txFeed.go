@@ -6,27 +6,32 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	"github.com/spf13/cobra"
+	"strings"
 )
 
-func CmdSubmitFeed() *cobra.Command {
+func CmdSubmitFeedData() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "submit-feedData [feedId] [feedData]",
+		Use:   "submit-feedData [feedId] [feedData] [signatures]",
 		Short: "Submit feed data",
-		Args:  cobra.MinimumNArgs(2),
+		Args:  cobra.MinimumNArgs(3),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			argsFeedId := args[0]
 			argsFeedData := args[1]
+			argsSignatures := args[2]
 
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
 				return err
 			}
 
-			//fmt.Printf("%+v\n", clientCtx)
-			//fmt.Println("////", argsFeedId)
-			//fmt.Println("////", argsFeedData)
+			// TODO: this is dummy data to simulate the data providers signature set
+			signatures := strings.Split(argsSignatures, " ")
+			s := make([][]byte, 0)
+			for _, sign := range signatures {
+				s = append(s, []byte(sign))
+			}
 
-			msg := types.NewMsgFeed(clientCtx.GetFromAddress(), argsFeedId, argsFeedData)
+			msg := types.NewMsgFeedData(clientCtx.GetFromAddress(), argsFeedId, []byte(argsFeedData), s)
 			if err := msg.ValidateBasic(); err != nil {
 				return err
 			}

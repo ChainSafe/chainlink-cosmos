@@ -4,7 +4,7 @@ GOLANGCI := $(GOPATH)/bin/golangci-lint
 CHAINLINK_DAEMON_BINARY = chainlinkd
 
 ###############################################################################
-###                                  Build                                  ###
+###                                  Build&Run                                  ###
 ###############################################################################
 
 update:
@@ -13,6 +13,9 @@ update:
 
 install:
 	${GO_MOD} go install ./cmd/$(CHAINLINK_DAEMON_BINARY)
+
+start:
+	./scripts/start.sh
 
 clean:
 	@rm -rf ./vendor

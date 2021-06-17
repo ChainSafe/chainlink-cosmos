@@ -10,7 +10,10 @@ import (
 	_ "github.com/gogo/protobuf/gogoproto"
 	grpc1 "github.com/gogo/protobuf/grpc"
 	proto "github.com/gogo/protobuf/proto"
+	_ "google.golang.org/genproto/googleapis/api/annotations"
 	grpc "google.golang.org/grpc"
+	codes "google.golang.org/grpc/codes"
+	status "google.golang.org/grpc/status"
 	io "io"
 	math "math"
 	math_bits "math/bits"
@@ -27,17 +30,143 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-type MsgFeedData struct {
-	FeedId    string                                        `protobuf:"bytes,1,opt,name=feedId,proto3" json:"feedId,omitempty"`
+// MsgFeed is the type defined for each feed
+type MsgFeed struct {
+	// FeedId is the unique identifier of the feed
+	FeedId string `protobuf:"bytes,1,opt,name=feedId,proto3" json:"feedId,omitempty"`
+	// FeedOwner is the owner of the feed
 	FeedOwner github_com_cosmos_cosmos_sdk_types.AccAddress `protobuf:"bytes,2,opt,name=feedOwner,proto3,casttype=github.com/cosmos/cosmos-sdk/types.AccAddress" json:"feedOwner,omitempty"`
-	FeedData  *OCRAbiEncoded                                `protobuf:"bytes,3,opt,name=feedData,proto3" json:"feedData,omitempty"`
+	// DataProviders is the whitelist of data providers of the feed
+	DataProviders []*DataProvider `protobuf:"bytes,3,rep,name=dataProviders,proto3" json:"dataProviders,omitempty"`
+}
+
+func (m *MsgFeed) Reset()         { *m = MsgFeed{} }
+func (m *MsgFeed) String() string { return proto.CompactTextString(m) }
+func (*MsgFeed) ProtoMessage()    {}
+func (*MsgFeed) Descriptor() ([]byte, []int) {
+	return fileDescriptor_8e2cf97733d10959, []int{0}
+}
+func (m *MsgFeed) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *MsgFeed) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_MsgFeed.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *MsgFeed) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgFeed.Merge(m, src)
+}
+func (m *MsgFeed) XXX_Size() int {
+	return m.Size()
+}
+func (m *MsgFeed) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgFeed.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_MsgFeed proto.InternalMessageInfo
+
+func (m *MsgFeed) GetFeedId() string {
+	if m != nil {
+		return m.FeedId
+	}
+	return ""
+}
+
+func (m *MsgFeed) GetFeedOwner() github_com_cosmos_cosmos_sdk_types.AccAddress {
+	if m != nil {
+		return m.FeedOwner
+	}
+	return nil
+}
+
+func (m *MsgFeed) GetDataProviders() []*DataProvider {
+	if m != nil {
+		return m.DataProviders
+	}
+	return nil
+}
+
+// DataProvider is the type defined for feed data provider
+type DataProvider struct {
+	Address github_com_cosmos_cosmos_sdk_types.AccAddress `protobuf:"bytes,1,opt,name=address,proto3,casttype=github.com/cosmos/cosmos-sdk/types.AccAddress" json:"address,omitempty"`
+	PubKey  []byte                                        `protobuf:"bytes,2,opt,name=pubKey,proto3" json:"pubKey,omitempty"`
+}
+
+func (m *DataProvider) Reset()         { *m = DataProvider{} }
+func (m *DataProvider) String() string { return proto.CompactTextString(m) }
+func (*DataProvider) ProtoMessage()    {}
+func (*DataProvider) Descriptor() ([]byte, []int) {
+	return fileDescriptor_8e2cf97733d10959, []int{1}
+}
+func (m *DataProvider) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *DataProvider) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_DataProvider.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *DataProvider) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_DataProvider.Merge(m, src)
+}
+func (m *DataProvider) XXX_Size() int {
+	return m.Size()
+}
+func (m *DataProvider) XXX_DiscardUnknown() {
+	xxx_messageInfo_DataProvider.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_DataProvider proto.InternalMessageInfo
+
+func (m *DataProvider) GetAddress() github_com_cosmos_cosmos_sdk_types.AccAddress {
+	if m != nil {
+		return m.Address
+	}
+	return nil
+}
+
+func (m *DataProvider) GetPubKey() []byte {
+	if m != nil {
+		return m.PubKey
+	}
+	return nil
+}
+
+// MsgFeedData is the type defined for the data of the feed
+// It could be an OCR report feed, or any general feed data in the future
+type MsgFeedData struct {
+	// FeedId is the unique identifier of the feed
+	FeedId string `protobuf:"bytes,1,opt,name=feedId,proto3" json:"feedId,omitempty"`
+	// Submitter is the leader of the current round who is calling the module to submit feed data
+	Submitter github_com_cosmos_cosmos_sdk_types.AccAddress `protobuf:"bytes,2,opt,name=submitter,proto3,casttype=github.com/cosmos/cosmos-sdk/types.AccAddress" json:"submitter,omitempty"`
+	// FeedData is the report for price feed, could be used for general feed data
+	// From proposal: The reports generated by Chainlink nodes off-chain using the OCR protocol are ABI encoded byte arrays
+	// which means each report is a byte array which could be deserialized to OCRAbiEncoded type
+	FeedData []byte `protobuf:"bytes,3,opt,name=feedData,proto3" json:"feedData,omitempty"`
+	// Signatures is the data provider signature list of the current round
+	Signatures [][]byte `protobuf:"bytes,4,rep,name=signatures,proto3" json:"signatures,omitempty"`
 }
 
 func (m *MsgFeedData) Reset()         { *m = MsgFeedData{} }
 func (m *MsgFeedData) String() string { return proto.CompactTextString(m) }
 func (*MsgFeedData) ProtoMessage()    {}
 func (*MsgFeedData) Descriptor() ([]byte, []int) {
-	return fileDescriptor_8e2cf97733d10959, []int{0}
+	return fileDescriptor_8e2cf97733d10959, []int{2}
 }
 func (m *MsgFeedData) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -73,18 +202,77 @@ func (m *MsgFeedData) GetFeedId() string {
 	return ""
 }
 
-func (m *MsgFeedData) GetFeedOwner() github_com_cosmos_cosmos_sdk_types.AccAddress {
+func (m *MsgFeedData) GetSubmitter() github_com_cosmos_cosmos_sdk_types.AccAddress {
 	if m != nil {
-		return m.FeedOwner
+		return m.Submitter
 	}
 	return nil
 }
 
-func (m *MsgFeedData) GetFeedData() *OCRAbiEncoded {
+func (m *MsgFeedData) GetFeedData() []byte {
 	if m != nil {
 		return m.FeedData
 	}
 	return nil
+}
+
+func (m *MsgFeedData) GetSignatures() [][]byte {
+	if m != nil {
+		return m.Signatures
+	}
+	return nil
+}
+
+type MsgFeedDataResponse struct {
+	Height uint64 `protobuf:"varint,1,opt,name=height,proto3" json:"height,omitempty"`
+	TxHash string `protobuf:"bytes,2,opt,name=txHash,proto3" json:"txHash,omitempty"`
+}
+
+func (m *MsgFeedDataResponse) Reset()         { *m = MsgFeedDataResponse{} }
+func (m *MsgFeedDataResponse) String() string { return proto.CompactTextString(m) }
+func (*MsgFeedDataResponse) ProtoMessage()    {}
+func (*MsgFeedDataResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_8e2cf97733d10959, []int{3}
+}
+func (m *MsgFeedDataResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *MsgFeedDataResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_MsgFeedDataResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *MsgFeedDataResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgFeedDataResponse.Merge(m, src)
+}
+func (m *MsgFeedDataResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *MsgFeedDataResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgFeedDataResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_MsgFeedDataResponse proto.InternalMessageInfo
+
+func (m *MsgFeedDataResponse) GetHeight() uint64 {
+	if m != nil {
+		return m.Height
+	}
+	return 0
+}
+
+func (m *MsgFeedDataResponse) GetTxHash() string {
+	if m != nil {
+		return m.TxHash
+	}
+	return ""
 }
 
 // this will be the implementation used later will use pseudo OCR ABI encoded data instead
@@ -94,12 +282,13 @@ func (m *MsgFeedData) GetFeedData() *OCRAbiEncoded {
 type OCRAbiEncoded struct {
 	// Context should be a 32-byte array struct.
 	Context []byte `protobuf:"bytes,1,opt,name=Context,proto3" json:"Context,omitempty"`
-	// Oracles should be a 32-byte record of all participating oracles.
+	// Oracles should be a 32-byte record of all participating oracles. Assuming this is data provider address?
 	Oracles []byte `protobuf:"bytes,2,opt,name=Oracles,proto3" json:"Oracles,omitempty"`
-	// Observations should be an array on int192 containing the proviers' independent observations.
-	Observations [][]byte `protobuf:"bytes,3,rep,name=Observations,proto3" json:"Observations,omitempty"`
+	// Observations should be an array on int192 containing the providers' independent observations.
+	Observations []*Observation `protobuf:"bytes,3,rep,name=Observations,proto3" json:"Observations,omitempty"`
 	// Submitter is the Chainlink node address that has submitted the price feed data.
 	// The Submitter will be paid out the reward that has been set by the Feed Owner.
+	// TODO: will the submitter be included in each report?
 	Submitter []byte `protobuf:"bytes,4,opt,name=Submitter,proto3" json:"Submitter,omitempty"`
 }
 
@@ -107,7 +296,7 @@ func (m *OCRAbiEncoded) Reset()         { *m = OCRAbiEncoded{} }
 func (m *OCRAbiEncoded) String() string { return proto.CompactTextString(m) }
 func (*OCRAbiEncoded) ProtoMessage()    {}
 func (*OCRAbiEncoded) Descriptor() ([]byte, []int) {
-	return fileDescriptor_8e2cf97733d10959, []int{1}
+	return fileDescriptor_8e2cf97733d10959, []int{4}
 }
 func (m *OCRAbiEncoded) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -150,7 +339,7 @@ func (m *OCRAbiEncoded) GetOracles() []byte {
 	return nil
 }
 
-func (m *OCRAbiEncoded) GetObservations() [][]byte {
+func (m *OCRAbiEncoded) GetObservations() []*Observation {
 	if m != nil {
 		return m.Observations
 	}
@@ -164,37 +353,164 @@ func (m *OCRAbiEncoded) GetSubmitter() []byte {
 	return nil
 }
 
+type Observation struct {
+	Data []byte `protobuf:"bytes,1,opt,name=data,proto3" json:"data,omitempty"`
+}
+
+func (m *Observation) Reset()         { *m = Observation{} }
+func (m *Observation) String() string { return proto.CompactTextString(m) }
+func (*Observation) ProtoMessage()    {}
+func (*Observation) Descriptor() ([]byte, []int) {
+	return fileDescriptor_8e2cf97733d10959, []int{5}
+}
+func (m *Observation) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *Observation) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_Observation.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *Observation) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Observation.Merge(m, src)
+}
+func (m *Observation) XXX_Size() int {
+	return m.Size()
+}
+func (m *Observation) XXX_DiscardUnknown() {
+	xxx_messageInfo_Observation.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Observation proto.InternalMessageInfo
+
+func (m *Observation) GetData() []byte {
+	if m != nil {
+		return m.Data
+	}
+	return nil
+}
+
+// OCRFeedDataInStore defines the type for OCR report that persists into the store
+type OCRFeedDataInStore struct {
+	RoundId               uint64         `protobuf:"varint,3,opt,name=RoundId,proto3" json:"RoundId,omitempty"`
+	FeedData              *MsgFeedData   `protobuf:"bytes,1,opt,name=feedData,proto3" json:"feedData,omitempty"`
+	DeserializedOCRReport *OCRAbiEncoded `protobuf:"bytes,2,opt,name=deserializedOCRReport,proto3" json:"deserializedOCRReport,omitempty"`
+}
+
+func (m *OCRFeedDataInStore) Reset()         { *m = OCRFeedDataInStore{} }
+func (m *OCRFeedDataInStore) String() string { return proto.CompactTextString(m) }
+func (*OCRFeedDataInStore) ProtoMessage()    {}
+func (*OCRFeedDataInStore) Descriptor() ([]byte, []int) {
+	return fileDescriptor_8e2cf97733d10959, []int{6}
+}
+func (m *OCRFeedDataInStore) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *OCRFeedDataInStore) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_OCRFeedDataInStore.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *OCRFeedDataInStore) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_OCRFeedDataInStore.Merge(m, src)
+}
+func (m *OCRFeedDataInStore) XXX_Size() int {
+	return m.Size()
+}
+func (m *OCRFeedDataInStore) XXX_DiscardUnknown() {
+	xxx_messageInfo_OCRFeedDataInStore.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_OCRFeedDataInStore proto.InternalMessageInfo
+
+func (m *OCRFeedDataInStore) GetRoundId() uint64 {
+	if m != nil {
+		return m.RoundId
+	}
+	return 0
+}
+
+func (m *OCRFeedDataInStore) GetFeedData() *MsgFeedData {
+	if m != nil {
+		return m.FeedData
+	}
+	return nil
+}
+
+func (m *OCRFeedDataInStore) GetDeserializedOCRReport() *OCRAbiEncoded {
+	if m != nil {
+		return m.DeserializedOCRReport
+	}
+	return nil
+}
+
 func init() {
+	proto.RegisterType((*MsgFeed)(nil), "chainlink.v1beta.MsgFeed")
+	proto.RegisterType((*DataProvider)(nil), "chainlink.v1beta.DataProvider")
 	proto.RegisterType((*MsgFeedData)(nil), "chainlink.v1beta.MsgFeedData")
+	proto.RegisterType((*MsgFeedDataResponse)(nil), "chainlink.v1beta.MsgFeedDataResponse")
 	proto.RegisterType((*OCRAbiEncoded)(nil), "chainlink.v1beta.OCRAbiEncoded")
+	proto.RegisterType((*Observation)(nil), "chainlink.v1beta.Observation")
+	proto.RegisterType((*OCRFeedDataInStore)(nil), "chainlink.v1beta.OCRFeedDataInStore")
 }
 
 func init() { proto.RegisterFile("chainlink/v1beta/tx.proto", fileDescriptor_8e2cf97733d10959) }
 
 var fileDescriptor_8e2cf97733d10959 = []byte{
-	// 349 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x5c, 0x51, 0xcd, 0x4e, 0xf2, 0x40,
-	0x14, 0x65, 0xbe, 0x7e, 0x1f, 0x9f, 0x0c, 0x35, 0x31, 0x8d, 0x31, 0xd5, 0x98, 0xd2, 0xb0, 0xea,
-	0x86, 0x36, 0xe0, 0xc2, 0x85, 0x2b, 0x40, 0x4d, 0x5c, 0x90, 0xc6, 0x61, 0xe7, 0x6e, 0x3a, 0x73,
-	0x29, 0x0d, 0xd0, 0x21, 0x9d, 0x01, 0xf1, 0x01, 0xdc, 0xfb, 0x2e, 0xbe, 0x84, 0x4b, 0x96, 0xae,
-	0x8c, 0x81, 0xb7, 0x70, 0x65, 0xfa, 0x03, 0x88, 0xab, 0xb9, 0xe7, 0x9c, 0xb9, 0x33, 0xe7, 0x9e,
-	0x8b, 0x4f, 0xd9, 0x90, 0x46, 0xf1, 0x38, 0x8a, 0x47, 0xde, 0xbc, 0x19, 0x80, 0xa2, 0x9e, 0x5a,
-	0xb8, 0xd3, 0x44, 0x28, 0x61, 0x1c, 0x6d, 0x25, 0x37, 0x97, 0xce, 0x8e, 0x43, 0x11, 0x8a, 0x4c,
-	0xf4, 0xd2, 0x2a, 0xbf, 0x57, 0x7f, 0x45, 0xb8, 0xda, 0x93, 0xe1, 0x2d, 0x00, 0xbf, 0xa6, 0x8a,
-	0x1a, 0x27, 0xb8, 0x3c, 0x00, 0xe0, 0x77, 0xdc, 0x44, 0x36, 0x72, 0x2a, 0xa4, 0x40, 0x86, 0x8f,
-	0x2b, 0x69, 0xe5, 0x3f, 0xc6, 0x90, 0x98, 0x7f, 0x6c, 0xe4, 0xe8, 0x9d, 0xe6, 0xd7, 0x47, 0xad,
-	0x11, 0x46, 0x6a, 0x38, 0x0b, 0x5c, 0x26, 0x26, 0x1e, 0x13, 0x72, 0x22, 0x64, 0x71, 0x34, 0x24,
-	0x1f, 0x79, 0xea, 0x69, 0x0a, 0xd2, 0x6d, 0x33, 0xd6, 0xe6, 0x3c, 0x01, 0x29, 0xc9, 0xee, 0x0d,
-	0xe3, 0x0a, 0x1f, 0x0c, 0x8a, 0x4f, 0x4d, 0xcd, 0x46, 0x4e, 0xb5, 0x55, 0x73, 0x7f, 0x7b, 0x76,
-	0xfd, 0x2e, 0x69, 0x07, 0xd1, 0x4d, 0xcc, 0x04, 0x07, 0x4e, 0xb6, 0x0d, 0xf5, 0x67, 0x84, 0x0f,
-	0xf7, 0x34, 0xc3, 0xc4, 0xff, 0xbb, 0x22, 0x56, 0xb0, 0x50, 0x99, 0x71, 0x9d, 0x6c, 0x60, 0xaa,
-	0xf8, 0x09, 0x65, 0x63, 0x90, 0xb9, 0x6f, 0xb2, 0x81, 0x46, 0x1d, 0xeb, 0x7e, 0x20, 0x21, 0x99,
-	0x53, 0x15, 0x89, 0x58, 0x9a, 0x9a, 0xad, 0x39, 0x3a, 0xd9, 0xe3, 0x8c, 0x73, 0x5c, 0xe9, 0xcf,
-	0x82, 0x49, 0xa4, 0x14, 0x24, 0xe6, 0xdf, 0xac, 0x7f, 0x47, 0xb4, 0xfe, 0x61, 0xad, 0x27, 0xc3,
-	0xce, 0xfd, 0xdb, 0xca, 0x42, 0xcb, 0x95, 0x85, 0x3e, 0x57, 0x16, 0x7a, 0x59, 0x5b, 0xa5, 0xe5,
-	0xda, 0x2a, 0xbd, 0xaf, 0xad, 0xd2, 0xc3, 0xe5, 0x8f, 0x7c, 0xba, 0xe9, 0x74, 0x7d, 0x3a, 0x00,
-	0x6f, 0x3b, 0x67, 0xa3, 0xc8, 0x6c, 0xb1, 0xa3, 0xf2, 0xd0, 0x82, 0x72, 0xb6, 0x9e, 0x8b, 0xef,
-	0x00, 0x00, 0x00, 0xff, 0xff, 0x24, 0x27, 0x34, 0x0b, 0xe3, 0x01, 0x00, 0x00,
+	// 609 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xa4, 0x54, 0x31, 0x6f, 0xd3, 0x40,
+	0x14, 0xae, 0x9b, 0xa8, 0x25, 0x97, 0x14, 0xa1, 0xa3, 0x54, 0x26, 0x2a, 0x6e, 0xb0, 0x84, 0x94,
+	0xa5, 0xb6, 0x5a, 0x06, 0xc4, 0x98, 0xa6, 0x45, 0x54, 0x55, 0x65, 0xb8, 0x8a, 0x85, 0xed, 0xec,
+	0x7b, 0x75, 0x4e, 0x4d, 0xef, 0x2c, 0xdf, 0xa5, 0xa4, 0xb0, 0xf1, 0x0b, 0x90, 0xf8, 0x0b, 0xfc,
+	0x02, 0x26, 0x46, 0x46, 0xc6, 0x4a, 0x2c, 0x4c, 0x08, 0xb5, 0xfc, 0x0a, 0x26, 0x74, 0xf6, 0x25,
+	0x71, 0xa1, 0xea, 0x00, 0x93, 0xef, 0xbb, 0xf7, 0xde, 0x77, 0xdf, 0xfb, 0xde, 0x93, 0xd1, 0xdd,
+	0x64, 0x40, 0xb9, 0x18, 0x72, 0x71, 0x14, 0x9e, 0x6c, 0xc4, 0xa0, 0x69, 0xa8, 0xc7, 0x41, 0x96,
+	0x4b, 0x2d, 0xf1, 0xad, 0x69, 0x28, 0x28, 0x43, 0xed, 0xe5, 0x54, 0xa6, 0xb2, 0x08, 0x86, 0xe6,
+	0x54, 0xe6, 0xb5, 0x57, 0x53, 0x29, 0xd3, 0x21, 0x84, 0x34, 0xe3, 0x21, 0x15, 0x42, 0x6a, 0xaa,
+	0xb9, 0x14, 0xaa, 0x8c, 0xfa, 0x9f, 0x1c, 0xb4, 0xb8, 0xaf, 0xd2, 0x27, 0x00, 0x0c, 0xaf, 0xa0,
+	0x85, 0x43, 0x00, 0xb6, 0xcb, 0x5c, 0xa7, 0xe3, 0x74, 0x1b, 0xc4, 0x22, 0x1c, 0xa1, 0x86, 0x39,
+	0x45, 0xaf, 0x04, 0xe4, 0xee, 0x7c, 0xc7, 0xe9, 0xb6, 0xb6, 0x36, 0x7e, 0x7d, 0x5f, 0x5b, 0x4f,
+	0xb9, 0x1e, 0x8c, 0xe2, 0x20, 0x91, 0xc7, 0x61, 0x22, 0xd5, 0xb1, 0x54, 0xf6, 0xb3, 0xae, 0xd8,
+	0x51, 0xa8, 0x4f, 0x33, 0x50, 0x41, 0x2f, 0x49, 0x7a, 0x8c, 0xe5, 0xa0, 0x14, 0x99, 0x71, 0xe0,
+	0x6d, 0xb4, 0xc4, 0xa8, 0xa6, 0xcf, 0x72, 0x79, 0xc2, 0x19, 0xe4, 0xca, 0xad, 0x75, 0x6a, 0xdd,
+	0xe6, 0xa6, 0x17, 0xfc, 0xd9, 0x52, 0xb0, 0x5d, 0x49, 0x23, 0x97, 0x8b, 0x7c, 0x85, 0x5a, 0xd5,
+	0x30, 0xde, 0x43, 0x8b, 0xb4, 0x7c, 0xab, 0xd0, 0xff, 0x4f, 0x22, 0x27, 0x0c, 0xc6, 0x8b, 0x6c,
+	0x14, 0xef, 0xc1, 0x69, 0xd9, 0x30, 0xb1, 0xc8, 0xff, 0xe8, 0xa0, 0xa6, 0xf5, 0xcb, 0x3c, 0x7e,
+	0x9d, 0x67, 0x6a, 0x14, 0x1f, 0x73, 0xad, 0xff, 0xcb, 0xb3, 0x29, 0x07, 0x6e, 0xa3, 0x1b, 0x87,
+	0xf6, 0x51, 0xb7, 0x56, 0x48, 0x9a, 0x62, 0xec, 0x21, 0xa4, 0x78, 0x2a, 0xa8, 0x1e, 0xe5, 0xa0,
+	0xdc, 0x7a, 0xa7, 0xd6, 0x6d, 0x91, 0xca, 0x8d, 0xbf, 0x83, 0x6e, 0x57, 0x34, 0x13, 0x50, 0x99,
+	0x14, 0x0a, 0x8c, 0xf6, 0x01, 0xf0, 0x74, 0xa0, 0x0b, 0xed, 0x75, 0x62, 0x91, 0xb9, 0xd7, 0xe3,
+	0xa7, 0x54, 0x0d, 0x0a, 0xe1, 0x0d, 0x62, 0x91, 0xff, 0xc1, 0x41, 0x4b, 0x51, 0x9f, 0xf4, 0x62,
+	0xbe, 0x23, 0x12, 0xc9, 0x80, 0x61, 0x17, 0x2d, 0xf6, 0xa5, 0xd0, 0x30, 0x2e, 0x29, 0x5a, 0x64,
+	0x02, 0x4d, 0x24, 0xca, 0x69, 0x32, 0x04, 0x65, 0x0d, 0x9c, 0x40, 0xdc, 0x43, 0xad, 0x28, 0x56,
+	0x90, 0x9f, 0x94, 0x7b, 0x68, 0x67, 0x7f, 0xef, 0xef, 0xd9, 0x57, 0xb2, 0xc8, 0xa5, 0x12, 0xbc,
+	0x8a, 0x1a, 0x07, 0x53, 0x73, 0xeb, 0x05, 0xfd, 0xec, 0xc2, 0xbf, 0x8f, 0x9a, 0x95, 0x6c, 0x8c,
+	0x51, 0xdd, 0xec, 0x8d, 0x15, 0x58, 0x9c, 0xfd, 0xcf, 0x0e, 0xc2, 0x51, 0x9f, 0x4c, 0x1c, 0xd9,
+	0x15, 0x07, 0x5a, 0xe6, 0x60, 0x44, 0x13, 0x39, 0x12, 0x66, 0x9a, 0xb5, 0xc2, 0x91, 0x09, 0xc4,
+	0x8f, 0x2b, 0xee, 0x1b, 0xa2, 0x2b, 0x05, 0x57, 0x3d, 0x9e, 0x0d, 0xe7, 0x05, 0xba, 0xc3, 0x40,
+	0x41, 0xce, 0xe9, 0x90, 0xbf, 0x06, 0x16, 0xf5, 0x09, 0x81, 0x4c, 0xe6, 0xba, 0xf0, 0xa5, 0xb9,
+	0xb9, 0x76, 0x45, 0xe3, 0x55, 0x8f, 0xc9, 0xd5, 0xd5, 0x9b, 0x6f, 0x50, 0x6d, 0x5f, 0xa5, 0x58,
+	0xa3, 0x9b, 0x65, 0xe7, 0xd3, 0x8d, 0xbc, 0x5e, 0x58, 0xfb, 0xc1, 0xf5, 0xba, 0xed, 0x6e, 0xf8,
+	0xab, 0x6f, 0xbf, 0xfe, 0x7c, 0x3f, 0xbf, 0xd2, 0x5e, 0x0e, 0x67, 0x7f, 0x20, 0xd3, 0x52, 0x68,
+	0xfc, 0xdb, 0x7a, 0xfe, 0xe5, 0xdc, 0x73, 0xce, 0xce, 0x3d, 0xe7, 0xc7, 0xb9, 0xe7, 0xbc, 0xbb,
+	0xf0, 0xe6, 0xce, 0x2e, 0xbc, 0xb9, 0x6f, 0x17, 0xde, 0xdc, 0xcb, 0x47, 0x95, 0x05, 0xef, 0x9b,
+	0xca, 0x03, 0x7a, 0x08, 0x33, 0x8e, 0x75, 0xbb, 0xf4, 0xe3, 0x0a, 0x6d, 0xb1, 0xf5, 0xf1, 0x42,
+	0xf1, 0x3f, 0x7a, 0xf8, 0x3b, 0x00, 0x00, 0xff, 0xff, 0x50, 0xdf, 0x7a, 0x4f, 0xf2, 0x04, 0x00,
+	0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -209,6 +525,7 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type MsgClient interface {
+	SubmitFeedData(ctx context.Context, in *MsgFeedData, opts ...grpc.CallOption) (*MsgFeedDataResponse, error)
 }
 
 type msgClient struct {
@@ -219,24 +536,149 @@ func NewMsgClient(cc grpc1.ClientConn) MsgClient {
 	return &msgClient{cc}
 }
 
+func (c *msgClient) SubmitFeedData(ctx context.Context, in *MsgFeedData, opts ...grpc.CallOption) (*MsgFeedDataResponse, error) {
+	out := new(MsgFeedDataResponse)
+	err := c.cc.Invoke(ctx, "/chainlink.v1beta.Msg/SubmitFeedData", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // MsgServer is the server API for Msg service.
 type MsgServer interface {
+	SubmitFeedData(context.Context, *MsgFeedData) (*MsgFeedDataResponse, error)
 }
 
 // UnimplementedMsgServer can be embedded to have forward compatible implementations.
 type UnimplementedMsgServer struct {
 }
 
+func (*UnimplementedMsgServer) SubmitFeedData(ctx context.Context, req *MsgFeedData) (*MsgFeedDataResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SubmitFeedData not implemented")
+}
+
 func RegisterMsgServer(s grpc1.Server, srv MsgServer) {
 	s.RegisterService(&_Msg_serviceDesc, srv)
+}
+
+func _Msg_SubmitFeedData_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MsgFeedData)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MsgServer).SubmitFeedData(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/chainlink.v1beta.Msg/SubmitFeedData",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MsgServer).SubmitFeedData(ctx, req.(*MsgFeedData))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 var _Msg_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "chainlink.v1beta.Msg",
 	HandlerType: (*MsgServer)(nil),
-	Methods:     []grpc.MethodDesc{},
-	Streams:     []grpc.StreamDesc{},
-	Metadata:    "chainlink/v1beta/tx.proto",
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "SubmitFeedData",
+			Handler:    _Msg_SubmitFeedData_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "chainlink/v1beta/tx.proto",
+}
+
+func (m *MsgFeed) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *MsgFeed) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *MsgFeed) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.DataProviders) > 0 {
+		for iNdEx := len(m.DataProviders) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.DataProviders[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintTx(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x1a
+		}
+	}
+	if len(m.FeedOwner) > 0 {
+		i -= len(m.FeedOwner)
+		copy(dAtA[i:], m.FeedOwner)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.FeedOwner)))
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.FeedId) > 0 {
+		i -= len(m.FeedId)
+		copy(dAtA[i:], m.FeedId)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.FeedId)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *DataProvider) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *DataProvider) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *DataProvider) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.PubKey) > 0 {
+		i -= len(m.PubKey)
+		copy(dAtA[i:], m.PubKey)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.PubKey)))
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.Address) > 0 {
+		i -= len(m.Address)
+		copy(dAtA[i:], m.Address)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.Address)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
 }
 
 func (m *MsgFeedData) Marshal() (dAtA []byte, err error) {
@@ -259,22 +701,26 @@ func (m *MsgFeedData) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
-	if m.FeedData != nil {
-		{
-			size, err := m.FeedData.MarshalToSizedBuffer(dAtA[:i])
-			if err != nil {
-				return 0, err
-			}
-			i -= size
-			i = encodeVarintTx(dAtA, i, uint64(size))
+	if len(m.Signatures) > 0 {
+		for iNdEx := len(m.Signatures) - 1; iNdEx >= 0; iNdEx-- {
+			i -= len(m.Signatures[iNdEx])
+			copy(dAtA[i:], m.Signatures[iNdEx])
+			i = encodeVarintTx(dAtA, i, uint64(len(m.Signatures[iNdEx])))
+			i--
+			dAtA[i] = 0x22
 		}
+	}
+	if len(m.FeedData) > 0 {
+		i -= len(m.FeedData)
+		copy(dAtA[i:], m.FeedData)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.FeedData)))
 		i--
 		dAtA[i] = 0x1a
 	}
-	if len(m.FeedOwner) > 0 {
-		i -= len(m.FeedOwner)
-		copy(dAtA[i:], m.FeedOwner)
-		i = encodeVarintTx(dAtA, i, uint64(len(m.FeedOwner)))
+	if len(m.Submitter) > 0 {
+		i -= len(m.Submitter)
+		copy(dAtA[i:], m.Submitter)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.Submitter)))
 		i--
 		dAtA[i] = 0x12
 	}
@@ -284,6 +730,41 @@ func (m *MsgFeedData) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		i = encodeVarintTx(dAtA, i, uint64(len(m.FeedId)))
 		i--
 		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *MsgFeedDataResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *MsgFeedDataResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *MsgFeedDataResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.TxHash) > 0 {
+		i -= len(m.TxHash)
+		copy(dAtA[i:], m.TxHash)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.TxHash)))
+		i--
+		dAtA[i] = 0x12
+	}
+	if m.Height != 0 {
+		i = encodeVarintTx(dAtA, i, uint64(m.Height))
+		i--
+		dAtA[i] = 0x8
 	}
 	return len(dAtA) - i, nil
 }
@@ -317,9 +798,14 @@ func (m *OCRAbiEncoded) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	}
 	if len(m.Observations) > 0 {
 		for iNdEx := len(m.Observations) - 1; iNdEx >= 0; iNdEx-- {
-			i -= len(m.Observations[iNdEx])
-			copy(dAtA[i:], m.Observations[iNdEx])
-			i = encodeVarintTx(dAtA, i, uint64(len(m.Observations[iNdEx])))
+			{
+				size, err := m.Observations[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintTx(dAtA, i, uint64(size))
+			}
 			i--
 			dAtA[i] = 0x1a
 		}
@@ -341,6 +827,88 @@ func (m *OCRAbiEncoded) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
+func (m *Observation) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *Observation) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *Observation) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.Data) > 0 {
+		i -= len(m.Data)
+		copy(dAtA[i:], m.Data)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.Data)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *OCRFeedDataInStore) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *OCRFeedDataInStore) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *OCRFeedDataInStore) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.RoundId != 0 {
+		i = encodeVarintTx(dAtA, i, uint64(m.RoundId))
+		i--
+		dAtA[i] = 0x18
+	}
+	if m.DeserializedOCRReport != nil {
+		{
+			size, err := m.DeserializedOCRReport.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintTx(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x12
+	}
+	if m.FeedData != nil {
+		{
+			size, err := m.FeedData.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintTx(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
 func encodeVarintTx(dAtA []byte, offset int, v uint64) int {
 	offset -= sovTx(v)
 	base := offset
@@ -352,7 +920,7 @@ func encodeVarintTx(dAtA []byte, offset int, v uint64) int {
 	dAtA[offset] = uint8(v)
 	return base
 }
-func (m *MsgFeedData) Size() (n int) {
+func (m *MsgFeed) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -366,8 +934,70 @@ func (m *MsgFeedData) Size() (n int) {
 	if l > 0 {
 		n += 1 + l + sovTx(uint64(l))
 	}
-	if m.FeedData != nil {
-		l = m.FeedData.Size()
+	if len(m.DataProviders) > 0 {
+		for _, e := range m.DataProviders {
+			l = e.Size()
+			n += 1 + l + sovTx(uint64(l))
+		}
+	}
+	return n
+}
+
+func (m *DataProvider) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.Address)
+	if l > 0 {
+		n += 1 + l + sovTx(uint64(l))
+	}
+	l = len(m.PubKey)
+	if l > 0 {
+		n += 1 + l + sovTx(uint64(l))
+	}
+	return n
+}
+
+func (m *MsgFeedData) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.FeedId)
+	if l > 0 {
+		n += 1 + l + sovTx(uint64(l))
+	}
+	l = len(m.Submitter)
+	if l > 0 {
+		n += 1 + l + sovTx(uint64(l))
+	}
+	l = len(m.FeedData)
+	if l > 0 {
+		n += 1 + l + sovTx(uint64(l))
+	}
+	if len(m.Signatures) > 0 {
+		for _, b := range m.Signatures {
+			l = len(b)
+			n += 1 + l + sovTx(uint64(l))
+		}
+	}
+	return n
+}
+
+func (m *MsgFeedDataResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.Height != 0 {
+		n += 1 + sovTx(uint64(m.Height))
+	}
+	l = len(m.TxHash)
+	if l > 0 {
 		n += 1 + l + sovTx(uint64(l))
 	}
 	return n
@@ -388,8 +1018,8 @@ func (m *OCRAbiEncoded) Size() (n int) {
 		n += 1 + l + sovTx(uint64(l))
 	}
 	if len(m.Observations) > 0 {
-		for _, b := range m.Observations {
-			l = len(b)
+		for _, e := range m.Observations {
+			l = e.Size()
 			n += 1 + l + sovTx(uint64(l))
 		}
 	}
@@ -400,13 +1030,46 @@ func (m *OCRAbiEncoded) Size() (n int) {
 	return n
 }
 
+func (m *Observation) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.Data)
+	if l > 0 {
+		n += 1 + l + sovTx(uint64(l))
+	}
+	return n
+}
+
+func (m *OCRFeedDataInStore) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.FeedData != nil {
+		l = m.FeedData.Size()
+		n += 1 + l + sovTx(uint64(l))
+	}
+	if m.DeserializedOCRReport != nil {
+		l = m.DeserializedOCRReport.Size()
+		n += 1 + l + sovTx(uint64(l))
+	}
+	if m.RoundId != 0 {
+		n += 1 + sovTx(uint64(m.RoundId))
+	}
+	return n
+}
+
 func sovTx(x uint64) (n int) {
 	return (math_bits.Len64(x|1) + 6) / 7
 }
 func sozTx(x uint64) (n int) {
 	return sovTx(uint64((x << 1) ^ uint64((int64(x) >> 63))))
 }
-func (m *MsgFeedData) Unmarshal(dAtA []byte) error {
+func (m *MsgFeed) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -429,10 +1092,10 @@ func (m *MsgFeedData) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: MsgFeedData: wiretype end group for non-group")
+			return fmt.Errorf("proto: MsgFeed: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: MsgFeedData: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: MsgFeed: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
@@ -503,7 +1166,7 @@ func (m *MsgFeedData) Unmarshal(dAtA []byte) error {
 			iNdEx = postIndex
 		case 3:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field FeedData", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field DataProviders", wireType)
 			}
 			var msglen int
 			for shift := uint(0); ; shift += 7 {
@@ -530,12 +1193,411 @@ func (m *MsgFeedData) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if m.FeedData == nil {
-				m.FeedData = &OCRAbiEncoded{}
-			}
-			if err := m.FeedData.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+			m.DataProviders = append(m.DataProviders, &DataProvider{})
+			if err := m.DataProviders[len(m.DataProviders)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTx(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthTx
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *DataProvider) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTx
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: DataProvider: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: DataProvider: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Address", wireType)
+			}
+			var byteLen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				byteLen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if byteLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + byteLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Address = append(m.Address[:0], dAtA[iNdEx:postIndex]...)
+			if m.Address == nil {
+				m.Address = []byte{}
+			}
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field PubKey", wireType)
+			}
+			var byteLen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				byteLen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if byteLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + byteLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.PubKey = append(m.PubKey[:0], dAtA[iNdEx:postIndex]...)
+			if m.PubKey == nil {
+				m.PubKey = []byte{}
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTx(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthTx
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *MsgFeedData) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTx
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: MsgFeedData: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: MsgFeedData: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field FeedId", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.FeedId = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Submitter", wireType)
+			}
+			var byteLen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				byteLen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if byteLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + byteLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Submitter = append(m.Submitter[:0], dAtA[iNdEx:postIndex]...)
+			if m.Submitter == nil {
+				m.Submitter = []byte{}
+			}
+			iNdEx = postIndex
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field FeedData", wireType)
+			}
+			var byteLen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				byteLen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if byteLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + byteLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.FeedData = append(m.FeedData[:0], dAtA[iNdEx:postIndex]...)
+			if m.FeedData == nil {
+				m.FeedData = []byte{}
+			}
+			iNdEx = postIndex
+		case 4:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Signatures", wireType)
+			}
+			var byteLen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				byteLen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if byteLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + byteLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Signatures = append(m.Signatures, make([]byte, postIndex-iNdEx))
+			copy(m.Signatures[len(m.Signatures)-1], dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTx(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthTx
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *MsgFeedDataResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTx
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: MsgFeedDataResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: MsgFeedDataResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Height", wireType)
+			}
+			m.Height = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Height |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field TxHash", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.TxHash = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
@@ -659,7 +1721,7 @@ func (m *OCRAbiEncoded) Unmarshal(dAtA []byte) error {
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Observations", wireType)
 			}
-			var byteLen int
+			var msglen int
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowTx
@@ -669,23 +1731,25 @@ func (m *OCRAbiEncoded) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				byteLen |= int(b&0x7F) << shift
+				msglen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
-			if byteLen < 0 {
+			if msglen < 0 {
 				return ErrInvalidLengthTx
 			}
-			postIndex := iNdEx + byteLen
+			postIndex := iNdEx + msglen
 			if postIndex < 0 {
 				return ErrInvalidLengthTx
 			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Observations = append(m.Observations, make([]byte, postIndex-iNdEx))
-			copy(m.Observations[len(m.Observations)-1], dAtA[iNdEx:postIndex])
+			m.Observations = append(m.Observations, &Observation{})
+			if err := m.Observations[len(m.Observations)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
 			iNdEx = postIndex
 		case 4:
 			if wireType != 2 {
@@ -721,6 +1785,231 @@ func (m *OCRAbiEncoded) Unmarshal(dAtA []byte) error {
 				m.Submitter = []byte{}
 			}
 			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTx(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthTx
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *Observation) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTx
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: Observation: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: Observation: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Data", wireType)
+			}
+			var byteLen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				byteLen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if byteLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + byteLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Data = append(m.Data[:0], dAtA[iNdEx:postIndex]...)
+			if m.Data == nil {
+				m.Data = []byte{}
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTx(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthTx
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *OCRFeedDataInStore) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTx
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: OCRFeedDataInStore: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: OCRFeedDataInStore: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field FeedData", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.FeedData == nil {
+				m.FeedData = &MsgFeedData{}
+			}
+			if err := m.FeedData.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field DeserializedOCRReport", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.DeserializedOCRReport == nil {
+				m.DeserializedOCRReport = &OCRAbiEncoded{}
+			}
+			if err := m.DeserializedOCRReport.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 3:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field RoundId", wireType)
+			}
+			m.RoundId = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.RoundId |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
 		default:
 			iNdEx = preIndex
 			skippy, err := skipTx(dAtA[iNdEx:])
