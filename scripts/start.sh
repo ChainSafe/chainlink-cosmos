@@ -33,14 +33,26 @@ perl -0777 -i.original -pe 's/API server should be enabled.\nenable = false/API 
 chainlinkd start
 
 # Submit feed data
-#chainlinkd tx chainlink submit-feedData "testfeedid1" "feed 1 test data" "dummy signatures" --from alice --keyring-backend test --chain-id testchain
+# chainlinkd tx chainlink submit-feedData "testfeedid1" "feed 1 test data" "dummy signatures" --from alice --keyring-backend test --chain-id testchain
 
 # Query feed data by txHash
-#chainlinkd query tx FDD655DE6F4E1B0F7A04163F856A88E4BACAC9755402B90F77D9EF9F45570168 --chain-id testchain -o json
+#chainlinkd query tx 72B784BC0716FCD6A8A6E3E08625AB70DFC0D03CD6781D02BDB7E250B3D22EC0 --chain-id testchain -o json
 
 # Query feed data by getRoundFeedData with pagination
 #chainlinkd query chainlink getRoundFeedData 1 "testfeedid1" --chain-id testchain -o json
 
+# invalid query with incorrect FeedId
+#chainlinkd query chainlink getRoundFeedData 999 "testfeedid1" --chain-id testchain -o json
+
 # Query feed data by getLatestFeedData
 #chainlinkd query chainlink getLatestFeedData "testfeedid1" --chain-id testchain -o json
 
+
+# chainlinkd tx chainlink submit-feedData "testfeedid1" "feed 1 test data1" "dummy signatures" --from alice --keyring-backend test --chain-id testchain
+# chainlinkd tx chainlink submit-feedData "testfeedid1" "feed 1 test data2" "dummy signatures" --from alice --keyring-backend test --chain-id testchain
+
+# chainlinkd tx chainlink submit-feedData "testfeedid2" "feed 2 test data" "dummy signatures" --from alice --keyring-backend test --chain-id testchain
+
+# chainlinkd query chainlink getLatestFeedData "testfeedid1" --chain-id testchain -o json
+
+# chainlinkd query chainlink getLatestFeedData "testfeedid2" --chain-id testchain -o json
