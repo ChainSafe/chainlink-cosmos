@@ -3,11 +3,12 @@ package cli
 import (
 	"context"
 	"errors"
+	"strconv"
+
 	"github.com/ChainSafe/chainlink-cosmos/x/chainlink/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/spf13/cobra"
-	"strconv"
 )
 
 func CmdGetFeedDataByRound() *cobra.Command {

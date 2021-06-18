@@ -5,6 +5,7 @@ import (
 
 	"github.com/ChainSafe/chainlink-cosmos/x/chainlink/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
 var _ types.MsgServer = Keeper{}
@@ -13,6 +14,10 @@ var _ types.MsgServer = Keeper{}
 func (k Keeper) SubmitFeedData(c context.Context, msg *types.MsgFeedData) (*types.MsgFeedDataResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
 	height, txHash := k.SetFeedData(ctx, msg)
+
+	if height == 0 {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidHeight, "incorrect height found")
+	}
 
 	return &types.MsgFeedDataResponse{
 		Height: uint64(height),

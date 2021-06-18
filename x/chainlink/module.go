@@ -3,6 +3,7 @@ package chainlink
 import (
 	"encoding/json"
 	"fmt"
+
 	"github.com/ChainSafe/chainlink-cosmos/x/chainlink/client/rest"
 
 	// this line is used by starport scaffolding # 1
@@ -91,7 +92,7 @@ func (a AppModuleBasic) GetTxCmd() *cobra.Command {
 
 // GetQueryCmd returns the capability module's root query command.
 func (AppModuleBasic) GetQueryCmd() *cobra.Command {
-	return cli.GetQueryCmd(types.StoreKey)
+	return cli.GetQueryCmd(types.FeedStoreKey)
 }
 
 // ----------------------------------------------------------------------------

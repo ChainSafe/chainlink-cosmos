@@ -2,6 +2,8 @@ package keeper
 
 import (
 	"fmt"
+
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/types/query"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -15,25 +17,29 @@ import (
 
 // TODO: implement a map to maintain roundId in memory for now
 // data structure:  map[feedId]roundId
-var roundId uint64 = 1
+// var roundId uint64 = 1
+var roundId uint64
 
 type (
 	Keeper struct {
-		cdc      codec.Marshaler
-		storeKey sdk.StoreKey
-		memKey   sdk.StoreKey
+		cdc           codec.Marshaler
+		feedStoreKey  sdk.StoreKey
+		roundStoreKey sdk.StoreKey
+		memKey        sdk.StoreKey
 	}
 )
 
 func NewKeeper(
 	cdc codec.Marshaler,
-	storeKey,
+	feedStoreKey,
+	roundStoreKey,
 	memKey sdk.StoreKey,
 ) *Keeper {
 	return &Keeper{
-		cdc:      cdc,
-		storeKey: storeKey,
-		memKey:   memKey,
+		cdc:           cdc,
+		feedStoreKey:  feedStoreKey,
+		roundStoreKey: roundStoreKey,
+		memKey:        memKey,
 	}
 }
 
@@ -42,6 +48,20 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 }
 
 func (k Keeper) SetFeedData(ctx sdk.Context, feedData *types.MsgFeedData) (int64, []byte) {
+	// use store with gas meter
+	roundStore := ctx.KVStore(k.roundStoreKey)
+
+	feedRoundIdKey := types.KeyPrefix(types.RoundIdKey + feedData.FeedId)
+	roundIdBytes := roundStore.Get(feedRoundIdKey)
+	if len(roundIdBytes) == 0 {
+		roundId = 1
+		roundStore.Set(types.KeyPrefix(types.RoundIdKey+feedData.FeedId), i64tob(roundId))
+	} else {
+		oldRoundId := btoi64(roundIdBytes)
+		roundId = oldRoundId + 1
+		roundStore.Set(types.KeyPrefix(types.RoundIdKey+feedData.FeedId), i64tob(roundId))
+	}
+
 	// TODO: add more complex feed validation here such as verify against other modules
 
 	// TODO: deserialize the feedData.FeedData if it's an OCR report, assume all the feedData is OCR report for now.
@@ -64,17 +84,19 @@ func (k Keeper) SetFeedData(ctx sdk.Context, feedData *types.MsgFeedData) (int64
 		DeserializedOCRReport: &deserializedOCRReport,
 		RoundId:               roundId,
 	}
-	// TODO: add round index here, need to figure out a way to generate round number, below line is a tmp solution
-	roundId += 1
 
-	// use store with gas meter
-	store := ctx.KVStore(k.storeKey)
+	feedStore := ctx.KVStore(k.feedStoreKey)
 
 	f := k.cdc.MustMarshalBinaryBare(&finalFeedDataInStore)
-	store.Set(types.KeyPrefix(types.FeedDataKey), f)
+	// will require the feedDataKey + feedId + roundId to set.
+	feedStore.Set(types.KeyPrefix(types.FeedDataKey+feedData.FeedId+fmt.Sprintf("%d", roundId)), f)
 
 	return ctx.BlockHeight(), ctx.TxBytes()
 }
+
+// func (k Keeper) GetRoundFeedDataByFeedAndRoundId()
+
+// func (k Keeper) GerRoundFeedDataByRoundId()
 
 func (k Keeper) GetRoundFeedDataByFilter(ctx sdk.Context, req *types.GetRoundDataRequest) (*types.GetRoundDataResponse, error) {
 	if req == nil {
@@ -84,15 +106,16 @@ func (k Keeper) GetRoundFeedDataByFilter(ctx sdk.Context, req *types.GetRoundDat
 	var feedRoundData []*types.RoundData
 
 	// use store with gas meter
-	store := ctx.KVStore(k.storeKey)
+	feedStore := ctx.KVStore(k.feedStoreKey)
 
-	pageRes, err := query.Paginate(store, req.Pagination, func(key []byte, value []byte) error {
+	pageRes, err := query.Paginate(feedStore, req.Pagination, func(key []byte, value []byte) error {
 		var feedData types.OCRFeedDataInStore
+
 		if err := k.cdc.UnmarshalBinaryBare(value, &feedData); err != nil {
 			return err
 		}
 
-		// TODO: update the feedDataFilter according to the roundId
+		// TODO: verify that the roundId procures the correct feedData
 		feedRoundData = feedDataFilter(req.GetFeedId(), req.GetRoundId(), feedData)
 
 		return nil
@@ -116,8 +139,12 @@ func (k Keeper) GetLatestRoundFeedDataByFilter(ctx sdk.Context, req *types.GetLa
 	var feedRoundData []*types.RoundData
 
 	// use store with gas meter
-	store := ctx.KVStore(k.storeKey)
-	iterator := sdk.KVStorePrefixIterator(store, types.KeyPrefix(types.FeedDataKey))
+	roundStore := ctx.KVStore(k.roundStoreKey)
+	feedRoundIdKey := types.KeyPrefix(types.RoundIdKey + req.FeedId)
+
+	// use store with gas meter
+	feedStore := ctx.KVStore(k.feedStoreKey)
+	iterator := sdk.KVStorePrefixIterator(feedStore, types.KeyPrefix(types.FeedDataKey))
 
 	defer iterator.Close()
 
@@ -125,12 +152,32 @@ func (k Keeper) GetLatestRoundFeedDataByFilter(ctx sdk.Context, req *types.GetLa
 		var feedData types.OCRFeedDataInStore
 		k.cdc.MustUnmarshalBinaryBare(iterator.Value(), &feedData)
 
-		latestRoundId := roundId - 1
+		roundIdBytes := roundStore.Get(feedRoundIdKey)
+		if len(roundIdBytes) == 0 {
+			return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "The provided feedId in req does not have any roundId associated.")
+		}
+		roundId := btoi64(roundIdBytes)
 		// TODO: update the feedDataFilter according to the in memory roundId
-		feedRoundData = feedDataFilter(req.GetFeedId(), latestRoundId, feedData)
+		feedRoundData = feedDataFilter(req.GetFeedId(), roundId, feedData)
 	}
 
 	return &types.GetLatestRoundDataResponse{
 		RoundData: feedRoundData,
 	}, nil
+}
+
+func (k Keeper) GetLatestRoundId(ctx sdk.Context, feedId string) []byte {
+	return getLatestRoundId(k, ctx, feedId)
+}
+
+func getLatestRoundId(k Keeper, ctx sdk.Context, feedId string) []byte {
+	// use store with gas meter
+	roundStore := ctx.KVStore(k.roundStoreKey)
+	feedRoundIdKey := types.KeyPrefix(types.RoundIdKey + feedId)
+	roundIdBytes := roundStore.Get(feedRoundIdKey)
+	if len(roundIdBytes) == 0 {
+		return []byte{}
+	} else {
+		return roundIdBytes
+	}
 }
