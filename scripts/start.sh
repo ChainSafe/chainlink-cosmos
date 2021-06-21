@@ -33,29 +33,25 @@ perl -0777 -i.original -pe 's/API server should be enabled.\nenable = false/API 
 chainlinkd start
 
 # Submit feed data
- chainlinkd tx chainlink submit-feedData "testfeedid1" "feed 1 test data" "dummy signatures" --from alice --keyring-backend test --chain-id testchain
- chainlinkd tx chainlink submit-feedData "testfeedid2" "feed 2 test data" "dummy signatures" --from alice --keyring-backend test --chain-id testchain
- chainlinkd tx chainlink submit-feedData "testfeedid3" "feed 3 test data" "dummy signatures" --from alice --keyring-backend test --chain-id testchain
- chainlinkd tx chainlink submit-feedData "testfeedid1" "feed 1 test data" "dummy signatures" --from alice --keyring-backend test --chain-id testchain
- chainlinkd tx chainlink submit-feedData "testfeedid1" "feed 1 test data" "dummy signatures" --from alice --keyring-backend test --chain-id testchain
- chainlinkd tx chainlink submit-feedData "testfeedid1" "feed 1 test data" "dummy signatures" --from alice --keyring-backend test --chain-id testchain
+# chainlinkd tx chainlink submit-feedData "testfeedid1" "feed 1 test data" "dummy signatures" --from alice --keyring-backend test --chain-id testchain
 
 # Query feed data by txHash
 #chainlinkd query tx AD1CEB561E3225D26E682918FDFFD4B507B0FE15200072AB3EC2C40380280B8F --chain-id testchain -o json
 
-# Query feed data by getRoundFeedData with pagination
-chainlinkd query chainlink getRoundFeedData 1 "testfeedid1" --chain-id testchain -o json
+# Query feed data by roundId and feedId
+#chainlinkd query chainlink getRoundFeedData 1 "testfeedid1" --chain-id testchain -o json
 
-chainlinkd query chainlink getRoundFeedData 2 --chain-id testchain -o json
+# Query feed data by roundId only
+#chainlinkd query chainlink getRoundFeedData 2 --chain-id testchain -o json
 
 # invalid query with incorrect FeedId
 #chainlinkd query chainlink getRoundFeedData 999 "testfeedid1" --chain-id testchain -o json
 
 # Query the latest round feed data with feedId
-chainlinkd query chainlink getLatestFeedData "testfeedid2" --chain-id testchain -o json
+#chainlinkd query chainlink getLatestFeedData "testfeedid1" --chain-id testchain -o json
 
 # Query the latest round of feed data
-chainlinkd query chainlink getLatestFeedData --chain-id testchain -o json
+#chainlinkd query chainlink getLatestFeedData --chain-id testchain -o json
 
 # chainlinkd tx chainlink submit-feedData "testfeedid1" "feed 1 test data1" "dummy signatures" --from alice --keyring-backend test --chain-id testchain
 # chainlinkd tx chainlink submit-feedData "testfeedid1" "feed 1 test data2" "dummy signatures" --from alice --keyring-backend test --chain-id testchain
