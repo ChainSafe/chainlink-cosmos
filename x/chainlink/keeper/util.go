@@ -1,27 +1,27 @@
 package keeper
 
-import "github.com/ChainSafe/chainlink-cosmos/x/chainlink/types"
+import (
+	"github.com/ChainSafe/chainlink-cosmos/x/chainlink/types"
+)
 
 // feedDataFilter filters the feedData query result by feedId and roundId
-func feedDataFilter(requiredFeedID string, requiredRoundID uint64, feedData types.OCRFeedDataInStore) []*types.RoundData {
-	feedRoundData := make([]*types.RoundData, 0)
-
+func feedDataFilter(requiredFeedID string, requiredRoundID uint64, feedData types.OCRFeedDataInStore) *types.RoundData {
 	if feedData.GetRoundId() == requiredRoundID && requiredFeedID == feedData.GetFeedData().GetFeedId() {
-		roundData := types.RoundData{
+		roundData := &types.RoundData{
 			FeedId:   feedData.GetFeedData().GetFeedId(),
 			FeedData: feedData.GetDeserializedOCRReport(),
 		}
-		feedRoundData = append(feedRoundData, &roundData)
+		return roundData
 	}
 	if feedData.GetRoundId() == requiredRoundID && requiredFeedID == "" {
-		roundData := types.RoundData{
+		roundData := &types.RoundData{
 			FeedId:   feedData.GetFeedData().GetFeedId(),
 			FeedData: feedData.GetDeserializedOCRReport(),
 		}
-		feedRoundData = append(feedRoundData, &roundData)
+		return roundData
 	}
 
-	return feedRoundData
+	return nil
 }
 
 func i64tob(val uint64) []byte {

@@ -25,6 +25,13 @@ func KeyPrefix(p string) []byte {
 }
 
 const (
+	/*
+		FeedStore key pattern: types.FeedDataKey + feedId + roundId
+	*/
 	FeedDataKey = "feedData"
-	RoundIdKey  = "roundId"
+
+	/*
+		RoundStore key pattern: types.RoundIdKey + feedId
+	*/
+	RoundIdKey = "roundId"
 )
