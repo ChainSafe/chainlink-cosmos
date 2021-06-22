@@ -6,19 +6,21 @@ import (
 
 // feedDataFilter filters the feedData query result by feedId and roundId
 func feedDataFilter(requiredFeedID string, requiredRoundID uint64, feedData types.OCRFeedDataInStore) *types.RoundData {
-	if feedData.GetRoundId() == requiredRoundID && requiredFeedID == feedData.GetFeedData().GetFeedId() {
-		roundData := &types.RoundData{
-			FeedId:   feedData.GetFeedData().GetFeedId(),
-			FeedData: feedData.GetDeserializedOCRReport(),
+	if feedData.GetRoundId() == requiredRoundID {
+		if requiredFeedID == feedData.GetFeedData().GetFeedId() {
+			roundData := &types.RoundData{
+				FeedId:   feedData.GetFeedData().GetFeedId(),
+				FeedData: feedData.GetDeserializedOCRReport(),
+			}
+			return roundData
 		}
-		return roundData
-	}
-	if feedData.GetRoundId() == requiredRoundID && requiredFeedID == "" {
-		roundData := &types.RoundData{
-			FeedId:   feedData.GetFeedData().GetFeedId(),
-			FeedData: feedData.GetDeserializedOCRReport(),
+		if requiredFeedID == "" {
+			roundData := &types.RoundData{
+				FeedId:   feedData.GetFeedData().GetFeedId(),
+				FeedData: feedData.GetDeserializedOCRReport(),
+			}
+			return roundData
 		}
-		return roundData
 	}
 
 	return nil
