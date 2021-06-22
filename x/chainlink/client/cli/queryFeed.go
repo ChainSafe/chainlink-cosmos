@@ -3,11 +3,12 @@ package cli
 import (
 	"context"
 	"errors"
+	"strconv"
+
 	"github.com/ChainSafe/chainlink-cosmos/x/chainlink/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/spf13/cobra"
-	"strconv"
 )
 
 func CmdGetFeedDataByRound() *cobra.Command {
@@ -24,7 +25,11 @@ func CmdGetFeedDataByRound() *cobra.Command {
 			if err != nil {
 				return errors.New("roundId is invalid")
 			}
-			feedId := args[1]
+
+			var feedId string
+			if len(args) >= 2 {
+				feedId = args[1]
+			}
 
 			clientCtx := client.GetClientContextFromCmd(cmd)
 			clientCtx, err = client.ReadPersistentCommandFlags(clientCtx, cmd.Flags())
@@ -63,7 +68,10 @@ func CmdGetLatestFeedData() *cobra.Command {
 		Use:   "getLatestFeedData [feedId]",
 		Short: "List the latest round feed data",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			feedId := args[0]
+			var feedId string
+			if len(args) != 0 {
+				feedId = args[0]
+			}
 
 			clientCtx := client.GetClientContextFromCmd(cmd)
 			clientCtx, err := client.ReadPersistentCommandFlags(clientCtx, cmd.Flags())

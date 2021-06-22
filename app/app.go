@@ -203,7 +203,7 @@ func New(
 		authtypes.StoreKey, banktypes.StoreKey, stakingtypes.StoreKey,
 		minttypes.StoreKey, distrtypes.StoreKey, slashingtypes.StoreKey,
 		govtypes.StoreKey, paramstypes.StoreKey, upgradetypes.StoreKey,
-		evidencetypes.StoreKey, capabilitytypes.StoreKey, chainlinktypes.StoreKey,
+		evidencetypes.StoreKey, capabilitytypes.StoreKey, chainlinktypes.FeedStoreKey, chainlinktypes.RoundStoreKey,
 	)
 	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey)
 	memKeys := sdk.NewMemoryStoreKeys(capabilitytypes.MemStoreKey, chainlinktypes.MemStoreKey)
@@ -275,7 +275,7 @@ func New(
 	app.EvidenceKeeper = *evidenceKeeper
 
 	// Create Chainlink keepers
-	app.ChainLinkKeeper = *chainlinkkeeper.NewKeeper(appCodec, keys[chainlinktypes.StoreKey], keys[chainlinktypes.MemStoreKey])
+	app.ChainLinkKeeper = *chainlinkkeeper.NewKeeper(appCodec, keys[chainlinktypes.FeedStoreKey], keys[chainlinktypes.RoundStoreKey], keys[chainlinktypes.MemStoreKey])
 
 	/****  Module Options ****/
 

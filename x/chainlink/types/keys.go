@@ -5,7 +5,10 @@ const (
 	ModuleName = "chainlink"
 
 	// StoreKey defines the primary module store key
-	StoreKey = ModuleName
+	FeedStoreKey = ModuleName + "feed"
+
+	// RoundKey defines the secondary module store key
+	RoundStoreKey = ModuleName + "round"
 
 	// RouterKey is the message route for slashing
 	RouterKey = ModuleName
@@ -22,5 +25,13 @@ func KeyPrefix(p string) []byte {
 }
 
 const (
+	/*
+		FeedStore key pattern: types.FeedDataKey + feedId + roundId
+	*/
 	FeedDataKey = "feedData"
+
+	/*
+		RoundStore key pattern: types.RoundIdKey + feedId
+	*/
+	RoundIdKey = "roundId"
 )
