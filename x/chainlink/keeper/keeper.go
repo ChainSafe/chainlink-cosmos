@@ -177,7 +177,6 @@ func (k Keeper) GetLatestRoundId(store sdk.KVStore, feedId string) uint64 {
 }
 
 func (k Keeper) SetModuleOwner(ctx sdk.Context, moduleOwner *types.ModuleOwner) (int64, []byte) {
-	fmt.Println("WWWWWWWWWW!!!!!!!!!!!")
 	moduleStore := ctx.KVStore(k.moduleStoreKey)
 
 	f := k.cdc.MustMarshalBinaryBare(moduleOwner)
@@ -188,7 +187,6 @@ func (k Keeper) SetModuleOwner(ctx sdk.Context, moduleOwner *types.ModuleOwner) 
 }
 
 func (k Keeper) GetModuleOwnerList(ctx sdk.Context) *types.GetModuleOwnerResponse {
-	fmt.Println("HHHHHHHHHH???")
 	moduleStore := ctx.KVStore(k.moduleStoreKey)
 	iterator := sdk.KVStorePrefixIterator(moduleStore, types.KeyPrefix(types.ModuleOwnerKey))
 
@@ -202,8 +200,6 @@ func (k Keeper) GetModuleOwnerList(ctx sdk.Context) *types.GetModuleOwnerRespons
 
 		moduleOwners = append(moduleOwners, &moduleOwner)
 	}
-
-
 
 	return &types.GetModuleOwnerResponse{
 		ModuleOwner: moduleOwners,

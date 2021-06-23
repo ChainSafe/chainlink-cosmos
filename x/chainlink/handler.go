@@ -40,7 +40,6 @@ func handlerMsgSubmitFeedData(ctx sdk.Context, k keeper.Keeper, feedData *types.
 }
 
 func handlerMsgAddModuleOwner(ctx sdk.Context, k keeper.Keeper, moduleOwner *types.ModuleOwner) (*sdk.Result, error) {
-	fmt.Println("KKKEEEPPPERRRRRRR!!!", moduleOwner)
 	msgResult, err := k.AddModuleOwner(sdk.WrapSDKContext(ctx), moduleOwner)
 	if err != nil {
 		return nil, err

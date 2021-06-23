@@ -354,7 +354,7 @@ func New(
 	// initialize BaseApp
 	app.SetInitChainer(app.InitChainer)
 	app.SetBeginBlocker(app.BeginBlocker)
-	app.SetAnteHandler(
+	app.SetAnteHandler( // TODO: add chainlink keeper and add AnteHandle and add checkTx to verify the signer of add module owner is a module owner
 		ante.NewAnteHandler(
 			app.AccountKeeper, app.BankKeeper, ante.DefaultSigVerificationGasConsumer,
 			encodingConfig.TxConfig.SignModeHandler(),
