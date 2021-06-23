@@ -20,3 +20,9 @@ func (k Keeper) LatestRoundData(c context.Context, req *types.GetLatestRoundData
 	ctx := sdk.UnwrapSDKContext(c)
 	return k.GetLatestRoundFeedDataByFilter(ctx, req)
 }
+
+// GetAllModuleOwner implements the Query/GetAllModuleOwner gRPC method
+func (k Keeper) GetAllModuleOwner(c context.Context, _ *types.GetModuleOwnerRequest) (*types.GetModuleOwnerResponse, error) {
+	ctx := sdk.UnwrapSDKContext(c)
+	return k.GetModuleOwnerList(ctx), nil
+}

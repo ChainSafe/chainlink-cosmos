@@ -1,12 +1,23 @@
 syntax = "proto3";
 package chainlink.v1beta;
 
-// this line is used by starport scaffolding # genesis/proto/import
+import "gogoproto/gogo.proto";
 
 option go_package = "github.com/ChainSafe/chainlink-cosmos/x/chainlink/types";
 
-// GenesisState defines the chainlink module's genesis state.
 message GenesisState {
-    // this line is used by starport scaffolding # genesis/proto/state
-    // this line is used by starport scaffolding # ibc/genesis/proto
+  // moduleOwners is an array containing the chainlink init module owner accounts.
+  repeated ModuleOwner moduleOwners = 1;
+}
+
+message ModuleOwner {
+  // address defines the address of the module owner
+  bytes address = 1 [
+    (gogoproto.moretags) = "yaml:\"address\"",
+    (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"
+  ];
+  // pubKey defined the public key of the module owner
+  bytes pubKey = 2 [
+    (gogoproto.moretags) = "yaml:\"pub_key\""
+  ];
 }

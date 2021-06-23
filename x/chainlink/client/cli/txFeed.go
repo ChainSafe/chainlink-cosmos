@@ -11,7 +11,7 @@ import (
 
 func CmdSubmitFeedData() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "submit-feedData [feedId] [feedData] [signatures]",
+		Use:   "submitFeedData [feedId] [feedData] [signatures]",
 		Short: "Submit feed data",
 		Long:  "Submit feed data, called by an OCR round leader to submit an off-chain report of data signed by a number of oracles.",
 		Args:  cobra.MinimumNArgs(3),

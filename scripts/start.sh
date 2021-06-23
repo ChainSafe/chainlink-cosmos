@@ -17,7 +17,7 @@ chainlinkd keys add bob --keyring-backend test
 chainlinkd add-genesis-account $(chainlinkd keys show alice -a --keyring-backend test) 1000token,100000000stake
 chainlinkd add-genesis-account $(chainlinkd keys show bob -a --keyring-backend test) 1000token,100000000stake
 
-# Generate the gen tx
+# Generate the gen tx that creates a validator with a self-delegation,
 chainlinkd gentx alice 100000000stake --amount=100000000stake --keyring-backend test --chain-id testchain
 
 # Input the genTx into the genesis file, so that the chain is aware of the validators
@@ -33,10 +33,10 @@ perl -0777 -i.original -pe 's/API server should be enabled.\nenable = false/API 
 chainlinkd start
 
 # Submit feed data
-# chainlinkd tx chainlink submit-feedData "testfeedid1" "feed 1 test data" "dummy signatures" --from alice --keyring-backend test --chain-id testchain
+# chainlinkd tx chainlink submitFeedData "testfeedid1" "feed 1 test data" "dummy signatures" --from alice --keyring-backend test --chain-id testchain
 
 # Query feed data by txHash
-#chainlinkd query tx AD1CEB561E3225D26E682918FDFFD4B507B0FE15200072AB3EC2C40380280B8F --chain-id testchain -o json
+#chainlinkd query tx A0B849C7A5ABB51B3FA9DC723A6C1CB8C4B6C255DB98D0EC0FD3DCD04316E387 --chain-id testchain -o json
 
 # Query feed data by roundId and feedId
 #chainlinkd query chainlink getRoundFeedData 1 "testfeedid1" --chain-id testchain -o json
@@ -53,11 +53,8 @@ chainlinkd start
 # Query the latest round of feed data
 #chainlinkd query chainlink getLatestFeedData --chain-id testchain -o json
 
-# chainlinkd tx chainlink submit-feedData "testfeedid1" "feed 1 test data1" "dummy signatures" --from alice --keyring-backend test --chain-id testchain
-# chainlinkd tx chainlink submit-feedData "testfeedid1" "feed 1 test data2" "dummy signatures" --from alice --keyring-backend test --chain-id testchain
+# chainlinkd query chainlink getModuleOwnerList --chain-id testchain -o json
 
-# chainlinkd tx chainlink submit-feedData "testfeedid2" "feed 2 test data" "dummy signatures" --from alice --keyring-backend test --chain-id testchain
+chainlinkd keys list --keyring-backend test
 
-# chainlinkd query chainlink getLatestFeedData "testfeedid1" --chain-id testchain -o json
-
-# chainlinkd query chainlink getLatestFeedData "testfeedid2" --chain-id testchain -o json
+ chainlinkd tx chainlink addModuleOwner "cosmos1tq9q6sfcfzkj5vq90la2nwfhz974whm8x9jl9s" "cosmospub1addwnpepqgr9xvm3s5ks9naq00ghvatww338q6p7jr4apg64vds0auva3vk4c3ddpl7" --from alice --keyring-backend test --chain-id testchain

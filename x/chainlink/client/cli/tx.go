@@ -2,6 +2,7 @@ package cli
 
 import (
 	"fmt"
+
 	"github.com/spf13/cobra"
 
 	"github.com/ChainSafe/chainlink-cosmos/x/chainlink/types"
@@ -19,6 +20,7 @@ func GetTxCmd() *cobra.Command {
 	}
 
 	cmd.AddCommand(CmdSubmitFeedData())
+	cmd.AddCommand(CmdAddModule())
 
 	return cmd
 }

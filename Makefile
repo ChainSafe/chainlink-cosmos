@@ -7,6 +7,8 @@ CHAINLINK_DAEMON_BINARY = chainlinkd
 ###                                  Build&Run                                  ###
 ###############################################################################
 
+all: update install start
+
 update:
 	${GO_MOD} go mod tidy
 	${GO_MOD} go mod vendor

@@ -16,10 +16,11 @@ import (
 
 type (
 	Keeper struct {
-		cdc           codec.Marshaler
-		feedStoreKey  sdk.StoreKey
-		roundStoreKey sdk.StoreKey
-		memKey        sdk.StoreKey
+		cdc            codec.Marshaler
+		feedStoreKey   sdk.StoreKey
+		roundStoreKey  sdk.StoreKey
+		moduleStoreKey sdk.StoreKey
+		memKey         sdk.StoreKey
 	}
 )
 
@@ -27,13 +28,15 @@ func NewKeeper(
 	cdc codec.Marshaler,
 	feedStoreKey,
 	roundStoreKey,
+	moduleStoreKey,
 	memKey sdk.StoreKey,
 ) *Keeper {
 	return &Keeper{
-		cdc:           cdc,
-		feedStoreKey:  feedStoreKey,
-		roundStoreKey: roundStoreKey,
-		memKey:        memKey,
+		cdc:            cdc,
+		feedStoreKey:   feedStoreKey,
+		roundStoreKey:  roundStoreKey,
+		moduleStoreKey: moduleStoreKey,
+		memKey:         memKey,
 	}
 }
 
@@ -171,4 +174,38 @@ func (k Keeper) GetLatestRoundId(store sdk.KVStore, feedId string) uint64 {
 	}
 
 	return latestRoundId
+}
+
+func (k Keeper) SetModuleOwner(ctx sdk.Context, moduleOwner *types.ModuleOwner) (int64, []byte) {
+	fmt.Println("WWWWWWWWWW!!!!!!!!!!!")
+	moduleStore := ctx.KVStore(k.moduleStoreKey)
+
+	f := k.cdc.MustMarshalBinaryBare(moduleOwner)
+
+	moduleStore.Set(types.KeyPrefix(types.ModuleOwnerKey), f)
+
+	return ctx.BlockHeight(), ctx.TxBytes()
+}
+
+func (k Keeper) GetModuleOwnerList(ctx sdk.Context) *types.GetModuleOwnerResponse {
+	fmt.Println("HHHHHHHHHH???")
+	moduleStore := ctx.KVStore(k.moduleStoreKey)
+	iterator := sdk.KVStorePrefixIterator(moduleStore, types.KeyPrefix(types.ModuleOwnerKey))
+
+	defer iterator.Close()
+
+	moduleOwners := make([]*types.ModuleOwner, 0)
+
+	for ; iterator.Valid(); iterator.Next() {
+		var moduleOwner types.ModuleOwner
+		k.cdc.MustUnmarshalBinaryBare(iterator.Value(), &moduleOwner)
+
+		moduleOwners = append(moduleOwners, &moduleOwner)
+	}
+
+
+
+	return &types.GetModuleOwnerResponse{
+		ModuleOwner: moduleOwners,
+	}
 }
