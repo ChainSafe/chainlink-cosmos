@@ -1,13 +1,14 @@
 syntax = "proto3";
 package chainlink.v1beta;
 
+import "google/protobuf/any.proto";
 import "gogoproto/gogo.proto";
 
 option go_package = "github.com/ChainSafe/chainlink-cosmos/x/chainlink/types";
 
 message GenesisState {
   // moduleOwners is an array containing the chainlink init module owner accounts.
-  repeated ModuleOwner moduleOwners = 1;
+  repeated google.protobuf.Any moduleOwners = 1;
 }
 
 message ModuleOwner {

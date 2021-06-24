@@ -1,7 +1,6 @@
 package app
 
 import (
-	"github.com/cosmos/cosmos-sdk/simapp"
 	"io"
 	"net/http"
 	"os"
@@ -204,7 +203,8 @@ func New(
 		authtypes.StoreKey, banktypes.StoreKey, stakingtypes.StoreKey,
 		minttypes.StoreKey, distrtypes.StoreKey, slashingtypes.StoreKey,
 		govtypes.StoreKey, paramstypes.StoreKey, upgradetypes.StoreKey,
-		evidencetypes.StoreKey, capabilitytypes.StoreKey, chainlinktypes.FeedStoreKey, chainlinktypes.RoundStoreKey, chainlinktypes.ModuleStoreKey,
+		evidencetypes.StoreKey, capabilitytypes.StoreKey, chainlinktypes.FeedStoreKey,
+		chainlinktypes.RoundStoreKey, chainlinktypes.ModuleStoreKey,
 	)
 	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey)
 	memKeys := sdk.NewMemoryStoreKeys(capabilitytypes.MemStoreKey, chainlinktypes.MemStoreKey)
@@ -324,7 +324,7 @@ func New(
 	app.mm.SetOrderInitGenesis(
 		capabilitytypes.ModuleName, authtypes.ModuleName, banktypes.ModuleName, distrtypes.ModuleName, stakingtypes.ModuleName,
 		slashingtypes.ModuleName, govtypes.ModuleName, minttypes.ModuleName, crisistypes.ModuleName,
-		genutiltypes.ModuleName, evidencetypes.ModuleName,
+		genutiltypes.ModuleName, evidencetypes.ModuleName, chainlinktypes.ModuleName,
 	)
 
 	app.mm.RegisterInvariants(&app.CrisisKeeper)
@@ -396,7 +396,7 @@ func (app *ChainLinkApp) EndBlocker(ctx sdk.Context, req abci.RequestEndBlock) a
 
 // InitChainer application update at chain initialization
 func (app *ChainLinkApp) InitChainer(ctx sdk.Context, req abci.RequestInitChain) abci.ResponseInitChain {
-	var genesisState simapp.GenesisState
+	var genesisState GenesisState
 	if err := tmjson.Unmarshal(req.AppStateBytes, &genesisState); err != nil {
 		panic(err)
 	}

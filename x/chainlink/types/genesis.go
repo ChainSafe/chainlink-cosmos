@@ -1,29 +1,43 @@
 package types
 
 import (
+	"encoding/json"
 	"errors"
+	"github.com/cosmos/cosmos-sdk/codec"
 )
 
 // DefaultIndex is the default capability global index
 const DefaultIndex uint64 = 1
 
 // DefaultGenesis returns the default Capability genesis state
+// This is where the init genesis can be defined
 func DefaultGenesis() *GenesisState {
+	//addr, err := sdk.AccAddressFromBech32("cosmos1mxup2squclanw6px38t9mjfl3qhq7cvdqawqww")
+	//if err != nil {
+	//	panic(err)
+	//}
+	//mo := make([]*ModuleOwner, 1)
+	//mo[0] = &ModuleOwner{
+	//	Address: addr,
+	//	PubKey:  []byte("cosmospub1addwnpepqthtrtv4t3pqqw0plw35ssvpcxzwpgdrxpkppm6das4adkgj4lg9jvrncf2"),
+	//}
+	//return &GenesisState{ModuleOwners: mo}
 	return &GenesisState{ModuleOwners: nil}
 }
 
 // Validate performs basic genesis state validation returning an error upon any
 // failure.
 func (gs GenesisState) Validate() error {
+	// TODO: add proper module owner validation
 	//if len(gs.GetModuleOwners()) == 0 {
 	//	return errors.New("module owner size cannot be the zero")
 	//}
-	for _, owner := range gs.GetModuleOwners() {
-		err := owner.Validate()
-		if err != nil {
-			return err
-		}
-	}
+	//for _, owner := range gs.GetModuleOwners() {
+	//	err := owner.Validate()
+	//	if err != nil {
+	//		return err
+	//	}
+	//}
 
 	return nil
 }
@@ -38,4 +52,16 @@ func (m ModuleOwner) Validate() error {
 	}
 
 	return nil
+}
+
+// GetGenesisStateFromAppState returns chainlink module GenesisState given raw application
+// genesis state.
+func GetGenesisStateFromAppState(cdc codec.JSONMarshaler, appState map[string]json.RawMessage) *GenesisState {
+	var genesisState GenesisState
+
+	if appState[ModuleName] != nil {
+		cdc.MustUnmarshalJSON(appState[ModuleName], &genesisState)
+	}
+
+	return &genesisState
 }
