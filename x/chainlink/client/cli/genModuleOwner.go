@@ -42,7 +42,7 @@ func CmdGenesisModuleOwner() *cobra.Command {
 			bech32PubKey := sdk.MustGetPubKeyFromBech32(sdk.Bech32PubKeyTypeAccPub, pubKey)
 
 			// address and pubKey must match
-			if bytes.Compare(bech32PubKey.Address().Bytes(), addr.Bytes()) != 0 {
+			if !bytes.Equal(bech32PubKey.Address().Bytes(), addr.Bytes()) {
 				return fmt.Errorf("address and pubKey not match")
 			}
 
