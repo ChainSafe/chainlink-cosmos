@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 
@@ -10,7 +11,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/server"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
 	"github.com/spf13/cobra"
@@ -18,12 +18,13 @@ import (
 
 func CmdGenesisModuleOwner() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "add-genesis-module-owner [address_or_key_name]",
-		Short: "Add init module owner",
-		Args:  cobra.ExactArgs(1),
+		Use:   "add-genesis-module-owner [address_or_key_name] [pubKey]",
+		Short: "Add init module owner to genesis.json",
+		Long:  "Add an init ChainLink module owner account to genesis.json. If a key name is given, the provided account must be in the local Keybase.",
+		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			address := args[0]
-			// TODO: add pubKey support once the UnpackAccounts issue resolved
+			pubKey := args[1]
 
 			clientCtx := client.GetClientContextFromCmd(cmd)
 			depCdc := clientCtx.JSONMarshaler
@@ -37,13 +38,15 @@ func CmdGenesisModuleOwner() *cobra.Command {
 			if err != nil {
 				return fmt.Errorf("failed to validate new genesis account: %w", err)
 			}
+			// get bech32 pubkey
+			bech32PubKey := sdk.MustGetPubKeyFromBech32(sdk.Bech32PubKeyTypeAccPub, pubKey)
 
-			baseAccount := authtypes.NewBaseAccount(addr, nil, 0, 0)
-			if err := baseAccount.Validate(); err != nil {
-				return fmt.Errorf("failed to validate new genesis account: %w", err)
+			// address and pubKey must match
+			if bytes.Compare(bech32PubKey.Address().Bytes(), addr.Bytes()) != 0 {
+				return fmt.Errorf("address and pubKey not match")
 			}
 
-			// TODO: add keyring support
+			// TODO: add keyring support to use key_name
 			//inBuf := bufio.NewReader(cmd.InOrStdin())
 			//keyringBackend, err := cmd.Flags().GetString(flags.FlagKeyringBackend)
 			//if err != nil {
@@ -60,6 +63,8 @@ func CmdGenesisModuleOwner() *cobra.Command {
 			//	return fmt.Errorf("failed to get address from Keybase: %w", err)
 			//}
 
+			initModuleOwner := chainlinktypes.NewModuleOwner(addr, []byte(pubKey))
+
 			genFile := conf.GenesisFile()
 			appState, genDoc, err := genutiltypes.GenesisStateFromGenFile(genFile)
 			if err != nil {
@@ -69,26 +74,13 @@ func CmdGenesisModuleOwner() *cobra.Command {
 			chainLinkGenState := chainlinktypes.GetGenesisStateFromAppState(cdc, appState)
 
 			// check if the new address is already in the genesis
-			// TODO: UnpackAccounts not working if chainLinkGenState.ModuleOwners not empty
-			// TODO: this is the same issue in InitGenesis func when write init module owner into store.
-			accs, err := authtypes.UnpackAccounts(chainLinkGenState.ModuleOwners)
-			if err != nil {
-				return fmt.Errorf("failed to get accounts from any: %w", err)
-			}
-
+			accs := (chainlinktypes.ModuleOwners)(chainLinkGenState.GetModuleOwners())
 			if accs.Contains(addr) {
 				return fmt.Errorf("cannot add account at existing address %s", addr)
 			}
-			accs = append(accs, baseAccount)
+			accs = append(accs, initModuleOwner)
 
-			// Add the new account to the set of genesis accounts and sanitize the accounts afterwards.
-			accs = authtypes.SanitizeGenesisAccounts(accs)
-			genAccs, err := authtypes.PackAccounts(accs)
-			if err != nil {
-				return fmt.Errorf("failed to convert accounts into any's: %w", err)
-			}
-
-			chainLinkGenState.ModuleOwners = genAccs
+			chainLinkGenState.ModuleOwners = accs
 
 			chainlinkGenStateBz, err := cdc.MarshalJSON(chainLinkGenState)
 			if err != nil {

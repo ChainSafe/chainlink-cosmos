@@ -88,3 +88,16 @@ func (m *ModuleOwner) GetSignBytes() []byte {
 func (m *ModuleOwner) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{sdk.AccAddress(m.Address)}
 }
+
+type ModuleOwners []*ModuleOwner
+
+// Contains returns true if the given address exists in a slice of ModuleOwners objects.
+func (mo ModuleOwners) Contains(addr sdk.Address) bool {
+	for _, acc := range mo {
+		if acc.GetAddress().Equals(addr) {
+			return true
+		}
+	}
+
+	return false
+}

@@ -12,16 +12,6 @@ const DefaultIndex uint64 = 1
 // DefaultGenesis returns the default Capability genesis state
 // This is where the init genesis can be defined
 func DefaultGenesis() *GenesisState {
-	//addr, err := sdk.AccAddressFromBech32("cosmos1mxup2squclanw6px38t9mjfl3qhq7cvdqawqww")
-	//if err != nil {
-	//	panic(err)
-	//}
-	//mo := make([]*ModuleOwner, 1)
-	//mo[0] = &ModuleOwner{
-	//	Address: addr,
-	//	PubKey:  []byte("cosmospub1addwnpepqthtrtv4t3pqqw0plw35ssvpcxzwpgdrxpkppm6das4adkgj4lg9jvrncf2"),
-	//}
-	//return &GenesisState{ModuleOwners: mo}
 	return &GenesisState{ModuleOwners: nil}
 }
 
@@ -29,15 +19,16 @@ func DefaultGenesis() *GenesisState {
 // failure.
 func (gs GenesisState) Validate() error {
 	// TODO: add proper module owner validation
-	//if len(gs.GetModuleOwners()) == 0 {
-	//	return errors.New("module owner size cannot be the zero")
-	//}
-	//for _, owner := range gs.GetModuleOwners() {
-	//	err := owner.Validate()
-	//	if err != nil {
-	//		return err
-	//	}
-	//}
+	if len(gs.GetModuleOwners()) == 0 {
+		return errors.New("module owner size cannot be the zero")
+	}
+
+	for _, owner := range gs.GetModuleOwners() {
+		err := owner.Validate()
+		if err != nil {
+			return err
+		}
+	}
 
 	return nil
 }

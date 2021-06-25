@@ -15,7 +15,7 @@ chainlinkd add-genesis-account $(chainlinkd keys show alice -a --keyring-backend
 chainlinkd add-genesis-account $(chainlinkd keys show bob -a --keyring-backend test) 1000token,100000000stake
 
 # Add init chainLink module owner to the genesis file
-chainlinkd tx chainlink add-genesis-module-owner $(chainlinkd keys show alice -a --keyring-backend test) --keyring-backend test --chain-id testchain
+chainlinkd tx chainlink add-genesis-module-owner $(chainlinkd keys show alice -a --keyring-backend test) $(chainlinkd keys show alice -p --keyring-backend test) --keyring-backend test --chain-id testchain
 
 # Generate the gen tx that creates a validator with a self-delegation,
 chainlinkd gentx alice 100000000stake --amount=100000000stake --keyring-backend test --chain-id testchain
@@ -57,5 +57,5 @@ chainlinkd start
 #chainlinkd keys list --keyring-backend test
 
 # Add new module owner
-# chainlinkd tx chainlink addModuleOwner "cosmos1csxc778esu3m4tt3l3w4vydss0chtxevvpyd7y" "cosmospub1addwnpepqt5uz0cacctzqx9uqcut72xjh39e4fc4j3zr6gt43auspekkt0glzcu8x8z" --from bob --keyring-backend test --chain-id testchain
+# chainlinkd tx chainlink addModuleOwner "cosmos1stdn5v0tcdc6s2vy79rk8yxujlahw4jydyntt9" "cosmospub1addwnpepqfh6a0rsu9m8q5tfqkp97whexdc4jtdgnel7xvf2hv26c6m860e3gt4tf9u" --from bob --keyring-backend test --chain-id testchain
 
