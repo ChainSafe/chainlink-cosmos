@@ -14,9 +14,8 @@ chainlinkd init testchain --chain-id testchain
 chainlinkd add-genesis-account $(chainlinkd keys show alice -a --keyring-backend test) 1000token,100000000stake
 chainlinkd add-genesis-account $(chainlinkd keys show bob -a --keyring-backend test) 1000token,100000000stake
 
-# Add init chainlink module owner to the genesis file
-#chainlinkd tx chainlink add-genesis-module-owner "cosmos17sxrwr30r8nlf7ahykscpkpu0muqy8k0hegadc" "cosmospub1addwnpepq0z2excjzlqn3l6g6eh6kj56h6rt38f5yfu7aeqxdy6eg7dn0a8wy5alhhx" --keyring-backend test --chain-id testchain
-chainlinkd tx chainlink add-genesis-module-owner $(chainlinkd keys show alice -a --keyring-backend test) $(chainlinkd keys show alice -p --keyring-backend test) --keyring-backend test --chain-id testchain
+# Add init chainLink module owner to the genesis file
+chainlinkd tx chainlink add-genesis-module-owner $(chainlinkd keys show alice -a --keyring-backend test) --keyring-backend test --chain-id testchain
 
 # Generate the gen tx that creates a validator with a self-delegation,
 chainlinkd gentx alice 100000000stake --amount=100000000stake --keyring-backend test --chain-id testchain
@@ -45,9 +44,6 @@ chainlinkd start
 # Query feed data by roundId only
 #chainlinkd query chainlink getRoundFeedData 2 --chain-id testchain -o json
 
-# invalid query with incorrect FeedId
-#chainlinkd query chainlink getRoundFeedData 999 "testfeedid1" --chain-id testchain -o json
-
 # Query the latest round feed data with feedId
 #chainlinkd query chainlink getLatestFeedData "testfeedid1" --chain-id testchain -o json
 
@@ -61,5 +57,5 @@ chainlinkd start
 #chainlinkd keys list --keyring-backend test
 
 # Add new module owner
-# chainlinkd tx chainlink addModuleOwner "cosmos1tq9q6sfcfzkj5vq90la2nwfhz974whm8x9jl9s" "cosmospub1addwnpepqgr9xvm3s5ks9naq00ghvatww338q6p7jr4apg64vds0auva3vk4c3ddpl7" --from alice --keyring-backend test --chain-id testchain
+# chainlinkd tx chainlink addModuleOwner "cosmos1csxc778esu3m4tt3l3w4vydss0chtxevvpyd7y" "cosmospub1addwnpepqt5uz0cacctzqx9uqcut72xjh39e4fc4j3zr6gt43auspekkt0glzcu8x8z" --from bob --keyring-backend test --chain-id testchain
 

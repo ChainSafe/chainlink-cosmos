@@ -181,7 +181,7 @@ func (k Keeper) SetModuleOwner(ctx sdk.Context, moduleOwner *types.ModuleOwner) 
 
 	f := k.cdc.MustMarshalBinaryBare(moduleOwner)
 
-	moduleStore.Set(types.KeyPrefix(types.ModuleOwnerKey), f)
+	moduleStore.Set(types.KeyPrefix(types.ModuleOwnerKey+moduleOwner.GetAddress().String()), f)
 
 	return ctx.BlockHeight(), ctx.TxBytes()
 }

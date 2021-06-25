@@ -18,12 +18,12 @@ import (
 
 func CmdGenesisModuleOwner() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "add-genesis-module-owner [address_or_key_name] [pubkey]",
+		Use:   "add-genesis-module-owner [address_or_key_name]",
 		Short: "Add init module owner",
-		Args:  cobra.ExactArgs(2),
+		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			address := args[0]
-			pubkey := args[1]
+			// TODO: add pubKey support once the UnpackAccounts issue resolved
 
 			clientCtx := client.GetClientContextFromCmd(cmd)
 			depCdc := clientCtx.JSONMarshaler
@@ -38,7 +38,7 @@ func CmdGenesisModuleOwner() *cobra.Command {
 				return fmt.Errorf("failed to validate new genesis account: %w", err)
 			}
 
-			baseAccount := authtypes.NewBaseAccount(addr, sdk.MustGetPubKeyFromBech32(sdk.Bech32PubKeyTypeAccPub, pubkey), 0, 0)
+			baseAccount := authtypes.NewBaseAccount(addr, nil, 0, 0)
 			if err := baseAccount.Validate(); err != nil {
 				return fmt.Errorf("failed to validate new genesis account: %w", err)
 			}
@@ -69,6 +69,8 @@ func CmdGenesisModuleOwner() *cobra.Command {
 			chainLinkGenState := chainlinktypes.GetGenesisStateFromAppState(cdc, appState)
 
 			// check if the new address is already in the genesis
+			// TODO: UnpackAccounts not working if chainLinkGenState.ModuleOwners not empty
+			// TODO: this is the same issue in InitGenesis func when write init module owner into store.
 			accs, err := authtypes.UnpackAccounts(chainLinkGenState.ModuleOwners)
 			if err != nil {
 				return fmt.Errorf("failed to get accounts from any: %w", err)
@@ -85,6 +87,7 @@ func CmdGenesisModuleOwner() *cobra.Command {
 			if err != nil {
 				return fmt.Errorf("failed to convert accounts into any's: %w", err)
 			}
+
 			chainLinkGenState.ModuleOwners = genAccs
 
 			chainlinkGenStateBz, err := cdc.MarshalJSON(chainLinkGenState)
