@@ -20,4 +20,9 @@ message ModuleOwner {
   bytes pubKey = 2 [
     (gogoproto.moretags) = "yaml:\"pub_key\""
   ];
+  // the module owner who assigned this new module owner
+  bytes assignerAddress = 3 [
+    (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress",
+    (gogoproto.nullable) = true
+  ];
 }

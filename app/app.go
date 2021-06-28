@@ -1,6 +1,7 @@
 package app
 
 import (
+	chainlindkante "github.com/ChainSafe/chainlink-cosmos/x/chainlink/ante"
 	"io"
 	"net/http"
 	"os"
@@ -354,11 +355,10 @@ func New(
 	// initialize BaseApp
 	app.SetInitChainer(app.InitChainer)
 	app.SetBeginBlocker(app.BeginBlocker)
-	app.SetAnteHandler( // TODO: add AnteHandle of chainlink module to verify the signer of add module owner tx, only module owner is able to add a new module owner
-		ante.NewAnteHandler(
-			app.AccountKeeper, app.BankKeeper, ante.DefaultSigVerificationGasConsumer,
-			encodingConfig.TxConfig.SignModeHandler(),
-		),
+	// use customized anteHandler
+	app.SetAnteHandler(
+		chainlindkante.NewAnteHandler(app.AccountKeeper, app.BankKeeper, app.ChainLinkKeeper, ante.DefaultSigVerificationGasConsumer,
+			encodingConfig.TxConfig.SignModeHandler()),
 	)
 	app.SetEndBlocker(app.EndBlocker)
 
