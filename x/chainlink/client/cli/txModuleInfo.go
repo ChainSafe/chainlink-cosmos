@@ -12,7 +12,7 @@ import (
 func CmdAddModule() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "addModuleOwner [address] [publicKey]",
-		Short: "Add ChainLink Module Owner. Signer must be an existing module owner and ",
+		Short: "Add ChainLink Module Owner. Signer must be an existing module owner.",
 		Args:  cobra.MinimumNArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			argsAddress := args[0]

@@ -61,10 +61,7 @@ func (mod ModuleOwnerDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate 
 
 	existingModuleOwnerList, err := mod.chainLinkKeeper.GetAllModuleOwner(sdk.WrapSDKContext(ctx), nil)
 	if err != nil {
-		return ctx, sdkerrors.Wrapf(
-			sdkerrors.ErrLogic,
-			"module owner check failed at anteHandler[ModuleOwnerDecorator]",
-		)
+		return ctx, sdkerrors.Wrapf(sdkerrors.ErrLogic, "module owner check failed at anteHandler[ModuleOwnerDecorator]")
 	}
 
 	// no checking if module owner list is empty
@@ -89,10 +86,7 @@ func (mod ModuleOwnerDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate 
 
 	for _, signer := range signers {
 		if !(types.ModuleOwners)(existingModuleOwnerList.GetModuleOwner()).Contains(signer) {
-			return ctx, sdkerrors.Wrapf(
-				sdkerrors.ErrUnauthorized,
-				"account %s (%s) is not a module owner", common.BytesToAddress(signer.Bytes()), signer,
-			)
+			return ctx, sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "account %s (%s) is not a module owner", common.BytesToAddress(signer.Bytes()), signer)
 		}
 	}
 
