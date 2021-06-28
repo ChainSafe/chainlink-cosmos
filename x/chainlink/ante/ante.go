@@ -20,9 +20,7 @@ func NewAnteHandler(
 	return func(
 		ctx sdk.Context, tx sdk.Tx, sim bool,
 	) (newCtx sdk.Context, err error) {
-		var anteHandler sdk.AnteHandler
-
-		anteHandler = sdk.ChainAnteDecorators(
+		anteHandler := sdk.ChainAnteDecorators(
 			authante.NewSetUpContextDecorator(), // outermost AnteDecorator. SetUpContext must be called first
 			authante.NewRejectExtensionOptionsDecorator(),
 			authante.NewMempoolFeeDecorator(),
@@ -56,7 +54,7 @@ func NewModuleOwnerDecorator(chainLinkKeeper chainlinkkeeper.Keeper) ModuleOwner
 
 func (mod ModuleOwnerDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (newCtx sdk.Context, err error) {
 	if len(tx.GetMsgs()) == 0 {
-		return ctx, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "invalid Msg: empty Msg", tx)
+		return ctx, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "invalid Msg: empty Msg: %T", tx)
 	}
 
 	existingModuleOwnerList, err := mod.chainLinkKeeper.GetAllModuleOwner(sdk.WrapSDKContext(ctx), nil)
@@ -77,7 +75,7 @@ func (mod ModuleOwnerDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate 
 		}
 
 		if len(t.GetSigners()) == 0 {
-			return ctx, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "invalid Tx: empty signer", t)
+			return ctx, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "invalid Tx: empty signer: %T", t)
 		}
 		txSigner := t.GetSigners()[0]
 
