@@ -9,10 +9,18 @@ option go_package = "github.com/ChainSafe/chainlink-cosmos/x/chainlink/types";
 
 // Msg defines the Msg gPRC service.
 service Msg {
-  rpc SubmitFeedData(MsgFeedData) returns (MsgResponse) {
+  rpc SubmitFeedDataTx(MsgFeedData) returns (MsgResponse) {
     option (google.api.http).put = "/chainlink/feed/data";
   }
-  rpc AddModuleOwner(ModuleOwner) returns (MsgResponse);
+  rpc AddModuleOwnerTx(MsgModuleOwner) returns (MsgResponse);
+  rpc ModuleOwnershipTransferTx(MsgModuleOwnershipTransfer) returns (MsgResponse);
+}
+
+message MsgModuleOwnershipTransfer {
+  // current module owner address
+  bytes assignerAddress = 1 [(gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"];
+  bytes newModuleOwnerAddress = 2 [(gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"];
+  bytes newModuleOwnerPubKey = 3 [(gogoproto.moretags) = "yaml:\"pub_key\""];
 }
 
 // MsgFeed is the type defined for each feed

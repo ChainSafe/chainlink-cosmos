@@ -75,7 +75,7 @@ func CmdGenesisModuleOwner() *cobra.Command {
 			chainLinkGenState := chainlinktypes.GetGenesisStateFromAppState(cdc, appState)
 
 			// check if the new address is already in the genesis
-			accs := (chainlinktypes.ModuleOwners)(chainLinkGenState.GetModuleOwners())
+			accs := (chainlinktypes.MsgModuleOwners)(chainLinkGenState.GetModuleOwners())
 			if accs.Contains(addr) {
 				return fmt.Errorf("cannot add account at existing address %s", addr)
 			}

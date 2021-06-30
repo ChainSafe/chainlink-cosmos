@@ -176,12 +176,20 @@ func (k Keeper) GetLatestRoundId(store sdk.KVStore, feedId string) uint64 {
 	return latestRoundId
 }
 
-func (k Keeper) SetModuleOwner(ctx sdk.Context, moduleOwner *types.ModuleOwner) (int64, []byte) {
+func (k Keeper) SetModuleOwner(ctx sdk.Context, moduleOwner *types.MsgModuleOwner) (int64, []byte) {
 	moduleStore := ctx.KVStore(k.moduleStoreKey)
 
 	f := k.cdc.MustMarshalBinaryBare(moduleOwner)
 
 	moduleStore.Set(types.KeyPrefix(types.ModuleOwnerKey+moduleOwner.GetAddress().String()), f)
+
+	return ctx.BlockHeight(), ctx.TxBytes()
+}
+
+func (k Keeper) RemoveModuleOwner(ctx sdk.Context, transfer *types.MsgModuleOwnershipTransfer) (int64, []byte) {
+	moduleStore := ctx.KVStore(k.moduleStoreKey)
+
+	moduleStore.Delete(types.KeyPrefix(types.ModuleOwnerKey+transfer.GetAssignerAddress().String()))
 
 	return ctx.BlockHeight(), ctx.TxBytes()
 }
@@ -192,10 +200,10 @@ func (k Keeper) GetModuleOwnerList(ctx sdk.Context) *types.GetModuleOwnerRespons
 
 	defer iterator.Close()
 
-	moduleOwners := make([]*types.ModuleOwner, 0)
+	moduleOwners := make([]*types.MsgModuleOwner, 0)
 
 	for ; iterator.Valid(); iterator.Next() {
-		var moduleOwner types.ModuleOwner
+		var moduleOwner types.MsgModuleOwner
 		k.cdc.MustUnmarshalBinaryBare(iterator.Value(), &moduleOwner)
 
 		moduleOwners = append(moduleOwners, &moduleOwner)

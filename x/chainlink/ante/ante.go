@@ -69,7 +69,7 @@ func (mod ModuleOwnerDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate 
 
 	signers := make([]sdk.AccAddress, 0)
 	for _, msg := range tx.GetMsgs() {
-		t, ok := msg.(*types.ModuleOwner)
+		t, ok := msg.(*types.MsgModuleOwner)
 		if !ok {
 			continue
 		}
@@ -83,7 +83,7 @@ func (mod ModuleOwnerDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate 
 	}
 
 	for _, signer := range signers {
-		if !(types.ModuleOwners)(existingModuleOwnerList.GetModuleOwner()).Contains(signer) {
+		if !(types.MsgModuleOwners)(existingModuleOwnerList.GetModuleOwner()).Contains(signer) {
 			return ctx, sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "account %s (%s) is not a module owner", common.BytesToAddress(signer.Bytes()), signer)
 		}
 	}
