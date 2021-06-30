@@ -61,7 +61,7 @@ func (m *MsgFeedData) ValidateBasic() error {
 	return nil
 }
 
-func NewModuleOwner(assigner, address sdk.Address, pubKey []byte) *MsgModuleOwner {
+func NewMsgModuleOwner(assigner, address sdk.Address, pubKey []byte) *MsgModuleOwner {
 	mo := &MsgModuleOwner{
 		Address: address.Bytes(),
 		PubKey:  pubKey,
@@ -121,7 +121,7 @@ func NewMsgModuleOwnershipTransfer(assigner, address sdk.Address, pubKey []byte)
 }
 
 func (m *MsgModuleOwnershipTransfer) Route() string {
-	panic("implement me")
+	return RouterKey
 }
 
 func (m *MsgModuleOwnershipTransfer) Type() string {
@@ -129,13 +129,15 @@ func (m *MsgModuleOwnershipTransfer) Type() string {
 }
 
 func (m *MsgModuleOwnershipTransfer) ValidateBasic() error {
-	panic("implement me")
+	// TODO: add proper cosmos address and pubkey validation
+	return nil
 }
 
 func (m *MsgModuleOwnershipTransfer) GetSignBytes() []byte {
-	panic("implement me")
+	bz := ModuleCdc.MustMarshalJSON(m)
+	return sdk.MustSortJSON(bz)
 }
 
 func (m *MsgModuleOwnershipTransfer) GetSigners() []githubcosmossdktypes.AccAddress {
-	panic("implement me")
+	return []sdk.AccAddress{sdk.AccAddress(m.AssignerAddress)}
 }

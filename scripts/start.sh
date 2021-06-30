@@ -11,9 +11,10 @@ chainlinkd keys add cerlo --keyring-backend test
 # Initialize configuration files and genesis file
 chainlinkd init testchain --chain-id testchain
 
-# Add both accounts, with coins to the genesis file
+# Add 3 accounts, with coins to the genesis file
 chainlinkd add-genesis-account $(chainlinkd keys show alice -a --keyring-backend test) 1000token,100000000stake
 chainlinkd add-genesis-account $(chainlinkd keys show bob -a --keyring-backend test) 1000token,100000000stake
+chainlinkd add-genesis-account $(chainlinkd keys show cerlo -a --keyring-backend test) 1000token,100000000stake
 
 # Add init chainLink module owner to the genesis file
 chainlinkd tx chainlink add-genesis-module-owner $(chainlinkd keys show alice -a --keyring-backend test) $(chainlinkd keys show alice -p --keyring-backend test) --keyring-backend test --chain-id testchain

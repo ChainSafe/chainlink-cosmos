@@ -1,5 +1,5 @@
 # Submit feed data
-chainlinkd tx chainlink submitFeedData "testfeedid1" "feed 1 test data" "dummy signatures" --from "cosmos15pfql3pfx4z0v7vgynj5fnmfh237cq5jn6vlz8" --keyring-backend test --chain-id testchain
+chainlinkd tx chainlink submitFeedData "testfeedid1" "feed 1 test data" "dummy signatures" --from alice --keyring-backend test --chain-id testchain
 
 # Query feed data by txHash
 chainlinkd query tx A0B849C7A5ABB51B3FA9DC723A6C1CB8C4B6C255DB98D0EC0FD3DCD04316E387 --chain-id testchain -o json
@@ -23,5 +23,8 @@ chainlinkd query chainlink getModuleOwnerList --chain-id testchain -o json
 chainlinkd keys list --keyring-backend test
 
 # Add new module owner
-chainlinkd tx chainlink addModuleOwner "cosmos12uxqzq7aae5ew2rksy0cl0cua7e75cu5t3rjxf" "cosmospub1addwnpepqw2xec9wutvxdhvgke029v3hx97jdpzqpr6d33jx62drd92qjxxrsm9t7q5" --from cosmos1mxea03k4y8n7c4fyeseu3c889ejw7kncwhp0uv --keyring-backend test --chain-id testchain
+chainlinkd tx chainlink addModuleOwner "cosmos1rf6guedcnruqvt53qk9effnt8r2t6h77dgxkfj" "cosmospub1addwnpepqfukv06wfcp5yprh7w5pprter4x2mkdmmcxah6msst7u9exj42ccv0g2qcz" --from bob --keyring-backend test --chain-id testchain
+
+# module ownership transfer
+chainlinkd tx chainlink moduleOwnershipTransfer "cosmos1rf6guedcnruqvt53qk9effnt8r2t6h77dgxkfj" "cosmospub1addwnpepqfukv06wfcp5yprh7w5pprter4x2mkdmmcxah6msst7u9exj42ccv0g2qcz" --from bob --keyring-backend test --chain-id testchain
 

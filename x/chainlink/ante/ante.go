@@ -35,6 +35,7 @@ func NewAnteHandler(
 			authante.NewSigGasConsumeDecorator(ak, sigGasConsumer),
 			authante.NewSigVerificationDecorator(ak, signModeHandler),
 			authante.NewIncrementSequenceDecorator(ak),
+			// all customized anteHandler below
 			NewModuleOwnerDecorator(chainLinkKeeper),
 		)
 
@@ -68,18 +69,23 @@ func (mod ModuleOwnerDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate 
 	}
 
 	signers := make([]sdk.AccAddress, 0)
+
+	// get the signers of module owner Msg types
 	for _, msg := range tx.GetMsgs() {
-		t, ok := msg.(*types.MsgModuleOwner)
-		if !ok {
+		switch t := msg.(type) {
+		case *types.MsgModuleOwner:
+			if len(t.GetSigners()) == 0 {
+				return ctx, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "invalid Tx: empty signer: %T", t)
+			}
+			signers = append(signers, t.GetSigners()[0])
+		case *types.MsgModuleOwnershipTransfer:
+			if len(t.GetSigners()) == 0 {
+				return ctx, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "invalid Tx: empty signer: %T", t)
+			}
+			signers = append(signers, t.GetSigners()[0])
+		default:
 			continue
 		}
-
-		if len(t.GetSigners()) == 0 {
-			return ctx, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "invalid Tx: empty signer: %T", t)
-		}
-		txSigner := t.GetSigners()[0]
-
-		signers = append(signers, txSigner)
 	}
 
 	for _, signer := range signers {

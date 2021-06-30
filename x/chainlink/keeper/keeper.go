@@ -189,7 +189,7 @@ func (k Keeper) SetModuleOwner(ctx sdk.Context, moduleOwner *types.MsgModuleOwne
 func (k Keeper) RemoveModuleOwner(ctx sdk.Context, transfer *types.MsgModuleOwnershipTransfer) (int64, []byte) {
 	moduleStore := ctx.KVStore(k.moduleStoreKey)
 
-	moduleStore.Delete(types.KeyPrefix(types.ModuleOwnerKey+transfer.GetAssignerAddress().String()))
+	moduleStore.Delete(types.KeyPrefix(types.ModuleOwnerKey + transfer.GetAssignerAddress().String()))
 
 	return ctx.BlockHeight(), ctx.TxBytes()
 }

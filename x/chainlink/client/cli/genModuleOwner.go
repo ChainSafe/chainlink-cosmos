@@ -64,7 +64,7 @@ func CmdGenesisModuleOwner() *cobra.Command {
 				return fmt.Errorf("address and pubKey not match")
 			}
 
-			initModuleOwner := chainlinktypes.NewModuleOwner(nil, addr, []byte(pubKey))
+			initModuleOwner := chainlinktypes.NewMsgModuleOwner(nil, addr, []byte(pubKey))
 
 			genFile := conf.GenesisFile()
 			appState, genDoc, err := genutiltypes.GenesisStateFromGenFile(genFile)

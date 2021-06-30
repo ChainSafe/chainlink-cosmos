@@ -28,7 +28,7 @@ func CmdAddModuleOwner() *cobra.Command {
 				return err
 			}
 
-			msg := types.NewModuleOwner(clientCtx.GetFromAddress(), addr, []byte(argsPublicKey))
+			msg := types.NewMsgModuleOwner(clientCtx.GetFromAddress(), addr, []byte(argsPublicKey))
 			if err := msg.ValidateBasic(); err != nil {
 				return err
 			}
@@ -44,7 +44,7 @@ func CmdAddModuleOwner() *cobra.Command {
 func CmdTransferModuleOwnership() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "moduleOwnershipTransfer [newModuleOwnerAddress] [newModuleOwnerPublicKey]",
-		Short: "Transfer ChainLink Module Ownership from an existing module owner account to another account. Signer must be an existing module owner.",
+		Short: "Transfer ChainLink Module Ownership from an existing module owner account to another account. Signer must be the existing module owner.",
 		Args:  cobra.MinimumNArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			argsAddress := args[0]

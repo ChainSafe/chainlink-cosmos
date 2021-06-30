@@ -10,6 +10,7 @@ message GenesisState {
   repeated MsgModuleOwner moduleOwners = 1;
 }
 
+// MsgModuleOwner is type defined for init/add new module owner
 message MsgModuleOwner {
   // address defines the address of the module owner
   bytes address = 1 [

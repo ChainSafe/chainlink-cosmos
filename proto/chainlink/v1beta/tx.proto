@@ -16,6 +16,7 @@ service Msg {
   rpc ModuleOwnershipTransferTx(MsgModuleOwnershipTransfer) returns (MsgResponse);
 }
 
+// MsgModuleOwnershipTransfer is the type defined for module ownership transfer
 message MsgModuleOwnershipTransfer {
   // current module owner address
   bytes assignerAddress = 1 [(gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"];
@@ -23,7 +24,7 @@ message MsgModuleOwnershipTransfer {
   bytes newModuleOwnerPubKey = 3 [(gogoproto.moretags) = "yaml:\"pub_key\""];
 }
 
-// MsgFeed is the type defined for each feed
+// MsgFeed is the type defined for each feed data submit
 message MsgFeed {
   // FeedId is the unique identifier of the feed
   string feedId = 1;
