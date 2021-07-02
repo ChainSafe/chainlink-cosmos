@@ -32,7 +32,6 @@ func handlerMsgSubmitFeedData(ctx sdk.Context, k keeper.Keeper, feedData *types.
 	if err != nil {
 		return nil, err
 	}
-
 	result, err := sdk.WrapServiceResult(ctx, msgResult, err)
 	if err != nil {
 		return nil, err

@@ -16,11 +16,11 @@ import (
 
 type (
 	Keeper struct {
-		cdc            codec.Marshaler
-		feedStoreKey   sdk.StoreKey
-		roundStoreKey  sdk.StoreKey
-		moduleStoreKey sdk.StoreKey
-		memKey         sdk.StoreKey
+		cdc                 codec.Marshaler
+		feedStoreKey        sdk.StoreKey
+		roundStoreKey       sdk.StoreKey
+		moduleOwnerStoreKey sdk.StoreKey
+		memKey              sdk.StoreKey
 	}
 )
 
@@ -28,15 +28,15 @@ func NewKeeper(
 	cdc codec.Marshaler,
 	feedStoreKey,
 	roundStoreKey,
-	moduleStoreKey,
+	moduleOwnerStoreKey,
 	memKey sdk.StoreKey,
 ) *Keeper {
 	return &Keeper{
-		cdc:            cdc,
-		feedStoreKey:   feedStoreKey,
-		roundStoreKey:  roundStoreKey,
-		moduleStoreKey: moduleStoreKey,
-		memKey:         memKey,
+		cdc:                 cdc,
+		feedStoreKey:        feedStoreKey,
+		roundStoreKey:       roundStoreKey,
+		moduleOwnerStoreKey: moduleOwnerStoreKey,
+		memKey:              memKey,
 	}
 }
 
@@ -177,7 +177,7 @@ func (k Keeper) GetLatestRoundId(store sdk.KVStore, feedId string) uint64 {
 }
 
 func (k Keeper) SetModuleOwner(ctx sdk.Context, moduleOwner *types.MsgModuleOwner) (int64, []byte) {
-	moduleStore := ctx.KVStore(k.moduleStoreKey)
+	moduleStore := ctx.KVStore(k.moduleOwnerStoreKey)
 
 	f := k.cdc.MustMarshalBinaryBare(moduleOwner)
 
@@ -187,7 +187,7 @@ func (k Keeper) SetModuleOwner(ctx sdk.Context, moduleOwner *types.MsgModuleOwne
 }
 
 func (k Keeper) RemoveModuleOwner(ctx sdk.Context, transfer *types.MsgModuleOwnershipTransfer) (int64, []byte) {
-	moduleStore := ctx.KVStore(k.moduleStoreKey)
+	moduleStore := ctx.KVStore(k.moduleOwnerStoreKey)
 
 	moduleStore.Delete(types.KeyPrefix(types.ModuleOwnerKey + transfer.GetAssignerAddress().String()))
 
@@ -195,7 +195,7 @@ func (k Keeper) RemoveModuleOwner(ctx sdk.Context, transfer *types.MsgModuleOwne
 }
 
 func (k Keeper) GetModuleOwnerList(ctx sdk.Context) *types.GetModuleOwnerResponse {
-	moduleStore := ctx.KVStore(k.moduleStoreKey)
+	moduleStore := ctx.KVStore(k.moduleOwnerStoreKey)
 	iterator := sdk.KVStorePrefixIterator(moduleStore, types.KeyPrefix(types.ModuleOwnerKey))
 
 	defer iterator.Close()

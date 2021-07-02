@@ -25,7 +25,7 @@ var _ = math.Inf
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 type GenesisState struct {
-	// moduleOwners is an array containing the chainlink init module owner accounts.
+	// MsgModuleOwner is an array containing the chainlink init module owner accounts.
 	ModuleOwners []*MsgModuleOwner `protobuf:"bytes,1,rep,name=moduleOwners,proto3" json:"moduleOwners,omitempty"`
 }
 

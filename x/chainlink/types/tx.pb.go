@@ -30,6 +30,7 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
+// MsgModuleOwnershipTransfer is the type defined for module ownership transfer
 type MsgModuleOwnershipTransfer struct {
 	// current module owner address
 	AssignerAddress       github_com_cosmos_cosmos_sdk_types.AccAddress `protobuf:"bytes,1,opt,name=assignerAddress,proto3,casttype=github.com/cosmos/cosmos-sdk/types.AccAddress" json:"assignerAddress,omitempty"`
@@ -91,7 +92,7 @@ func (m *MsgModuleOwnershipTransfer) GetNewModuleOwnerPubKey() []byte {
 	return nil
 }
 
-// MsgFeed is the type defined for each feed
+// MsgFeed is the type defined for each feed data submit
 type MsgFeed struct {
 	// FeedId is the unique identifier of the feed
 	FeedId string `protobuf:"bytes,1,opt,name=feedId,proto3" json:"feedId,omitempty"`
