@@ -22,6 +22,7 @@ func GetQueryCmd(queryRoute string) *cobra.Command {
 
 	cmd.AddCommand(CmdGetFeedDataByRound())
 	cmd.AddCommand(CmdGetLatestFeedData())
+	cmd.AddCommand(CmdGetModuleOwnerList())
 
 	return cmd
 }

@@ -203,7 +203,8 @@ func New(
 		authtypes.StoreKey, banktypes.StoreKey, stakingtypes.StoreKey,
 		minttypes.StoreKey, distrtypes.StoreKey, slashingtypes.StoreKey,
 		govtypes.StoreKey, paramstypes.StoreKey, upgradetypes.StoreKey,
-		evidencetypes.StoreKey, capabilitytypes.StoreKey, chainlinktypes.FeedStoreKey, chainlinktypes.RoundStoreKey,
+		evidencetypes.StoreKey, capabilitytypes.StoreKey, chainlinktypes.FeedStoreKey,
+		chainlinktypes.RoundStoreKey, chainlinktypes.ModuleStoreKey,
 	)
 	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey)
 	memKeys := sdk.NewMemoryStoreKeys(capabilitytypes.MemStoreKey, chainlinktypes.MemStoreKey)
@@ -275,7 +276,8 @@ func New(
 	app.EvidenceKeeper = *evidenceKeeper
 
 	// Create Chainlink keepers
-	app.ChainLinkKeeper = *chainlinkkeeper.NewKeeper(appCodec, keys[chainlinktypes.FeedStoreKey], keys[chainlinktypes.RoundStoreKey], keys[chainlinktypes.MemStoreKey])
+	app.ChainLinkKeeper = *chainlinkkeeper.NewKeeper(appCodec, keys[chainlinktypes.FeedStoreKey], keys[chainlinktypes.RoundStoreKey],
+		keys[chainlinktypes.ModuleStoreKey], keys[chainlinktypes.MemStoreKey])
 
 	/****  Module Options ****/
 
@@ -322,7 +324,7 @@ func New(
 	app.mm.SetOrderInitGenesis(
 		capabilitytypes.ModuleName, authtypes.ModuleName, banktypes.ModuleName, distrtypes.ModuleName, stakingtypes.ModuleName,
 		slashingtypes.ModuleName, govtypes.ModuleName, minttypes.ModuleName, crisistypes.ModuleName,
-		genutiltypes.ModuleName, evidencetypes.ModuleName,
+		genutiltypes.ModuleName, evidencetypes.ModuleName, chainlinktypes.ModuleName,
 	)
 
 	app.mm.RegisterInvariants(&app.CrisisKeeper)
@@ -352,7 +354,7 @@ func New(
 	// initialize BaseApp
 	app.SetInitChainer(app.InitChainer)
 	app.SetBeginBlocker(app.BeginBlocker)
-	app.SetAnteHandler(
+	app.SetAnteHandler( // TODO: add AnteHandle of chainlink module to verify the signer of add module owner tx, only module owner is able to add a new module owner
 		ante.NewAnteHandler(
 			app.AccountKeeper, app.BankKeeper, ante.DefaultSigVerificationGasConsumer,
 			encodingConfig.TxConfig.SignModeHandler(),
@@ -498,6 +500,7 @@ func (app *ChainLinkApp) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.
 	ModuleBasics.RegisterRESTRoutes(clientCtx, apiSvr.Router)
 	ModuleBasics.RegisterGRPCGatewayRoutes(clientCtx, apiSvr.GRPCGatewayRouter)
 
+	// TODO: fix this later
 	// register app's OpenAPI routes.
 	apiSvr.Router.Handle("/static/openapi.yml", http.FileServer(http.FS(docs.Docs)))
 	apiSvr.Router.HandleFunc("/", openapiconsole.Handler(Name, "/static/openapi.yml"))
@@ -534,6 +537,7 @@ func initParamsKeeper(appCodec codec.BinaryMarshaler, legacyAmino *codec.LegacyA
 	paramsKeeper.Subspace(slashingtypes.ModuleName)
 	paramsKeeper.Subspace(govtypes.ModuleName).WithKeyTable(govtypes.ParamKeyTable())
 	paramsKeeper.Subspace(crisistypes.ModuleName)
+	paramsKeeper.Subspace(chainlinktypes.ModuleName)
 
 	return paramsKeeper
 }

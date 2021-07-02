@@ -3,14 +3,16 @@ package chainlink.v1beta;
 
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
+import "chainlink/v1beta/genesis.proto";
 
 option go_package = "github.com/ChainSafe/chainlink-cosmos/x/chainlink/types";
 
 // Msg defines the Msg gPRC service.
 service Msg {
-  rpc SubmitFeedData(MsgFeedData) returns (MsgFeedDataResponse) {
+  rpc SubmitFeedData(MsgFeedData) returns (MsgResponse) {
     option (google.api.http).put = "/chainlink/feed/data";
   }
+  rpc AddModuleOwner(ModuleOwner) returns (MsgResponse);
 }
 
 // MsgFeed is the type defined for each feed
@@ -45,7 +47,7 @@ message MsgFeedData {
   repeated bytes signatures = 4;
 }
 
-message MsgFeedDataResponse {
+message MsgResponse {
   uint64 height = 1;
   string txHash = 2;
 }

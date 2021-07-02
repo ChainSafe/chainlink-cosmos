@@ -10,6 +10,9 @@ const (
 	// RoundKey defines the secondary module store key
 	RoundStoreKey = ModuleName + "round"
 
+	// ModuleStoreKey defines the module scope store key
+	ModuleStoreKey = ModuleName + "module"
+
 	// RouterKey is the message route for slashing
 	RouterKey = ModuleName
 
@@ -25,13 +28,12 @@ func KeyPrefix(p string) []byte {
 }
 
 const (
-	/*
-		FeedStore key pattern: types.FeedDataKey + feedId + roundId
-	*/
+	// FeedStore key pattern: types.FeedDataKey + feedId + roundId
 	FeedDataKey = "feedData"
 
-	/*
-		RoundStore key pattern: types.RoundIdKey + feedId
-	*/
+	// RoundStore key pattern: types.RoundIdKey + feedId
 	RoundIdKey = "roundId"
+
+	// RoundStore key pattern: types.ModuleOwnerKey
+	ModuleOwnerKey = "moduleOwner"
 )

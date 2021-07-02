@@ -7,6 +7,7 @@ import (
 
 const (
 	SubmitFeedData = "SubmitFeedData"
+	AddModuleOwner = "AddModuleOwner"
 )
 
 var _ sdk.Msg = &MsgFeedData{}
@@ -55,4 +56,48 @@ func (m *MsgFeedData) ValidateBasic() error {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, "number of oracle signatures does not meet the required number")
 	}
 	return nil
+}
+
+var _ sdk.Msg = &ModuleOwner{}
+
+func NewModuleOwner(address sdk.Address, pubKey []byte) *ModuleOwner {
+	return &ModuleOwner{
+		Address: address.Bytes(),
+		PubKey:  pubKey,
+	}
+}
+
+func (m *ModuleOwner) Route() string {
+	return RouterKey
+}
+
+func (m *ModuleOwner) Type() string {
+	return AddModuleOwner
+}
+
+func (m *ModuleOwner) ValidateBasic() error {
+	// TODO: add proper cosmos address and pubkey validation
+	return nil
+}
+
+func (m *ModuleOwner) GetSignBytes() []byte {
+	bz := ModuleCdc.MustMarshalJSON(m)
+	return sdk.MustSortJSON(bz)
+}
+
+func (m *ModuleOwner) GetSigners() []sdk.AccAddress {
+	return []sdk.AccAddress{sdk.AccAddress(m.Address)}
+}
+
+type ModuleOwners []*ModuleOwner
+
+// Contains returns true if the given address exists in a slice of ModuleOwners objects.
+func (mo ModuleOwners) Contains(addr sdk.Address) bool {
+	for _, acc := range mo {
+		if acc.GetAddress().Equals(addr) {
+			return true
+		}
+	}
+
+	return false
 }

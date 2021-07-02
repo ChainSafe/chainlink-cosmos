@@ -8,10 +8,12 @@ import (
 
 func RegisterCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(MsgFeedData{}, "chainlink/SubmitFeedData", nil)
+	cdc.RegisterConcrete(ModuleOwner{}, "chainlink/AddModuleOwner", nil)
 }
 
 func RegisterInterfaces(registry cdctypes.InterfaceRegistry) {
 	registry.RegisterImplementations((*sdk.Msg)(nil), &MsgFeedData{})
+	registry.RegisterImplementations((*sdk.Msg)(nil), &ModuleOwner{})
 }
 
 var (
