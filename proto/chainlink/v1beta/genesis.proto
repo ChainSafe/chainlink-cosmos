@@ -6,11 +6,11 @@ import "gogoproto/gogo.proto";
 option go_package = "github.com/ChainSafe/chainlink-cosmos/x/chainlink/types";
 
 message GenesisState {
-  // moduleOwners is an array containing the chainlink init module owner accounts.
-  repeated ModuleOwner moduleOwners = 1;
+  // MsgModuleOwner is an array containing the chainlink init module owner accounts.
+  repeated MsgModuleOwner moduleOwners = 1;
 }
 
-message ModuleOwner {
+message MsgModuleOwner {
   // address defines the address of the module owner
   bytes address = 1 [
     (gogoproto.moretags) = "yaml:\"address\"",

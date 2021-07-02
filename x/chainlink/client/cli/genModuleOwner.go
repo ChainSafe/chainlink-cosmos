@@ -5,7 +5,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-
 	chainlinktypes "github.com/ChainSafe/chainlink-cosmos/x/chainlink/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
@@ -65,7 +64,7 @@ func CmdGenesisModuleOwner() *cobra.Command {
 				return fmt.Errorf("address and pubKey not match")
 			}
 
-			initModuleOwner := chainlinktypes.NewModuleOwner(nil, addr, []byte(pubKey))
+			initModuleOwner := chainlinktypes.NewMsgModuleOwner(nil, addr, []byte(pubKey))
 
 			genFile := conf.GenesisFile()
 			appState, genDoc, err := genutiltypes.GenesisStateFromGenFile(genFile)
@@ -76,7 +75,7 @@ func CmdGenesisModuleOwner() *cobra.Command {
 			chainLinkGenState := chainlinktypes.GetGenesisStateFromAppState(cdc, appState)
 
 			// check if the new address is already in the genesis
-			accs := (chainlinktypes.ModuleOwners)(chainLinkGenState.GetModuleOwners())
+			accs := (chainlinktypes.MsgModuleOwners)(chainLinkGenState.GetModuleOwners())
 			if accs.Contains(addr) {
 				return fmt.Errorf("cannot add account at existing address %s", addr)
 			}
