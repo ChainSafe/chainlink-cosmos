@@ -17,7 +17,7 @@ import (
 type (
 	Keeper struct {
 		cdc                 codec.Marshaler
-		feedStoreKey        sdk.StoreKey
+		feedDataStoreKey    sdk.StoreKey
 		roundStoreKey       sdk.StoreKey
 		moduleOwnerStoreKey sdk.StoreKey
 		memKey              sdk.StoreKey
@@ -26,14 +26,14 @@ type (
 
 func NewKeeper(
 	cdc codec.Marshaler,
-	feedStoreKey,
+	feedDataStoreKey,
 	roundStoreKey,
 	moduleOwnerStoreKey,
 	memKey sdk.StoreKey,
 ) *Keeper {
 	return &Keeper{
 		cdc:                 cdc,
-		feedStoreKey:        feedStoreKey,
+		feedDataStoreKey:    feedDataStoreKey,
 		roundStoreKey:       roundStoreKey,
 		moduleOwnerStoreKey: moduleOwnerStoreKey,
 		memKey:              memKey,
@@ -75,11 +75,11 @@ func (k Keeper) SetFeedData(ctx sdk.Context, feedData *types.MsgFeedData) (int64
 		RoundId:               roundId,
 	}
 
-	feedStore := ctx.KVStore(k.feedStoreKey)
+	feedDateStore := ctx.KVStore(k.feedDataStoreKey)
 
 	f := k.cdc.MustMarshalBinaryBare(&finalFeedDataInStore)
 
-	feedStore.Set(types.KeyPrefix(types.FeedDataKey+feedData.FeedId+fmt.Sprintf("%d", roundId)), f)
+	feedDateStore.Set(types.KeyPrefix(types.FeedDataKey+feedData.FeedId+fmt.Sprintf("%d", roundId)), f)
 
 	return ctx.BlockHeight(), ctx.TxBytes()
 }
@@ -91,9 +91,9 @@ func (k Keeper) GetRoundFeedDataByFilter(ctx sdk.Context, req *types.GetRoundDat
 
 	var feedRoundData []*types.RoundData
 
-	feedStore := ctx.KVStore(k.feedStoreKey)
+	feedDataStore := ctx.KVStore(k.feedDataStoreKey)
 
-	pageRes, err := query.Paginate(feedStore, req.Pagination, func(key []byte, value []byte) error {
+	pageRes, err := query.Paginate(feedDataStore, req.Pagination, func(key []byte, value []byte) error {
 		var feedData types.OCRFeedDataInStore
 
 		if err := k.cdc.UnmarshalBinaryBare(value, &feedData); err != nil {
@@ -129,8 +129,8 @@ func (k Keeper) GetLatestRoundFeedDataByFilter(ctx sdk.Context, req *types.GetLa
 	roundStore := ctx.KVStore(k.roundStoreKey)
 	latestRoundId := k.GetLatestRoundId(roundStore, req.GetFeedId())
 
-	feedStore := ctx.KVStore(k.feedStoreKey)
-	iterator := sdk.KVStorePrefixIterator(feedStore, types.KeyPrefix(types.FeedDataKey))
+	feedDataStore := ctx.KVStore(k.feedDataStoreKey)
+	iterator := sdk.KVStorePrefixIterator(feedDataStore, types.KeyPrefix(types.FeedDataKey))
 
 	defer iterator.Close()
 
