@@ -28,11 +28,17 @@ func KeyPrefix(p string) []byte {
 }
 
 const (
-	// FeedDataStore key pattern: types.FeedDataKey + feedId + roundId
+	// FeedDataStore key pattern: types.FeedDataKey/feedId/roundId
 	FeedDataKey = "feedData"
 
-	// RoundStore key pattern: types.RoundIdKey + feedId
+	// FeedStore key pattern structure
+	FeedDataKeyFormat = FeedDataKey + "/%s/"
+
+	// RoundStore key pattern: types.RoundIdKey/feedId
 	RoundIdKey = "roundId"
+
+	// RoundStore key pattern structure
+	RoundIdKeyFormat = RoundIdKey + "/%s"
 
 	// ModuleOwnerStore key pattern: types.ModuleOwnerKey + moduleOwnerAddress
 	ModuleOwnerKey = "moduleOwner"
