@@ -1,4 +1,4 @@
-# Submit feed data
+# Submit feed data by alice
 chainlinkd tx chainlink submitFeedData "testfeedid1" "feed 1 test data" "dummy signatures" --from alice --keyring-backend test --chain-id testchain
 
 # Query feed data by txHash
@@ -22,9 +22,9 @@ chainlinkd keys list --keyring-backend test
 # List all module owner
 chainlinkd query chainlink getModuleOwnerList --chain-id testchain -o json
 
-# Add new module owner
+# Add new module owner by alice
 chainlinkd tx chainlink addModuleOwner "cosmos1wjthz4kmkcusava94f55pg06cqrlxm889udgjn" "cosmospub1addwnpepq00vr93dx4k88rpfupm5wxv50nmq69chxlfal279cexxjy8yl29dc2kqqqn" --from alice --keyring-backend test --chain-id testchain
 
-# module ownership transfer
+# module ownership transfer by bob
 chainlinkd tx chainlink moduleOwnershipTransfer "cosmos1z6r57d75mw4yzenykk4l9zjma0mjusseaz5yk3" "cosmospub1addwnpepq2uxljzkshf02yuk9k7ehmmcru0de5p5d9gw54g49jgq7djeufq32we4zr0" --from bob --keyring-backend test --chain-id testchain
 
