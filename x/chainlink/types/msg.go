@@ -1,6 +1,7 @@
 package types
 
 import (
+	githubcosmossdktypes "github.com/cosmos/cosmos-sdk/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
@@ -59,12 +60,18 @@ func (m *MsgFeedData) ValidateBasic() error {
 }
 
 var _ sdk.Msg = &ModuleOwner{}
+var _ sdk.Tx = &ModuleOwner{}
 
-func NewModuleOwner(address sdk.Address, pubKey []byte) *ModuleOwner {
-	return &ModuleOwner{
+func NewModuleOwner(assigner, address sdk.Address, pubKey []byte) *ModuleOwner {
+	mo := &ModuleOwner{
 		Address: address.Bytes(),
 		PubKey:  pubKey,
 	}
+	if assigner != nil {
+		mo.AssignerAddress = assigner.Bytes()
+	}
+
+	return mo
 }
 
 func (m *ModuleOwner) Route() string {
@@ -86,7 +93,7 @@ func (m *ModuleOwner) GetSignBytes() []byte {
 }
 
 func (m *ModuleOwner) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{sdk.AccAddress(m.Address)}
+	return []sdk.AccAddress{sdk.AccAddress(m.AssignerAddress)}
 }
 
 type ModuleOwners []*ModuleOwner
@@ -100,4 +107,8 @@ func (mo ModuleOwners) Contains(addr sdk.Address) bool {
 	}
 
 	return false
+}
+
+func (m *ModuleOwner) GetMsgs() []githubcosmossdktypes.Msg {
+	return []sdk.Msg{m}
 }

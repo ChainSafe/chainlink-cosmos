@@ -6,6 +6,10 @@ rm -rf ~/.chainlinkd/
 # Add two accounts
 chainlinkd keys add alice --keyring-backend test
 chainlinkd keys add bob --keyring-backend test
+chainlinkd keys add cerlo --keyring-backend test
+
+# Initialize configuration files and genesis file
+chainlinkd init testchain --chain-id testchain
 
 # Initialize configuration files and genesis file
 chainlinkd init testchain --chain-id testchain
@@ -58,4 +62,3 @@ chainlinkd start
 
 # Add new module owner
 # chainlinkd tx chainlink addModuleOwner "cosmos1stdn5v0tcdc6s2vy79rk8yxujlahw4jydyntt9" "cosmospub1addwnpepqfh6a0rsu9m8q5tfqkp97whexdc4jtdgnel7xvf2hv26c6m860e3gt4tf9u" --from bob --keyring-backend test --chain-id testchain
-

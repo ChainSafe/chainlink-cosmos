@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"bufio"
 	"bytes"
 	"encoding/json"
 	"fmt"
@@ -9,6 +10,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/codec"
+	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	"github.com/cosmos/cosmos-sdk/server"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
@@ -36,7 +38,24 @@ func CmdGenesisModuleOwner() *cobra.Command {
 			// checking init module owner address
 			addr, err := sdk.AccAddressFromBech32(address)
 			if err != nil {
-				return fmt.Errorf("failed to validate new genesis account: %w", err)
+				inBuf := bufio.NewReader(cmd.InOrStdin())
+				keyringBackend, err := cmd.Flags().GetString(flags.FlagKeyringBackend)
+				if err != nil {
+					return err
+				}
+
+				// attempt to lookup address from Keybase if no address was provided
+				kb, err := keyring.New(sdk.KeyringServiceName(), keyringBackend, clientCtx.HomeDir, inBuf)
+				if err != nil {
+					return err
+				}
+
+				info, err := kb.Key(address)
+				if err != nil {
+					return fmt.Errorf("failed to get address from Keybase: %w", err)
+				}
+
+				addr = info.GetAddress()
 			}
 			// get bech32 pubkey
 			bech32PubKey := sdk.MustGetPubKeyFromBech32(sdk.Bech32PubKeyTypeAccPub, pubKey)
@@ -46,24 +65,7 @@ func CmdGenesisModuleOwner() *cobra.Command {
 				return fmt.Errorf("address and pubKey not match")
 			}
 
-			// TODO: add keyring support to use key_name
-			//inBuf := bufio.NewReader(cmd.InOrStdin())
-			//keyringBackend, err := cmd.Flags().GetString(flags.FlagKeyringBackend)
-			//if err != nil {
-			//	return err
-			//}
-			//
-			//// attempt to lookup address from Keybase if no address was provided
-			//kb, err := keyring.New(sdk.KeyringServiceName(), keyringBackend, clientCtx.HomeDir, inBuf)
-			//if err != nil {
-			//	return err
-			//}
-			//info, err := kb.Key(address)
-			//if err != nil {
-			//	return fmt.Errorf("failed to get address from Keybase: %w", err)
-			//}
-
-			initModuleOwner := chainlinktypes.NewModuleOwner(addr, []byte(pubKey))
+			initModuleOwner := chainlinktypes.NewModuleOwner(nil, addr, []byte(pubKey))
 
 			genFile := conf.GenesisFile()
 			appState, genDoc, err := genutiltypes.GenesisStateFromGenFile(genFile)
