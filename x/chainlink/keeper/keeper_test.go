@@ -20,6 +20,7 @@ func setupKeeper(t testing.TB) (*Keeper, sdk.Context) {
 	feedDataStoreKey := sdk.NewKVStoreKey(types.FeedDataStoreKey)
 	roundStoreKey := sdk.NewKVStoreKey(types.RoundStoreKey)
 	moduleOwnerStoreKey := sdk.NewKVStoreKey(types.ModuleOwnerStoreKey)
+	feedStoreKey := sdk.NewKVStoreKey(types.FeedStoreKey)
 	memStoreKey := storetypes.NewMemoryStoreKey(types.MemStoreKey)
 
 	db := tmdb.NewMemDB()
@@ -27,11 +28,12 @@ func setupKeeper(t testing.TB) (*Keeper, sdk.Context) {
 	stateStore.MountStoreWithDB(feedDataStoreKey, sdk.StoreTypeIAVL, db)
 	stateStore.MountStoreWithDB(roundStoreKey, sdk.StoreTypeIAVL, db)
 	stateStore.MountStoreWithDB(moduleOwnerStoreKey, sdk.StoreTypeIAVL, db)
+	stateStore.MountStoreWithDB(feedStoreKey, sdk.StoreTypeIAVL, db)
 	stateStore.MountStoreWithDB(memStoreKey, sdk.StoreTypeMemory, nil)
 	require.NoError(t, stateStore.LoadLatestVersion())
 
 	registry := codectypes.NewInterfaceRegistry()
-	keeper := NewKeeper(codec.NewProtoCodec(registry), feedDataStoreKey, roundStoreKey, moduleOwnerStoreKey, memStoreKey)
+	keeper := NewKeeper(codec.NewProtoCodec(registry), feedDataStoreKey, roundStoreKey, moduleOwnerStoreKey, feedStoreKey, memStoreKey)
 
 	ctx := sdk.NewContext(stateStore, tmproto.Header{}, false, log.NewNopLogger())
 	return keeper, ctx
