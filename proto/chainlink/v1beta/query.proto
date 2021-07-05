@@ -19,6 +19,17 @@ service Query {
   rpc GetAllModuleOwner(GetModuleOwnerRequest) returns (GetModuleOwnerResponse) {
     option (google.api.http).get = "/chainlink/module/owner";
   }
+  rpc GetFeedByFeedId(GetFeedByIdRequest) returns (GetFeedByIdResponse) {
+    option (google.api.http).get = "/chainlink/module/feed";
+  }
+}
+
+message GetFeedByIdRequest {
+  string feedId = 1;
+}
+
+message GetFeedByIdResponse{
+  MsgFeed feed = 1;
 }
 
 message GetModuleOwnerRequest {

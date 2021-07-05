@@ -67,6 +67,7 @@ func CmdGetLatestFeedData() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "getLatestFeedData [feedId]",
 		Short: "List the latest round feed data",
+		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			var feedId string
 			if len(args) != 0 {
@@ -85,6 +86,39 @@ func CmdGetLatestFeedData() *cobra.Command {
 			}
 
 			res, err := queryClient.LatestRoundData(context.Background(), params)
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintProto(res)
+		},
+	}
+
+	flags.AddQueryFlagsToCmd(cmd)
+	return cmd
+}
+
+func CmdGetFeedInfo() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "getFeed [feedId]",
+		Short: "Get feed info by feedId",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			var feedId string
+			if len(args) != 0 {
+				feedId = args[0]
+			}
+
+			clientCtx := client.GetClientContextFromCmd(cmd)
+			clientCtx, err := client.ReadPersistentCommandFlags(clientCtx, cmd.Flags())
+			if err != nil {
+				return err
+			}
+
+			queryClient := types.NewQueryClient(clientCtx)
+			params := &types.GetFeedByIdRequest{FeedId: feedId}
+
+			res, err := queryClient.GetFeedByFeedId(context.Background(), params)
 			if err != nil {
 				return err
 			}

@@ -2,7 +2,6 @@ package keeper
 
 import (
 	"fmt"
-
 	"github.com/cosmos/cosmos-sdk/types/query"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -225,4 +224,35 @@ func (k Keeper) SetFeed(ctx sdk.Context, feed *types.MsgFeed) (int64, []byte) {
 	feedStore.Set(types.KeyPrefix(types.FeedKey+feed.GetFeedId()), f)
 
 	return ctx.BlockHeight(), ctx.TxBytes()
+}
+
+func (k Keeper) GetFeed(ctx sdk.Context, feedId string) *types.GetFeedByIdResponse {
+	feedStore := ctx.KVStore(k.feedStoreKey)
+
+	feedKey := types.KeyPrefix(types.FeedKey + feedId)
+
+	fmt.Println("KEEEEETYYYYY: ", types.FeedKey + feedId)
+	feedIdBytes := feedStore.Get(feedKey)
+
+	fmt.Println("FFFFFFEEEEEDDDDD1: ", feedIdBytes)
+
+
+	if feedIdBytes == nil {
+		return &types.GetFeedByIdResponse{
+			Feed: nil,
+		}
+	}
+
+	fmt.Println("FFFFFFEEEEEDDDDD2: ", feedIdBytes)
+
+
+	var feed types.MsgFeed
+	k.cdc.MustUnmarshalBinaryBare(feedIdBytes, &feed)
+
+	fmt.Println("FFFFFFEEEEEDDDDD3: ", feed)
+
+
+	return &types.GetFeedByIdResponse{
+		Feed: &feed,
+	}
 }

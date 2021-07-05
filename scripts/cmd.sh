@@ -2,7 +2,7 @@
 chainlinkd tx chainlink submitFeedData "testfeedid1" "feed 1 test data" "dummy signatures" --from alice --keyring-backend test --chain-id testchain
 
 # Query feed data by txHash
-chainlinkd query tx A0B849C7A5ABB51B3FA9DC723A6C1CB8C4B6C255DB98D0EC0FD3DCD04316E387 --chain-id testchain -o json
+chainlinkd query tx C350CAD4673DB75005C6215262633375ECE318BAEDC794820EE43FA958FB8174 --chain-id testchain -o json
 
 # Query feed data by roundId and feedId
 chainlinkd query chainlink getRoundFeedData 1 "testfeedid1" --chain-id testchain -o json
@@ -28,3 +28,6 @@ chainlinkd tx chainlink addModuleOwner "cosmos1wjthz4kmkcusava94f55pg06cqrlxm889
 # module ownership transfer by bob
 chainlinkd tx chainlink moduleOwnershipTransfer "cosmos1z6r57d75mw4yzenykk4l9zjma0mjusseaz5yk3" "cosmospub1addwnpepq2uxljzkshf02yuk9k7ehmmcru0de5p5d9gw54g49jgq7djeufq32we4zr0" --from bob --keyring-backend test --chain-id testchain
 
+chainlinkd tx chainlink addFeed "feedid2" "cosmos1avfmvhzf2kng33v0365jgv6qc3a8823ygddwr0" "1" "2" "3" "cosmos1avfmvhzf2kng33v0365jgv6qc3a8823ygddwr0 cosmospub1addwnpepqv6cn6jvja4epx42wyxvdd6lrn43p6ldskpawtqafksvksgl7p0puk8nwtu" --from alice --keyring-backend test --chain-id testchain
+
+chainlinkd query chainlink getFeed "feedid1" --chain-id testchain

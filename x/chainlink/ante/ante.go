@@ -84,6 +84,10 @@ func (mod ModuleOwnerDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate 
 			}
 			signers = append(signers, t.GetSigners()[0])
 		case *types.MsgFeed:
+			feed := mod.chainLinkKeeper.GetFeed(ctx, t.GetFeedId())
+			if !feed.Feed.Empty() {
+				return ctx, sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, "feed already exists")
+			}
 			if len(t.GetSigners()) == 0 {
 				return ctx, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "invalid Tx: empty signer: %T", t)
 			}

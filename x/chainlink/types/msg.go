@@ -187,12 +187,16 @@ func (m *MsgFeed) ValidateBasic() error {
 	if len(m.GetDataProviders()) == 0 {
 		return errors.New("init data provider must not empty")
 	}
+	tmp := make(map[string][]byte)
 	for _, provider := range m.GetDataProviders() {
 		if !provider.Verify() {
 			return errors.New("init data provider address and pubKey does not match")
 		}
+		tmp[provider.GetAddress().String()] = provider.GetPubKey()
 	}
-
+	if len(tmp) != len(m.GetDataProviders()) {
+		return errors.New("init data provider list contains duplication")
+	}
 	return nil
 }
 
@@ -203,4 +207,8 @@ func (m *MsgFeed) GetSignBytes() []byte {
 
 func (m *MsgFeed) GetSigners() []githubcosmossdktypes.AccAddress {
 	return []sdk.AccAddress{sdk.AccAddress(m.ModuleOwnerAddress)}
+}
+
+func (m *MsgFeed) Empty() bool {
+	return m == nil
 }

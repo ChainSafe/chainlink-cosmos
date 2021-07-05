@@ -92,7 +92,7 @@ func (m *MsgModuleOwnershipTransfer) GetNewModuleOwnerPubKey() []byte {
 	return nil
 }
 
-// MsgFeed is the type defined for each new feed
+// MsgFeed is the type defined for new feed
 type MsgFeed struct {
 	// FeedId is the unique identifier of the feed
 	FeedId string `protobuf:"bytes,1,opt,name=feedId,proto3" json:"feedId,omitempty"`
@@ -109,7 +109,7 @@ type MsgFeed struct {
 	// For example if the price of ATOM/USD changes by 1% then a new round should occur
 	// even if the heartbeat interval has not elapsed.
 	DeviationThresholdTrigger uint32 `protobuf:"varint,6,opt,name=deviationThresholdTrigger,proto3" json:"deviationThresholdTrigger,omitempty"`
-	// module owner who signs the add feed tx
+	// Module owner who signs the add feed tx
 	ModuleOwnerAddress github_com_cosmos_cosmos_sdk_types.AccAddress `protobuf:"bytes,7,opt,name=moduleOwnerAddress,proto3,casttype=github.com/cosmos/cosmos-sdk/types.AccAddress" json:"moduleOwnerAddress,omitempty"`
 }
 

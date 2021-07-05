@@ -25,7 +25,7 @@ message MsgModuleOwnershipTransfer {
   bytes newModuleOwnerPubKey = 3 [(gogoproto.moretags) = "yaml:\"pub_key\""];
 }
 
-// MsgFeed is the type defined for each new feed
+// MsgFeed is the type defined for new feed
 message MsgFeed {
   // FeedId is the unique identifier of the feed
   string feedId = 1;
@@ -42,7 +42,7 @@ message MsgFeed {
   // For example if the price of ATOM/USD changes by 1% then a new round should occur
   // even if the heartbeat interval has not elapsed.
   uint32 deviationThresholdTrigger = 6;
-  // module owner who signs the add feed tx
+  // Module owner who signs the add feed tx
   bytes moduleOwnerAddress = 7 [(gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"];
   // TODO: RewardConfig: Struct describing how rewards should be paid
 }

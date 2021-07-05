@@ -10,6 +10,7 @@ require (
 	github.com/grpc-ecosystem/grpc-gateway v1.16.0
 	github.com/onsi/ginkgo v1.16.1 // indirect
 	github.com/onsi/gomega v1.11.0 // indirect
+	github.com/regen-network/cosmos-proto v0.3.1 // indirect
 	github.com/spf13/cast v1.3.1
 	github.com/spf13/cobra v1.1.3
 	github.com/spf13/pflag v1.0.5
