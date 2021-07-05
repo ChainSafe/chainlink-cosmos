@@ -73,7 +73,7 @@ func TestFeedKeyStructure(t *testing.T) {
 	// Add all feed cases to store
 	for _, tt := range tests {
 		// force set roundId-1 for SetFeedData
-		roundStore.Set(types.KeyPrefix(fmt.Sprintf(types.RoundIdKeyFormat, tt.feedId)), i64tob(tt.roundId-1))
+		roundStore.Set(types.KeyPrefix(types.RoundIdKey+"/"+tt.feedId), i64tob(tt.roundId-1))
 
 		feedData := types.MsgFeedData{
 			FeedId: tt.feedId,
@@ -86,7 +86,7 @@ func TestFeedKeyStructure(t *testing.T) {
 	for _, tt := range tests {
 		testName := fmt.Sprintf("%s,%d", tt.feedId, tt.roundId)
 		t.Run(testName, func(t *testing.T) {
-			prefixKey := fmt.Sprintf(types.FeedDataKeyFormat, tt.feedId)
+			prefixKey := types.FeedDataKey + "/" + tt.feedId + "/"
 			//fmt.Println("[DEBUG] search for key", prefixKey)
 
 			iterator := sdk.KVStorePrefixIterator(feedStore, types.KeyPrefix(prefixKey))

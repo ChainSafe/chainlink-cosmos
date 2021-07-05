@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/cosmos/cosmos-sdk/types/query"
 	"google.golang.org/grpc/codes"
@@ -50,7 +51,7 @@ func (k Keeper) SetFeedData(ctx sdk.Context, feedData *types.MsgFeedData) (int64
 	roundId := currentLatestRoundId + 1
 
 	// update the latest roundId of the current feedId
-	roundStore.Set(types.KeyPrefix(fmt.Sprintf(types.RoundIdKeyFormat, feedData.FeedId)), i64tob(roundId))
+	roundStore.Set(types.KeyPrefix(types.RoundIdKey+"/"+feedData.FeedId), i64tob(roundId))
 
 	// TODO: add more complex feed validation here such as verify against other modules
 
@@ -79,7 +80,7 @@ func (k Keeper) SetFeedData(ctx sdk.Context, feedData *types.MsgFeedData) (int64
 
 	f := k.cdc.MustMarshalBinaryBare(&finalFeedDataInStore)
 
-	feedDateStore.Set(types.KeyPrefix(fmt.Sprintf(types.FeedDataKeyFormat+"%d", feedData.FeedId, roundId)), f)
+	feedDateStore.Set(types.KeyPrefix(types.FeedDataKey+"/"+feedData.FeedId+"/"+strconv.FormatUint(roundId, 10)), f)
 
 	return ctx.BlockHeight(), ctx.TxBytes()
 }
@@ -153,7 +154,7 @@ func (k Keeper) GetLatestRoundFeedDataByFilter(ctx sdk.Context, req *types.GetLa
 // returns the global latest roundId in roundStore regardless of feedId if feedId is not given.
 func (k Keeper) GetLatestRoundId(store sdk.KVStore, feedId string) uint64 {
 	if feedId != "" {
-		feedRoundIdKey := types.KeyPrefix(fmt.Sprintf(types.RoundIdKeyFormat, feedId))
+		feedRoundIdKey := types.KeyPrefix(types.RoundIdKey + "/" + feedId)
 		roundIdBytes := store.Get(feedRoundIdKey)
 
 		if len(roundIdBytes) == 0 {
@@ -181,7 +182,7 @@ func (k Keeper) SetModuleOwner(ctx sdk.Context, moduleOwner *types.MsgModuleOwne
 
 	f := k.cdc.MustMarshalBinaryBare(moduleOwner)
 
-	moduleStore.Set(types.KeyPrefix(types.ModuleOwnerKey+moduleOwner.GetAddress().String()), f)
+	moduleStore.Set(types.KeyPrefix(types.ModuleOwnerKey+"/"+moduleOwner.GetAddress().String()), f)
 
 	return ctx.BlockHeight(), ctx.TxBytes()
 }
@@ -189,7 +190,7 @@ func (k Keeper) SetModuleOwner(ctx sdk.Context, moduleOwner *types.MsgModuleOwne
 func (k Keeper) RemoveModuleOwner(ctx sdk.Context, transfer *types.MsgModuleOwnershipTransfer) (int64, []byte) {
 	moduleStore := ctx.KVStore(k.moduleOwnerStoreKey)
 
-	moduleStore.Delete(types.KeyPrefix(types.ModuleOwnerKey + transfer.GetAssignerAddress().String()))
+	moduleStore.Delete(types.KeyPrefix(types.ModuleOwnerKey + "/" + transfer.GetAssignerAddress().String()))
 
 	return ctx.BlockHeight(), ctx.TxBytes()
 }

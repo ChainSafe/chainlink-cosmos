@@ -31,15 +31,9 @@ const (
 	// FeedDataStore key pattern: types.FeedDataKey/feedId/roundId
 	FeedDataKey = "feedData"
 
-	// FeedStore key pattern structure
-	FeedDataKeyFormat = FeedDataKey + "/%s/"
-
 	// RoundStore key pattern: types.RoundIdKey/feedId
 	RoundIdKey = "roundId"
 
-	// RoundStore key pattern structure
-	RoundIdKeyFormat = RoundIdKey + "/%s"
-
-	// ModuleOwnerStore key pattern: types.ModuleOwnerKey + moduleOwnerAddress
+	// ModuleOwnerStore key pattern: types.ModuleOwnerKey/moduleOwnerAddress
 	ModuleOwnerKey = "moduleOwner"
 )
