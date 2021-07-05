@@ -20,6 +20,7 @@ type (
 		feedDataStoreKey    sdk.StoreKey
 		roundStoreKey       sdk.StoreKey
 		moduleOwnerStoreKey sdk.StoreKey
+		feedStoreKey        sdk.StoreKey
 		memKey              sdk.StoreKey
 	}
 )
@@ -29,6 +30,7 @@ func NewKeeper(
 	feedDataStoreKey,
 	roundStoreKey,
 	moduleOwnerStoreKey,
+	feedStoreKey,
 	memKey sdk.StoreKey,
 ) *Keeper {
 	return &Keeper{
@@ -36,6 +38,7 @@ func NewKeeper(
 		feedDataStoreKey:    feedDataStoreKey,
 		roundStoreKey:       roundStoreKey,
 		moduleOwnerStoreKey: moduleOwnerStoreKey,
+		feedStoreKey:        feedStoreKey,
 		memKey:              memKey,
 	}
 }
@@ -212,4 +215,14 @@ func (k Keeper) GetModuleOwnerList(ctx sdk.Context) *types.GetModuleOwnerRespons
 	return &types.GetModuleOwnerResponse{
 		ModuleOwner: moduleOwners,
 	}
+}
+
+func (k Keeper) SetFeed(ctx sdk.Context, feed *types.MsgFeed) (int64, []byte) {
+	feedStore := ctx.KVStore(k.feedStoreKey)
+
+	f := k.cdc.MustMarshalBinaryBare(feed)
+
+	feedStore.Set(types.KeyPrefix(types.FeedKey+feed.GetFeedId()), f)
+
+	return ctx.BlockHeight(), ctx.TxBytes()
 }

@@ -62,3 +62,19 @@ func (k Keeper) ModuleOwnershipTransferTx(c context.Context, msg *types.MsgModul
 		TxHash: string(txHash),
 	}, nil
 }
+
+// AddFeedTx implements the tx/AddFeedTx gRPC method
+func (k Keeper) AddFeedTx(c context.Context, msg *types.MsgFeed) (*types.MsgResponse, error) {
+	ctx := sdk.UnwrapSDKContext(c)
+
+	height, txHash := k.SetFeed(ctx, msg)
+
+	if height == 0 {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidHeight, "incorrect height found")
+	}
+
+	return &types.MsgResponse{
+		Height: uint64(height),
+		TxHash: string(txHash),
+	}, nil
+}

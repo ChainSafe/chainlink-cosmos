@@ -83,6 +83,11 @@ func (mod ModuleOwnerDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate 
 				return ctx, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "invalid Tx: empty signer: %T", t)
 			}
 			signers = append(signers, t.GetSigners()[0])
+		case *types.MsgFeed:
+			if len(t.GetSigners()) == 0 {
+				return ctx, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "invalid Tx: empty signer: %T", t)
+			}
+			signers = append(signers, t.GetSigners()[0])
 		default:
 			continue
 		}

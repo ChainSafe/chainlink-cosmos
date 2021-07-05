@@ -1,6 +1,7 @@
 package types
 
 import (
+	"errors"
 	githubcosmossdktypes "github.com/cosmos/cosmos-sdk/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
@@ -10,9 +11,10 @@ const (
 	SubmitFeedData          = "SubmitFeedData"
 	AddModuleOwner          = "AddModuleOwner"
 	ModuleOwnershipTransfer = "ModuleOwnershipTransfer"
+	AddFeed                 = "AddFeed"
 )
 
-var _, _, _ sdk.Msg = &MsgFeedData{}, &MsgModuleOwnershipTransfer{}, &MsgModuleOwner{}
+var _, _, _, _ sdk.Msg = &MsgFeedData{}, &MsgModuleOwnershipTransfer{}, &MsgModuleOwner{}, &MsgFeed{}
 var _ sdk.Tx = &MsgModuleOwner{}
 
 func NewMsgFeedData(submitter sdk.Address, feedId string, feedData []byte, signatures [][]byte) *MsgFeedData {
@@ -140,4 +142,65 @@ func (m *MsgModuleOwnershipTransfer) GetSignBytes() []byte {
 
 func (m *MsgModuleOwnershipTransfer) GetSigners() []githubcosmossdktypes.AccAddress {
 	return []sdk.AccAddress{sdk.AccAddress(m.AssignerAddress)}
+}
+
+func NewMsgFeed(feedId string, feedOwner, moduleOwner sdk.Address, initDataProviders []*DataProvider, submissionCount, heartbeatTrigger, deviationThresholdTrigger uint32) *MsgFeed {
+	return &MsgFeed{
+		FeedId:                    feedId,
+		FeedOwner:                 feedOwner.Bytes(),
+		DataProviders:             initDataProviders,
+		SubmissionCount:           submissionCount,
+		HeartbeatTrigger:          heartbeatTrigger,
+		DeviationThresholdTrigger: deviationThresholdTrigger,
+		ModuleOwnerAddress:        moduleOwner.Bytes(),
+	}
+}
+
+func (m *MsgFeed) Route() string {
+	return RouterKey
+}
+
+func (m *MsgFeed) Type() string {
+	return AddFeed
+}
+
+func (m *MsgFeed) ValidateBasic() error {
+	if m.GetModuleOwnerAddress().Empty() {
+		return errors.New("invalid module owner")
+	}
+	if len(m.GetFeedId()) == 0 {
+		return errors.New("invalid feedId")
+	}
+	if m.GetFeedOwner().Empty() {
+		return errors.New("invalid feed owner")
+	}
+	if m.GetSubmissionCount() == 0 {
+		return errors.New("SubmissionCount must not be 0")
+	}
+	if m.GetHeartbeatTrigger() == 0 {
+		return errors.New("HeartbeatTrigger must not be 0")
+	}
+	if m.GetDeviationThresholdTrigger() == 0 {
+		return errors.New("DeviationThresholdTrigger must not be 0")
+	}
+
+	if len(m.GetDataProviders()) == 0 {
+		return errors.New("init data provider must not empty")
+	}
+	for _, provider := range m.GetDataProviders() {
+		if !provider.Verify() {
+			return errors.New("init data provider address and pubKey does not match")
+		}
+	}
+
+	return nil
+}
+
+func (m *MsgFeed) GetSignBytes() []byte {
+	bz := ModuleCdc.MustMarshalJSON(m)
+	return sdk.MustSortJSON(bz)
+}
+
+func (m *MsgFeed) GetSigners() []githubcosmossdktypes.AccAddress {
+	return []sdk.AccAddress{sdk.AccAddress(m.ModuleOwnerAddress)}
 }
