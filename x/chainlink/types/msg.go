@@ -1,6 +1,7 @@
 package types
 
 import (
+	"bytes"
 	"errors"
 	githubcosmossdktypes "github.com/cosmos/cosmos-sdk/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -84,7 +85,10 @@ func (m *MsgModuleOwner) Type() string {
 }
 
 func (m *MsgModuleOwner) ValidateBasic() error {
-	// TODO: add proper cosmos address and pubkey validation
+	bech32PubKey := sdk.MustGetPubKeyFromBech32(sdk.Bech32PubKeyTypeAccPub, string(m.PubKey))
+	if !bytes.Equal(bech32PubKey.Address().Bytes(), m.Address.Bytes()) {
+		return errors.New("address and pubKey not match")
+	}
 	return nil
 }
 
@@ -131,7 +135,13 @@ func (m *MsgModuleOwnershipTransfer) Type() string {
 }
 
 func (m *MsgModuleOwnershipTransfer) ValidateBasic() error {
-	// TODO: add proper cosmos address and pubkey validation
+	if m.GetAssignerAddress().Empty() {
+		return errors.New("assigner address can not be empty")
+	}
+	bech32PubKey := sdk.MustGetPubKeyFromBech32(sdk.Bech32PubKeyTypeAccPub, string(m.NewModuleOwnerPubKey))
+	if !bytes.Equal(bech32PubKey.Address().Bytes(), m.NewModuleOwnerAddress.Bytes()) {
+		return errors.New("new module owner address and pubKey not match")
+	}
 	return nil
 }
 
