@@ -231,11 +231,7 @@ func (k Keeper) GetFeed(ctx sdk.Context, feedId string) *types.GetFeedByIdRespon
 
 	feedKey := types.KeyPrefix(types.FeedKey + feedId)
 
-	fmt.Println("KEEEEETYYYYY: ", types.FeedKey + feedId)
 	feedIdBytes := feedStore.Get(feedKey)
-
-	fmt.Println("FFFFFFEEEEEDDDDD1: ", feedIdBytes)
-
 
 	if feedIdBytes == nil {
 		return &types.GetFeedByIdResponse{
@@ -243,14 +239,8 @@ func (k Keeper) GetFeed(ctx sdk.Context, feedId string) *types.GetFeedByIdRespon
 		}
 	}
 
-	fmt.Println("FFFFFFEEEEEDDDDD2: ", feedIdBytes)
-
-
 	var feed types.MsgFeed
 	k.cdc.MustUnmarshalBinaryBare(feedIdBytes, &feed)
-
-	fmt.Println("FFFFFFEEEEEDDDDD3: ", feed)
-
 
 	return &types.GetFeedByIdResponse{
 		Feed: &feed,

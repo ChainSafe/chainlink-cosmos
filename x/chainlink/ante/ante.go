@@ -37,6 +37,7 @@ func NewAnteHandler(
 			authante.NewIncrementSequenceDecorator(ak),
 			// all customized anteHandler below
 			NewModuleOwnerDecorator(chainLinkKeeper),
+			NewFeedDecorator(chainLinkKeeper),
 		)
 
 		return anteHandler(ctx, tx, sim)
@@ -100,6 +101,36 @@ func (mod ModuleOwnerDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate 
 	for _, signer := range signers {
 		if !(types.MsgModuleOwners)(existingModuleOwnerList.GetModuleOwner()).Contains(signer) {
 			return ctx, sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "account %s (%s) is not a module owner", common.BytesToAddress(signer.Bytes()), signer)
+		}
+	}
+
+	return next(ctx, tx, simulate)
+}
+
+type FeedDecorator struct {
+	chainLinkKeeper chainlinkkeeper.Keeper
+}
+
+func NewFeedDecorator(chainLinkKeeper chainlinkkeeper.Keeper) ModuleOwnerDecorator {
+	return ModuleOwnerDecorator{
+		chainLinkKeeper: chainLinkKeeper,
+	}
+}
+
+func (fd FeedDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (newCtx sdk.Context, err error) {
+	if len(tx.GetMsgs()) == 0 {
+		return ctx, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "invalid Msg: empty Msg: %T", tx)
+	}
+
+	for _, msg := range tx.GetMsgs() {
+		switch t := msg.(type) {
+		case *types.MsgFeed:
+			feed := fd.chainLinkKeeper.GetFeed(ctx, t.GetFeedId())
+			if !feed.Feed.Empty() {
+				return ctx, sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, "feed already exists")
+			}
+		default:
+			continue
 		}
 	}
 
