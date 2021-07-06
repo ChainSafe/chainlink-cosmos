@@ -1,12 +1,13 @@
 package cli
 
 import (
+	"strings"
+
 	"github.com/ChainSafe/chainlink-cosmos/x/chainlink/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	"github.com/spf13/cobra"
-	"strings"
 )
 
 func CmdSubmitFeedData() *cobra.Command {
@@ -36,6 +37,13 @@ func CmdSubmitFeedData() *cobra.Command {
 			if err := msg.ValidateBasic(); err != nil {
 				return err
 			}
+
+			// uncomment out to test if the submitter is a module owner
+			// err = msg.VerifyModuleOwner(clientCtx, context.Background())
+			// if err != nil {
+			// 	return err
+			// }
+
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}

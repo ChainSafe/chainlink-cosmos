@@ -1,7 +1,10 @@
 package types
 
 import (
-	githubcosmossdktypes "github.com/cosmos/cosmos-sdk/types"
+	context "context"
+	"errors"
+
+	"github.com/cosmos/cosmos-sdk/client"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
@@ -59,6 +62,22 @@ func (m *MsgFeedData) ValidateBasic() error {
 	return nil
 }
 
+func (m *MsgFeedData) VerifyModuleOwner(clientCtx client.Context, ctx context.Context) error {
+	queryClient := NewQueryClient(clientCtx)
+	params := &GetModuleOwnerRequest{}
+
+	res, err := queryClient.GetAllModuleOwner(ctx, params)
+	if err != nil {
+		return err
+	}
+
+	if !(ModuleOwners)(res.ModuleOwner).Contains(clientCtx.GetFromAddress()) {
+		return errors.New("submitter is not authorized to add a feed")
+	}
+
+	return nil
+}
+
 var _ sdk.Msg = &ModuleOwner{}
 var _ sdk.Tx = &ModuleOwner{}
 
@@ -109,6 +128,6 @@ func (mo ModuleOwners) Contains(addr sdk.Address) bool {
 	return false
 }
 
-func (m *ModuleOwner) GetMsgs() []githubcosmossdktypes.Msg {
+func (m *ModuleOwner) GetMsgs() []sdk.Msg {
 	return []sdk.Msg{m}
 }
