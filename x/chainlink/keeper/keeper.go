@@ -16,27 +16,27 @@ import (
 
 type (
 	Keeper struct {
-		cdc            codec.Marshaler
-		feedStoreKey   sdk.StoreKey
-		roundStoreKey  sdk.StoreKey
-		moduleStoreKey sdk.StoreKey
-		memKey         sdk.StoreKey
+		cdc                 codec.Marshaler
+		feedDataStoreKey    sdk.StoreKey
+		roundStoreKey       sdk.StoreKey
+		moduleOwnerStoreKey sdk.StoreKey
+		memKey              sdk.StoreKey
 	}
 )
 
 func NewKeeper(
 	cdc codec.Marshaler,
-	feedStoreKey,
+	feedDataStoreKey,
 	roundStoreKey,
-	moduleStoreKey,
+	moduleOwnerStoreKey,
 	memKey sdk.StoreKey,
 ) *Keeper {
 	return &Keeper{
-		cdc:            cdc,
-		feedStoreKey:   feedStoreKey,
-		roundStoreKey:  roundStoreKey,
-		moduleStoreKey: moduleStoreKey,
-		memKey:         memKey,
+		cdc:                 cdc,
+		feedDataStoreKey:    feedDataStoreKey,
+		roundStoreKey:       roundStoreKey,
+		moduleOwnerStoreKey: moduleOwnerStoreKey,
+		memKey:              memKey,
 	}
 }
 
@@ -75,11 +75,11 @@ func (k Keeper) SetFeedData(ctx sdk.Context, feedData *types.MsgFeedData) (int64
 		RoundId:               roundId,
 	}
 
-	feedStore := ctx.KVStore(k.feedStoreKey)
+	feedDateStore := ctx.KVStore(k.feedDataStoreKey)
 
 	f := k.cdc.MustMarshalBinaryBare(&finalFeedDataInStore)
 
-	feedStore.Set(types.KeyPrefix(types.FeedDataKey+feedData.FeedId+fmt.Sprintf("%d", roundId)), f)
+	feedDateStore.Set(types.KeyPrefix(types.FeedDataKey+feedData.FeedId+fmt.Sprintf("%d", roundId)), f)
 
 	return ctx.BlockHeight(), ctx.TxBytes()
 }
@@ -91,9 +91,9 @@ func (k Keeper) GetRoundFeedDataByFilter(ctx sdk.Context, req *types.GetRoundDat
 
 	var feedRoundData []*types.RoundData
 
-	feedStore := ctx.KVStore(k.feedStoreKey)
+	feedDataStore := ctx.KVStore(k.feedDataStoreKey)
 
-	pageRes, err := query.Paginate(feedStore, req.Pagination, func(key []byte, value []byte) error {
+	pageRes, err := query.Paginate(feedDataStore, req.Pagination, func(key []byte, value []byte) error {
 		var feedData types.OCRFeedDataInStore
 
 		if err := k.cdc.UnmarshalBinaryBare(value, &feedData); err != nil {
@@ -129,8 +129,8 @@ func (k Keeper) GetLatestRoundFeedDataByFilter(ctx sdk.Context, req *types.GetLa
 	roundStore := ctx.KVStore(k.roundStoreKey)
 	latestRoundId := k.GetLatestRoundId(roundStore, req.GetFeedId())
 
-	feedStore := ctx.KVStore(k.feedStoreKey)
-	iterator := sdk.KVStorePrefixIterator(feedStore, types.KeyPrefix(types.FeedDataKey))
+	feedDataStore := ctx.KVStore(k.feedDataStoreKey)
+	iterator := sdk.KVStorePrefixIterator(feedDataStore, types.KeyPrefix(types.FeedDataKey))
 
 	defer iterator.Close()
 
@@ -176,8 +176,8 @@ func (k Keeper) GetLatestRoundId(store sdk.KVStore, feedId string) uint64 {
 	return latestRoundId
 }
 
-func (k Keeper) SetModuleOwner(ctx sdk.Context, moduleOwner *types.ModuleOwner) (int64, []byte) {
-	moduleStore := ctx.KVStore(k.moduleStoreKey)
+func (k Keeper) SetModuleOwner(ctx sdk.Context, moduleOwner *types.MsgModuleOwner) (int64, []byte) {
+	moduleStore := ctx.KVStore(k.moduleOwnerStoreKey)
 
 	f := k.cdc.MustMarshalBinaryBare(moduleOwner)
 
@@ -186,16 +186,24 @@ func (k Keeper) SetModuleOwner(ctx sdk.Context, moduleOwner *types.ModuleOwner) 
 	return ctx.BlockHeight(), ctx.TxBytes()
 }
 
+func (k Keeper) RemoveModuleOwner(ctx sdk.Context, transfer *types.MsgModuleOwnershipTransfer) (int64, []byte) {
+	moduleStore := ctx.KVStore(k.moduleOwnerStoreKey)
+
+	moduleStore.Delete(types.KeyPrefix(types.ModuleOwnerKey + transfer.GetAssignerAddress().String()))
+
+	return ctx.BlockHeight(), ctx.TxBytes()
+}
+
 func (k Keeper) GetModuleOwnerList(ctx sdk.Context) *types.GetModuleOwnerResponse {
-	moduleStore := ctx.KVStore(k.moduleStoreKey)
+	moduleStore := ctx.KVStore(k.moduleOwnerStoreKey)
 	iterator := sdk.KVStorePrefixIterator(moduleStore, types.KeyPrefix(types.ModuleOwnerKey))
 
 	defer iterator.Close()
 
-	moduleOwners := make([]*types.ModuleOwner, 0)
+	moduleOwners := make([]*types.MsgModuleOwner, 0)
 
 	for ; iterator.Valid(); iterator.Next() {
-		var moduleOwner types.ModuleOwner
+		var moduleOwner types.MsgModuleOwner
 		k.cdc.MustUnmarshalBinaryBare(iterator.Value(), &moduleOwner)
 
 		moduleOwners = append(moduleOwners, &moduleOwner)

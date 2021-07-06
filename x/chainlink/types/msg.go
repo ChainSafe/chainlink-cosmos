@@ -10,11 +10,13 @@ import (
 )
 
 const (
-	SubmitFeedData = "SubmitFeedData"
-	AddModuleOwner = "AddModuleOwner"
+	SubmitFeedData          = "SubmitFeedData"
+	AddModuleOwner          = "AddModuleOwner"
+	ModuleOwnershipTransfer = "ModuleOwnershipTransfer"
 )
 
-var _ sdk.Msg = &MsgFeedData{}
+var _, _, _ sdk.Msg = &MsgFeedData{}, &MsgModuleOwnershipTransfer{}, &MsgModuleOwner{}
+var _ sdk.Tx = &MsgModuleOwner{}
 
 func NewMsgFeedData(submitter sdk.Address, feedId string, feedData []byte, signatures [][]byte) *MsgFeedData {
 	return &MsgFeedData{
@@ -71,18 +73,18 @@ func (m *MsgFeedData) VerifyModuleOwner(clientCtx client.Context, ctx context.Co
 		return err
 	}
 
-	if !(ModuleOwners)(res.ModuleOwner).Contains(clientCtx.GetFromAddress()) {
+	if !(MsgModuleOwners)(res.ModuleOwner).Contains(clientCtx.GetFromAddress()) {
 		return errors.New("submitter is not authorized to add a feed")
 	}
 
 	return nil
 }
 
-var _ sdk.Msg = &ModuleOwner{}
-var _ sdk.Tx = &ModuleOwner{}
+var _ sdk.Msg = &MsgModuleOwner{}
+var _ sdk.Tx = &MsgModuleOwner{}
 
-func NewModuleOwner(assigner, address sdk.Address, pubKey []byte) *ModuleOwner {
-	mo := &ModuleOwner{
+func NewMsgModuleOwner(assigner, address sdk.Address, pubKey []byte) *MsgModuleOwner {
+	mo := &MsgModuleOwner{
 		Address: address.Bytes(),
 		PubKey:  pubKey,
 	}
@@ -93,32 +95,36 @@ func NewModuleOwner(assigner, address sdk.Address, pubKey []byte) *ModuleOwner {
 	return mo
 }
 
-func (m *ModuleOwner) Route() string {
+func (m *MsgModuleOwner) Route() string {
 	return RouterKey
 }
 
-func (m *ModuleOwner) Type() string {
+func (m *MsgModuleOwner) Type() string {
 	return AddModuleOwner
 }
 
-func (m *ModuleOwner) ValidateBasic() error {
+func (m *MsgModuleOwner) ValidateBasic() error {
 	// TODO: add proper cosmos address and pubkey validation
 	return nil
 }
 
-func (m *ModuleOwner) GetSignBytes() []byte {
+func (m *MsgModuleOwner) GetSignBytes() []byte {
 	bz := ModuleCdc.MustMarshalJSON(m)
 	return sdk.MustSortJSON(bz)
 }
 
-func (m *ModuleOwner) GetSigners() []sdk.AccAddress {
+func (m *MsgModuleOwner) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{sdk.AccAddress(m.AssignerAddress)}
 }
 
-type ModuleOwners []*ModuleOwner
+func (m *MsgModuleOwner) GetMsgs() []sdk.Msg {
+	return []sdk.Msg{m}
+}
+
+type MsgModuleOwners []*MsgModuleOwner
 
 // Contains returns true if the given address exists in a slice of ModuleOwners objects.
-func (mo ModuleOwners) Contains(addr sdk.Address) bool {
+func (mo MsgModuleOwners) Contains(addr sdk.Address) bool {
 	for _, acc := range mo {
 		if acc.GetAddress().Equals(addr) {
 			return true
@@ -128,6 +134,32 @@ func (mo ModuleOwners) Contains(addr sdk.Address) bool {
 	return false
 }
 
-func (m *ModuleOwner) GetMsgs() []sdk.Msg {
-	return []sdk.Msg{m}
+func NewMsgModuleOwnershipTransfer(assigner, address sdk.Address, pubKey []byte) *MsgModuleOwnershipTransfer {
+	return &MsgModuleOwnershipTransfer{
+		AssignerAddress:       assigner.Bytes(),
+		NewModuleOwnerAddress: address.Bytes(),
+		NewModuleOwnerPubKey:  pubKey,
+	}
+}
+
+func (m *MsgModuleOwnershipTransfer) Route() string {
+	return RouterKey
+}
+
+func (m *MsgModuleOwnershipTransfer) Type() string {
+	return ModuleOwnershipTransfer
+}
+
+func (m *MsgModuleOwnershipTransfer) ValidateBasic() error {
+	// TODO: add proper cosmos address and pubkey validation
+	return nil
+}
+
+func (m *MsgModuleOwnershipTransfer) GetSignBytes() []byte {
+	bz := ModuleCdc.MustMarshalJSON(m)
+	return sdk.MustSortJSON(bz)
+}
+
+func (m *MsgModuleOwnershipTransfer) GetSigners() []sdk.AccAddress {
+	return []sdk.AccAddress{sdk.AccAddress(m.AssignerAddress)}
 }

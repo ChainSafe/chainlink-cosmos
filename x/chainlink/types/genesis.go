@@ -33,7 +33,7 @@ func (gs GenesisState) Validate() error {
 	return nil
 }
 
-func (m ModuleOwner) Validate() error {
+func (m MsgModuleOwner) Validate() error {
 	// TODO: add proper cosmos address and pubkey validation
 	if len(m.GetAddress()) == 0 {
 		return errors.New("module owner address cannot be the empty")

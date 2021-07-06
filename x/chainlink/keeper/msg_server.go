@@ -10,8 +10,8 @@ import (
 
 var _ types.MsgServer = Keeper{}
 
-// SubmitFeedData implements the tx/SubmitFeedData gRPC method
-func (k Keeper) SubmitFeedData(c context.Context, msg *types.MsgFeedData) (*types.MsgResponse, error) {
+// SubmitFeedDataTx implements the tx/SubmitFeedDataTx gRPC method
+func (k Keeper) SubmitFeedDataTx(c context.Context, msg *types.MsgFeedData) (*types.MsgResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
 	height, txHash := k.SetFeedData(ctx, msg)
 
@@ -25,10 +25,33 @@ func (k Keeper) SubmitFeedData(c context.Context, msg *types.MsgFeedData) (*type
 	}, nil
 }
 
-// AddModuleOwner implements the tx/AddModuleOwner gRPC method
-func (k Keeper) AddModuleOwner(c context.Context, msg *types.ModuleOwner) (*types.MsgResponse, error) {
+// AddModuleOwnerTx implements the tx/AddModuleOwnerTx gRPC method
+func (k Keeper) AddModuleOwnerTx(c context.Context, msg *types.MsgModuleOwner) (*types.MsgResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
 	height, txHash := k.SetModuleOwner(ctx, msg)
+
+	if height == 0 {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidHeight, "incorrect height found")
+	}
+
+	return &types.MsgResponse{
+		Height: uint64(height),
+		TxHash: string(txHash),
+	}, nil
+}
+
+// ModuleOwnershipTransferTx implements the tx/ModuleOwnershipTransferTx gRPC method
+func (k Keeper) ModuleOwnershipTransferTx(c context.Context, msg *types.MsgModuleOwnershipTransfer) (*types.MsgResponse, error) {
+	ctx := sdk.UnwrapSDKContext(c)
+
+	_, _ = k.RemoveModuleOwner(ctx, msg)
+
+	transferMsg := &types.MsgModuleOwner{
+		Address:         msg.GetNewModuleOwnerAddress(),
+		PubKey:          msg.GetNewModuleOwnerPubKey(),
+		AssignerAddress: msg.GetAssignerAddress(),
+	}
+	height, txHash := k.SetModuleOwner(ctx, transferMsg)
 
 	if height == 0 {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidHeight, "incorrect height found")
