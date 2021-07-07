@@ -50,7 +50,7 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 
 func (k Keeper) SetFeedData(ctx sdk.Context, feedData *types.MsgFeedData) (int64, []byte) {
 	roundStore := ctx.KVStore(k.roundStoreKey)
-	currentLatestRoundId := k.GetLatestRoundId(roundStore, feedData.FeedId)
+	currentLatestRoundId := k.GetLatestRoundId(ctx, feedData.FeedId)
 	roundId := currentLatestRoundId + 1
 
 	// update the latest roundId of the current feedId
@@ -130,8 +130,7 @@ func (k Keeper) GetLatestRoundFeedDataByFilter(ctx sdk.Context, req *types.GetLa
 	var feedRoundData []*types.RoundData
 
 	// get the roundId based on given feedId
-	roundStore := ctx.KVStore(k.roundStoreKey)
-	latestRoundId := k.GetLatestRoundId(roundStore, req.GetFeedId())
+	latestRoundId := k.GetLatestRoundId(ctx, req.GetFeedId())
 
 	feedDataStore := ctx.KVStore(k.feedDataStoreKey)
 	iterator := sdk.KVStorePrefixIterator(feedDataStore, types.GetFeedDataKey("", ""))
@@ -155,9 +154,11 @@ func (k Keeper) GetLatestRoundFeedDataByFilter(ctx sdk.Context, req *types.GetLa
 
 // GetLatestRoundId returns the current existing latest roundId of a feedId
 // returns the global latest roundId in roundStore regardless of feedId if feedId is not given.
-func (k Keeper) GetLatestRoundId(store sdk.KVStore, feedId string) uint64 {
+func (k Keeper) GetLatestRoundId(ctx sdk.Context, feedId string) uint64 {
+	roundStore := ctx.KVStore(k.roundStoreKey)
+
 	if feedId != "" {
-		roundIdBytes := store.Get(types.GetRoundIdKey(feedId))
+		roundIdBytes := roundStore.Get(types.GetRoundIdKey(feedId))
 
 		if len(roundIdBytes) == 0 {
 			return 0
@@ -166,7 +167,7 @@ func (k Keeper) GetLatestRoundId(store sdk.KVStore, feedId string) uint64 {
 	}
 
 	var latestRoundId uint64
-	roundIdIterator := sdk.KVStorePrefixIterator(store, types.GetRoundIdKey(""))
+	roundIdIterator := sdk.KVStorePrefixIterator(roundStore, types.GetRoundIdKey(""))
 	defer roundIdIterator.Close()
 
 	for ; roundIdIterator.Valid(); roundIdIterator.Next() {
