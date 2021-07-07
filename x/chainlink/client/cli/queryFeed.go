@@ -14,7 +14,7 @@ import (
 func CmdGetFeedDataByRound() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "getRoundFeedData [roundId] [feedId]",
-		Short: "List feed data by round",
+		Short: "List feed data by round. roundId is required, feedId is optional.",
 		Args:  cobra.MinimumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if args[0] == "" {
@@ -66,8 +66,7 @@ func CmdGetFeedDataByRound() *cobra.Command {
 func CmdGetLatestFeedData() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "getLatestFeedData [feedId]",
-		Short: "List the latest round feed data",
-		Args:  cobra.ExactArgs(1),
+		Short: "List the latest round feed data. feedId is optional.",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			var feedId string
 			if len(args) != 0 {

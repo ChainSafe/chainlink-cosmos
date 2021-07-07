@@ -105,19 +105,6 @@ func (m *MsgModuleOwner) GetMsgs() []githubcosmossdktypes.Msg {
 	return []sdk.Msg{m}
 }
 
-type MsgModuleOwners []*MsgModuleOwner
-
-// Contains returns true if the given address exists in a slice of ModuleOwners objects.
-func (mo MsgModuleOwners) Contains(addr sdk.Address) bool {
-	for _, acc := range mo {
-		if acc.GetAddress().Equals(addr) {
-			return true
-		}
-	}
-
-	return false
-}
-
 func NewMsgModuleOwnershipTransfer(assigner, address sdk.Address, pubKey []byte) *MsgModuleOwnershipTransfer {
 	return &MsgModuleOwnershipTransfer{
 		AssignerAddress:       assigner.Bytes(),
