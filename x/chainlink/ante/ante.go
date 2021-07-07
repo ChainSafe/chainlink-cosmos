@@ -154,10 +154,10 @@ func (fd FeedDataDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool
 		case *types.MsgFeedData:
 			feed := fd.chainLinkKeeper.GetFeed(ctx, t.GetFeedId())
 			if feed.Feed.Empty() {
-				return ctx, sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, "feed not exist")
+				return ctx, sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, "feed not exist")
 			}
 			if !(types.DataProviders)(feed.GetFeed().GetDataProviders()).Contains(t.GetSubmitter()) {
-				return ctx, sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, "invalid data provider")
+				return ctx, sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "invalid data provider")
 			}
 		default:
 			continue

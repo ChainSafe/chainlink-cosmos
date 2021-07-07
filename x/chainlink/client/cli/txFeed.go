@@ -17,14 +17,14 @@ import (
 func CmdAddFeed() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "addFeed [feedId] [feedOwnerAddress] [submissionCount] [heartbeatTrigger] [deviationThresholdTrigger] [initDataProviderList]",
-		Short: "Add new feed. Signer must be the existing module owner.",
+		Short: "Add new feed. Signer must be the existing module owner. initDataProviderList is a string contains each data provider's address with pubkey and split by comma",
 		Args:  cobra.MinimumNArgs(6),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			argsFeedId := strings.TrimSpace(args[0])
-			argsFeedOwnerAddr := strings.TrimSpace(args[1])
-			argsSubmissionCount := strings.TrimSpace(args[2])
-			argsHeartbeatTrigger := strings.TrimSpace(args[3])
-			argsDeviationThresholdTrigger := strings.TrimSpace(args[4])
+			argsFeedId := args[0]
+			argsFeedOwnerAddr := args[1]
+			argsSubmissionCount := args[2]
+			argsHeartbeatTrigger := args[3]
+			argsDeviationThresholdTrigger := args[4]
 			argsInitDataProviderListStr := strings.TrimSpace(args[5])
 
 			submissionCount, err := strconv.Atoi(argsSubmissionCount)
@@ -40,7 +40,7 @@ func CmdAddFeed() *cobra.Command {
 				return err
 			}
 
-			argsInitDataProviderList := strings.Split(strings.TrimSpace(argsInitDataProviderListStr), " ")
+			argsInitDataProviderList := strings.Split(argsInitDataProviderListStr, ",")
 			if len(argsInitDataProviderList)%2 != 0 {
 				return errors.New("invalid init data provider pairs")
 			}

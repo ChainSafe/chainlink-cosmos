@@ -13,7 +13,7 @@ chainlinkd tx chainlink moduleOwnershipTransfer "cosmos1wxzkyuqnte8z6m0vt7g4r3j9
 
 # feed
 # Add new feed
-chainlinkd tx chainlink addFeed "feedid1" "cosmos1xgmrq9wqdpx3zvvuehuxl2l88n8wexmlrmclef" "1" "2" "3" "cosmos1xgmrq9wqdpx3zvvuehuxl2l88n8wexmlrmclef cosmospub1addwnpepqd9hrczcjgzmhcfqzvdwayda6n40clxqj2rt39tfl548rm30yy7nj7dyr7s" --from alice --keyring-backend test --chain-id testchain
+chainlinkd tx chainlink addFeed feedid1 cosmos199a3lwv0w2amta8h4pp96jr0mm4f7ssa78jyft 1 2 3 cosmos199a3lwv0w2amta8h4pp96jr0mm4f7ssa78jyft,cosmospub1addwnpepqwt7anmkmmvw7sw9a2uex520munmq4yxuyj5nyyscz2uwddc37us2qkcvt8 --from alice --keyring-backend test --chain-id testchain
 
 # Query feed by feedId
 chainlinkd query chainlink getFeed "feedid1" --chain-id testchain
