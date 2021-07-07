@@ -73,6 +73,11 @@ func (k Keeper) AddFeedTx(c context.Context, msg *types.MsgFeed) (*types.MsgResp
 		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidHeight, "incorrect height found")
 	}
 
+	// return 0 length bytes in keeper.SetFeed(ctx, msg) if conflicting feedId
+	if len(txHash) == 0 {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "conflicting feedId found")
+	}
+
 	return &types.MsgResponse{
 		Height: uint64(height),
 		TxHash: string(txHash),

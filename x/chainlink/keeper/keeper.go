@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"fmt"
+
 	"github.com/cosmos/cosmos-sdk/types/query"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -218,6 +219,14 @@ func (k Keeper) GetModuleOwnerList(ctx sdk.Context) *types.GetModuleOwnerRespons
 
 func (k Keeper) SetFeed(ctx sdk.Context, feed *types.MsgFeed) (int64, []byte) {
 	feedStore := ctx.KVStore(k.feedStoreKey)
+
+	potFeedKey := types.KeyPrefix(types.FeedKey + feed.FeedId)
+	feedIdBytes := feedStore.Get(potFeedKey)
+
+	if len(feedIdBytes) != 0 {
+		// return height and empty bytes for conflicting feedId
+		return ctx.BlockHeight(), []byte{}
+	}
 
 	f := k.cdc.MustMarshalBinaryBare(feed)
 
