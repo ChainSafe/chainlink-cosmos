@@ -222,17 +222,14 @@ func (k Keeper) SetFeed(ctx sdk.Context, feed *types.MsgFeed) (int64, []byte) {
 
 	f := k.cdc.MustMarshalBinaryBare(feed)
 
-	feedInfoStore.Set(types.KeyPrefix(types.FeedInfoKey+feed.GetFeedId()), f)
+	feedInfoStore.Set(types.GetFeedInfoKey(feed.GetFeedId()), f)
 
 	return ctx.BlockHeight(), ctx.TxBytes()
 }
 
 func (k Keeper) GetFeed(ctx sdk.Context, feedId string) *types.GetFeedByIdResponse {
 	feedInfoStore := ctx.KVStore(k.feedInfoStoreKey)
-
-	feedKey := types.KeyPrefix(types.FeedInfoKey + feedId)
-
-	feedIdBytes := feedInfoStore.Get(feedKey)
+	feedIdBytes := feedInfoStore.Get(types.GetFeedInfoKey(feedId))
 
 	if feedIdBytes == nil {
 		return &types.GetFeedByIdResponse{

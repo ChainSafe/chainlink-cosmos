@@ -40,7 +40,7 @@ const (
 	// ModuleOwnerKey ModuleOwnerStore key pattern: types.ModuleOwnerKey/moduleOwnerAddress
 	ModuleOwnerKey = "moduleOwner"
 
-	// FeedInfoStoreKey key pattern: types.FeedInfoKey + feedId
+	// FeedInfoKey FeedInfoStore key pattern: types.FeedInfoKey/feedId
 	FeedInfoKey = "feed"
 )
 
@@ -67,6 +67,14 @@ func GetModuleOwnerKey(moduleOwnerAddress string) []byte {
 	key := ModuleOwnerKey + "/"
 	if len(moduleOwnerAddress) > 0 {
 		key += moduleOwnerAddress
+	}
+	return KeyPrefix(key)
+}
+
+func GetFeedInfoKey(feedId string) []byte {
+	key := FeedInfoKey + "/"
+	if len(feedId) > 0 {
+		key += feedId
 	}
 	return KeyPrefix(key)
 }
