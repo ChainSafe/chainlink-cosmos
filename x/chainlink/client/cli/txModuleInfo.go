@@ -72,4 +72,3 @@ func CmdTransferModuleOwnership() *cobra.Command {
 
 	return cmd
 }
-

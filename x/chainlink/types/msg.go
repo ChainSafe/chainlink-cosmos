@@ -127,7 +127,7 @@ func (m *MsgModuleOwnershipTransfer) ValidateBasic() error {
 	}
 	bech32PubKey := sdk.MustGetPubKeyFromBech32(sdk.Bech32PubKeyTypeAccPub, string(m.NewModuleOwnerPubKey))
 	if !bytes.Equal(bech32PubKey.Address().Bytes(), m.NewModuleOwnerAddress.Bytes()) {
-		return errors.New("new module owner address and pubKey not match")
+		return errors.New("new module owner address and pubKey does not match")
 	}
 	return nil
 }

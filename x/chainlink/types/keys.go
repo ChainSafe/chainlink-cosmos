@@ -10,11 +10,11 @@ const (
 	// RoundStoreKey defines the store key for feed roundId
 	RoundStoreKey = ModuleName + "round"
 
-	// ModuleOwnerStoreKey defines the store key fro module owner
+	// ModuleOwnerStoreKey defines the store key for module owner
 	ModuleOwnerStoreKey = ModuleName + "moduleOwner"
 
-	// FeedStoreKey defines the store key for feed
-	FeedStoreKey = ModuleName + "feed"
+	// FeedInfoStoreKey defines the store key for feed
+	FeedInfoStoreKey = ModuleName + "feedInfo"
 
 	// RouterKey is the message route for slashing
 	RouterKey = ModuleName
@@ -40,6 +40,6 @@ const (
 	// ModuleOwnerStore key pattern: types.ModuleOwnerKey + moduleOwnerAddress
 	ModuleOwnerKey = "moduleOwner"
 
-	// FeedStoreKey key pattern: types.FeedKey + feedId
-	FeedKey = "feed"
+	// FeedInfoStoreKey key pattern: types.FeedInfoKey + feedId
+	FeedInfoKey = "feed"
 )

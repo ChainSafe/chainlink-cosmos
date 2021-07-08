@@ -205,7 +205,7 @@ func New(
 		minttypes.StoreKey, distrtypes.StoreKey, slashingtypes.StoreKey,
 		govtypes.StoreKey, paramstypes.StoreKey, upgradetypes.StoreKey,
 		evidencetypes.StoreKey, capabilitytypes.StoreKey, chainlinktypes.FeedDataStoreKey,
-		chainlinktypes.RoundStoreKey, chainlinktypes.ModuleOwnerStoreKey, chainlinktypes.FeedStoreKey,
+		chainlinktypes.RoundStoreKey, chainlinktypes.ModuleOwnerStoreKey, chainlinktypes.FeedInfoStoreKey,
 	)
 	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey)
 	memKeys := sdk.NewMemoryStoreKeys(capabilitytypes.MemStoreKey, chainlinktypes.MemStoreKey)
@@ -278,7 +278,7 @@ func New(
 
 	// Create Chainlink keepers
 	app.ChainLinkKeeper = *chainlinkkeeper.NewKeeper(appCodec, keys[chainlinktypes.FeedDataStoreKey], keys[chainlinktypes.RoundStoreKey],
-		keys[chainlinktypes.ModuleOwnerStoreKey], keys[chainlinktypes.FeedStoreKey], keys[chainlinktypes.MemStoreKey])
+		keys[chainlinktypes.ModuleOwnerStoreKey], keys[chainlinktypes.FeedInfoStoreKey], keys[chainlinktypes.MemStoreKey])
 
 	/****  Module Options ****/
 

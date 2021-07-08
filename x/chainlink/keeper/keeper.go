@@ -19,7 +19,7 @@ type (
 		feedDataStoreKey    sdk.StoreKey
 		roundStoreKey       sdk.StoreKey
 		moduleOwnerStoreKey sdk.StoreKey
-		feedStoreKey        sdk.StoreKey
+		feedInfoStoreKey    sdk.StoreKey
 		memKey              sdk.StoreKey
 	}
 )
@@ -29,7 +29,7 @@ func NewKeeper(
 	feedDataStoreKey,
 	roundStoreKey,
 	moduleOwnerStoreKey,
-	feedStoreKey,
+	feedInfoStoreKey,
 	memKey sdk.StoreKey,
 ) *Keeper {
 	return &Keeper{
@@ -37,7 +37,7 @@ func NewKeeper(
 		feedDataStoreKey:    feedDataStoreKey,
 		roundStoreKey:       roundStoreKey,
 		moduleOwnerStoreKey: moduleOwnerStoreKey,
-		feedStoreKey:        feedStoreKey,
+		feedInfoStoreKey:    feedInfoStoreKey,
 		memKey:              memKey,
 	}
 }
@@ -217,21 +217,21 @@ func (k Keeper) GetModuleOwnerList(ctx sdk.Context) *types.GetModuleOwnerRespons
 }
 
 func (k Keeper) SetFeed(ctx sdk.Context, feed *types.MsgFeed) (int64, []byte) {
-	feedStore := ctx.KVStore(k.feedStoreKey)
+	feedInfoStore := ctx.KVStore(k.feedInfoStoreKey)
 
 	f := k.cdc.MustMarshalBinaryBare(feed)
 
-	feedStore.Set(types.KeyPrefix(types.FeedKey+feed.GetFeedId()), f)
+	feedInfoStore.Set(types.KeyPrefix(types.FeedInfoKey+feed.GetFeedId()), f)
 
 	return ctx.BlockHeight(), ctx.TxBytes()
 }
 
 func (k Keeper) GetFeed(ctx sdk.Context, feedId string) *types.GetFeedByIdResponse {
-	feedStore := ctx.KVStore(k.feedStoreKey)
+	feedInfoStore := ctx.KVStore(k.feedInfoStoreKey)
 
-	feedKey := types.KeyPrefix(types.FeedKey + feedId)
+	feedKey := types.KeyPrefix(types.FeedInfoKey + feedId)
 
-	feedIdBytes := feedStore.Get(feedKey)
+	feedIdBytes := feedInfoStore.Get(feedKey)
 
 	if feedIdBytes == nil {
 		return &types.GetFeedByIdResponse{

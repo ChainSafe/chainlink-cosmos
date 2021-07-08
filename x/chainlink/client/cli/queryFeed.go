@@ -99,7 +99,7 @@ func CmdGetLatestFeedData() *cobra.Command {
 
 func CmdGetFeedInfo() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "getFeed [feedId]",
+		Use:   "getFeedInfo [feedId]",
 		Short: "Get feed info by feedId",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
