@@ -14,6 +14,7 @@ service Msg {
   }
   rpc AddModuleOwnerTx(MsgModuleOwner) returns (MsgResponse);
   rpc ModuleOwnershipTransferTx(MsgModuleOwnershipTransfer) returns (MsgResponse);
+  rpc AddFeedTx(MsgFeed) returns (MsgResponse);
 }
 
 // MsgModuleOwnershipTransfer is the type defined for module ownership transfer
@@ -24,15 +25,26 @@ message MsgModuleOwnershipTransfer {
   bytes newModuleOwnerPubKey = 3 [(gogoproto.moretags) = "yaml:\"pub_key\""];
 }
 
-// MsgFeed is the type defined for each feed data submit
+// MsgFeed is the type defined for new feed
 message MsgFeed {
   // FeedId is the unique identifier of the feed
   string feedId = 1;
   // FeedOwner is the owner of the feed
   bytes feedOwner = 2 [(gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"];
-  // DataProviders is the whitelist of data providers of the feed
+  // DataProviders is the init list of data provider of the feed
   repeated DataProvider dataProviders = 3;
-  // TODO: add feed parameters, reward schema etc.
+  // The number of signatures required for a feedData submission to be valid
+  uint32 submissionCount = 4;
+  // The interval between which a new round should automatically be triggered.
+  // The given value in milliseconds will only be approximate within block intervals
+  uint32 heartbeatTrigger = 5;
+  // The fraction of deviation in the feed data required to trigger a new round.
+  // For example if the price of ATOM/USD changes by 1% then a new round should occur
+  // even if the heartbeat interval has not elapsed.
+  uint32 deviationThresholdTrigger = 6;
+  // Module owner who signs the add feed tx
+  bytes moduleOwnerAddress = 7 [(gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"];
+  // TODO: RewardConfig: Struct describing how rewards should be paid
 }
 
 // DataProvider is the type defined for feed data provider

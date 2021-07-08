@@ -26,3 +26,8 @@ func (k Keeper) GetAllModuleOwner(c context.Context, _ *types.GetModuleOwnerRequ
 	ctx := sdk.UnwrapSDKContext(c)
 	return k.GetModuleOwnerList(ctx), nil
 }
+
+func (k Keeper) GetFeedByFeedId(c context.Context, req *types.GetFeedByIdRequest) (*types.GetFeedByIdResponse, error) {
+	ctx := sdk.UnwrapSDKContext(c)
+	return k.GetFeed(ctx, req.FeedId), nil
+}

@@ -21,6 +21,7 @@ func GetQueryCmd() *cobra.Command {
 	cmd.AddCommand(CmdGetFeedDataByRound())
 	cmd.AddCommand(CmdGetLatestFeedData())
 	cmd.AddCommand(CmdGetModuleOwnerList())
+	cmd.AddCommand(CmdGetFeedInfo())
 
 	return cmd
 }

@@ -23,6 +23,7 @@ func GetTxCmd() *cobra.Command {
 	cmd.AddCommand(CmdAddModuleOwner())
 	cmd.AddCommand(CmdGenesisModuleOwner())
 	cmd.AddCommand(CmdTransferModuleOwnership())
+	cmd.AddCommand(CmdAddFeed())
 
 	return cmd
 }
