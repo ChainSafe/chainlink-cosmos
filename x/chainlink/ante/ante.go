@@ -37,6 +37,8 @@ func NewAnteHandler(
 			authante.NewIncrementSequenceDecorator(ak),
 			// all customized anteHandler below
 			NewModuleOwnerDecorator(chainLinkKeeper),
+			NewFeedDecorator(chainLinkKeeper),
+			NewFeedDataDecorator(chainLinkKeeper),
 		)
 
 		return anteHandler(ctx, tx, sim)
@@ -83,6 +85,11 @@ func (mod ModuleOwnerDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate 
 				return ctx, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "invalid Tx: empty signer: %T", t)
 			}
 			signers = append(signers, t.GetSigners()[0])
+		case *types.MsgFeed:
+			if len(t.GetSigners()) == 0 {
+				return ctx, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "invalid Tx: empty signer: %T", t)
+			}
+			signers = append(signers, t.GetSigners()[0])
 		default:
 			continue
 		}
@@ -91,6 +98,69 @@ func (mod ModuleOwnerDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate 
 	for _, signer := range signers {
 		if !(types.MsgModuleOwners)(existingModuleOwnerList.GetModuleOwner()).Contains(signer) {
 			return ctx, sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "account %s (%s) is not a module owner", common.BytesToAddress(signer.Bytes()), signer)
+		}
+	}
+
+	return next(ctx, tx, simulate)
+}
+
+type FeedDecorator struct {
+	chainLinkKeeper chainlinkkeeper.Keeper
+}
+
+func NewFeedDecorator(chainLinkKeeper chainlinkkeeper.Keeper) FeedDecorator {
+	return FeedDecorator{
+		chainLinkKeeper: chainLinkKeeper,
+	}
+}
+
+func (fd FeedDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (newCtx sdk.Context, err error) {
+	if len(tx.GetMsgs()) == 0 {
+		return ctx, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "invalid Msg: empty Msg: %T", tx)
+	}
+
+	for _, msg := range tx.GetMsgs() {
+		switch t := msg.(type) {
+		case *types.MsgFeed:
+			feed := fd.chainLinkKeeper.GetFeed(ctx, t.GetFeedId())
+			if !feed.Feed.Empty() {
+				return ctx, sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, "feed already exists")
+			}
+		default:
+			continue
+		}
+	}
+
+	return next(ctx, tx, simulate)
+}
+
+type FeedDataDecorator struct {
+	chainLinkKeeper chainlinkkeeper.Keeper
+}
+
+func NewFeedDataDecorator(chainLinkKeeper chainlinkkeeper.Keeper) FeedDataDecorator {
+	return FeedDataDecorator{
+		chainLinkKeeper: chainLinkKeeper,
+	}
+}
+
+func (fd FeedDataDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (newCtx sdk.Context, err error) {
+	if len(tx.GetMsgs()) == 0 {
+		return ctx, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "invalid Msg: empty Msg: %T", tx)
+	}
+
+	for _, msg := range tx.GetMsgs() {
+		switch t := msg.(type) {
+		case *types.MsgFeedData:
+			feed := fd.chainLinkKeeper.GetFeed(ctx, t.GetFeedId())
+			if feed.Feed.Empty() {
+				return ctx, sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, "feed not exist")
+			}
+			if !(types.DataProviders)(feed.GetFeed().GetDataProviders()).Contains(t.GetSubmitter()) {
+				return ctx, sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "invalid data provider")
+			}
+		default:
+			continue
 		}
 	}
 

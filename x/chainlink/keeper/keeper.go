@@ -2,7 +2,6 @@ package keeper
 
 import (
 	"fmt"
-
 	"github.com/cosmos/cosmos-sdk/types/query"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -20,6 +19,7 @@ type (
 		feedDataStoreKey    sdk.StoreKey
 		roundStoreKey       sdk.StoreKey
 		moduleOwnerStoreKey sdk.StoreKey
+		feedInfoStoreKey    sdk.StoreKey
 		memKey              sdk.StoreKey
 	}
 )
@@ -29,6 +29,7 @@ func NewKeeper(
 	feedDataStoreKey,
 	roundStoreKey,
 	moduleOwnerStoreKey,
+	feedInfoStoreKey,
 	memKey sdk.StoreKey,
 ) *Keeper {
 	return &Keeper{
@@ -36,6 +37,7 @@ func NewKeeper(
 		feedDataStoreKey:    feedDataStoreKey,
 		roundStoreKey:       roundStoreKey,
 		moduleOwnerStoreKey: moduleOwnerStoreKey,
+		feedInfoStoreKey:    feedInfoStoreKey,
 		memKey:              memKey,
 	}
 }
@@ -211,5 +213,36 @@ func (k Keeper) GetModuleOwnerList(ctx sdk.Context) *types.GetModuleOwnerRespons
 
 	return &types.GetModuleOwnerResponse{
 		ModuleOwner: moduleOwners,
+	}
+}
+
+func (k Keeper) SetFeed(ctx sdk.Context, feed *types.MsgFeed) (int64, []byte) {
+	feedInfoStore := ctx.KVStore(k.feedInfoStoreKey)
+
+	f := k.cdc.MustMarshalBinaryBare(feed)
+
+	feedInfoStore.Set(types.KeyPrefix(types.FeedInfoKey+feed.GetFeedId()), f)
+
+	return ctx.BlockHeight(), ctx.TxBytes()
+}
+
+func (k Keeper) GetFeed(ctx sdk.Context, feedId string) *types.GetFeedByIdResponse {
+	feedInfoStore := ctx.KVStore(k.feedInfoStoreKey)
+
+	feedKey := types.KeyPrefix(types.FeedInfoKey + feedId)
+
+	feedIdBytes := feedInfoStore.Get(feedKey)
+
+	if feedIdBytes == nil {
+		return &types.GetFeedByIdResponse{
+			Feed: nil,
+		}
+	}
+
+	var feed types.MsgFeed
+	k.cdc.MustUnmarshalBinaryBare(feedIdBytes, &feed)
+
+	return &types.GetFeedByIdResponse{
+		Feed: &feed,
 	}
 }

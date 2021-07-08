@@ -4,14 +4,17 @@ const (
 	// ModuleName defines the module name
 	ModuleName = "chainlink"
 
-	// FeedDataStoreKey defines the primary module store key for feed data
+	// FeedDataStoreKey defines the store key for feed data
 	FeedDataStoreKey = ModuleName + "feedData"
 
-	// RoundStoreKey defines the secondary module store key for feed roundId
+	// RoundStoreKey defines the store key for feed roundId
 	RoundStoreKey = ModuleName + "round"
 
-	// ModuleOwnerStoreKey defines the module owner scope store key
+	// ModuleOwnerStoreKey defines the store key for module owner
 	ModuleOwnerStoreKey = ModuleName + "moduleOwner"
+
+	// FeedInfoStoreKey defines the store key for feed
+	FeedInfoStoreKey = ModuleName + "feedInfo"
 
 	// RouterKey is the message route for slashing
 	RouterKey = ModuleName
@@ -36,4 +39,7 @@ const (
 
 	// ModuleOwnerStore key pattern: types.ModuleOwnerKey + moduleOwnerAddress
 	ModuleOwnerKey = "moduleOwner"
+
+	// FeedInfoStoreKey key pattern: types.FeedInfoKey + feedId
+	FeedInfoKey = "feed"
 )
