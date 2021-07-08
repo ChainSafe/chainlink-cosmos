@@ -28,12 +28,39 @@ func KeyPrefix(p string) []byte {
 }
 
 const (
-	// FeedDataStore key pattern: types.FeedDataKey/feedId/roundId
+	// FeedDataKey FeedDataStore key pattern: types.FeedDataKey/feedId/roundId
 	FeedDataKey = "feedData"
 
-	// RoundStore key pattern: types.RoundIdKey/feedId
+	// RoundIdKey RoundStore key pattern: types.RoundIdKey/feedId
 	RoundIdKey = "roundId"
 
-	// ModuleOwnerStore key pattern: types.ModuleOwnerKey/moduleOwnerAddress
+	// ModuleOwnerKey ModuleOwnerStore key pattern: types.ModuleOwnerKey/moduleOwnerAddress
 	ModuleOwnerKey = "moduleOwner"
 )
+
+func GetFeedDataKey(feedId, roundId string) []byte {
+	key := FeedDataKey + "/"
+	if len(feedId) > 0 {
+		key += feedId + "/"
+		if len(roundId) > 0 {
+			key += roundId
+		}
+	}
+	return KeyPrefix(key)
+}
+
+func GetRoundIdKey(feedId string) []byte {
+	key := RoundIdKey + "/"
+	if len(feedId) > 0 {
+		key += feedId
+	}
+	return KeyPrefix(key)
+}
+
+func GetModuleOwnerKey(moduleOwnerAddress string) []byte {
+	key := ModuleOwnerKey + "/"
+	if len(moduleOwnerAddress) > 0 {
+		key += moduleOwnerAddress
+	}
+	return KeyPrefix(key)
+}

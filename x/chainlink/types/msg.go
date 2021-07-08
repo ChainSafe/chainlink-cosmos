@@ -4,6 +4,7 @@ import (
 	githubcosmossdktypes "github.com/cosmos/cosmos-sdk/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	"strings"
 )
 
 const (
@@ -48,15 +49,18 @@ func (m *MsgFeedData) ValidateBasic() error {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, "submitter can not be empty")
 	}
 	if m.FeedId == "" {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, "feedId can not be empty")
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "feedId can not be empty")
+	}
+	if strings.Contains(m.FeedId, "/") {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "feedId can not contain character '/'")
 	}
 	if len(m.FeedData) == 0 {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, "feedData can not be empty")
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "feedData can not be empty")
 	}
 
 	// TODO: verify the number of required signatures here
 	if len(m.GetSignatures()) == 0 {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, "number of oracle signatures does not meet the required number")
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "number of oracle signatures does not meet the required number")
 	}
 	return nil
 }
