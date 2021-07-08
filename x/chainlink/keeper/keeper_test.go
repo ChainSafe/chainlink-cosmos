@@ -73,7 +73,7 @@ func TestFeedKeyStructure(t *testing.T) {
 
 	// Retrieve key
 	for _, tc := range testCases {
-		testName := fmt.Sprintf("feed:%s,round:%d", tc.feedId, tc.roundId)
+		testName := fmt.Sprintf("feed:%s,round:%v", tc.feedId, tc.roundIds)
 		t.Run(testName, func(t *testing.T) {
 			prefixKey := types.GetFeedDataKey(tc.feedId, "")
 			//fmt.Println("[DEBUG] search for key", string(prefixKey))
@@ -115,7 +115,7 @@ func TestKeeper_SetFeedData(t *testing.T) {
 		testName := fmt.Sprintf("feed:%s,round:%d", tc.feedId, tc.roundId)
 		t.Run(testName, func(t *testing.T) {
 			// force set roundId-1 for SetFeedData
-			roundStore.Set(types.KeyPrefix(types.RoundIdKey+"/"+tc.feedId), i64tob(tc.roundId-1))
+			roundStore.Set(types.GetRoundIdKey(tc.feedId), i64tob(tc.roundId-1))
 
 			msgFeedData := types.MsgFeedData{
 				FeedId: tc.feedId,
@@ -123,11 +123,11 @@ func TestKeeper_SetFeedData(t *testing.T) {
 
 			k.SetFeedData(ctx, &msgFeedData)
 
-			roundId := roundStore.Get(types.KeyPrefix(types.RoundIdKey + "/" + tc.feedId))
+			roundId := roundStore.Get(types.GetRoundIdKey(tc.feedId))
 			require.Equal(t, i64tob(tc.roundId), roundId)
 
 			var feedData types.OCRFeedDataInStore
-			value := feedDateStore.Get(types.KeyPrefix(types.FeedDataKey + "/" + tc.feedId + "/" + strconv.FormatUint(tc.roundId, 10)))
+			value := feedDateStore.Get(types.GetFeedDataKey(tc.feedId, strconv.FormatUint(tc.roundId, 10)))
 			err := k.cdc.UnmarshalBinaryBare(value, &feedData)
 			require.NoError(t, err)
 			require.Equal(t, tc.feedId, feedData.GetFeedData().GetFeedId())
@@ -158,7 +158,7 @@ func TestKeeper_GetRoundFeedDataByFilter(t *testing.T) {
 			continue
 		}
 		// force set roundId-1 for SetFeedData
-		roundStore.Set(types.KeyPrefix(types.RoundIdKey+"/"+tc.feedId), i64tob(tc.roundId-1))
+		roundStore.Set(types.GetRoundIdKey(tc.feedId), i64tob(tc.roundId-1))
 
 		msgFeedData := types.MsgFeedData{
 			FeedId:    tc.feedId,
@@ -225,7 +225,7 @@ func TestKeeper_GetLatestRoundFeedDataByFilter(t *testing.T) {
 		t.Run(testName, func(t *testing.T) {
 			if tc.insert {
 				// force set roundId-1 for SetFeedData
-				roundStore.Set(types.KeyPrefix(types.RoundIdKey+"/"+tc.feedId), i64tob(tc.roundId-1))
+				roundStore.Set(types.GetRoundIdKey(tc.feedId), i64tob(tc.roundId-1))
 
 				msgFeedData := types.MsgFeedData{
 					FeedId:    tc.feedId,
@@ -277,7 +277,7 @@ func TestKeeper_GetLatestRoundId(t *testing.T) {
 		testName := fmt.Sprintf("feed:%s,round:%d", tc.feedId, tc.roundId)
 		t.Run(testName, func(t *testing.T) {
 			if tc.insert {
-				roundStore.Set(types.KeyPrefix(types.RoundIdKey+"/"+tc.feedId), i64tob(tc.roundId))
+				roundStore.Set(types.GetRoundIdKey(tc.feedId), i64tob(tc.roundId))
 			}
 
 			latestRoundId := k.GetLatestRoundId(ctx, tc.feedId)
