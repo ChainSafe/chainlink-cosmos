@@ -32,4 +32,4 @@ jobs:
       - name: Build binary
         run: |
           make install
-          make ./scripts/addFeed.sh
+          make test-addFeed
