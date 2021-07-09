@@ -32,5 +32,3 @@ jobs:
       - name: Build binary
         run: |
           make install
-
-
