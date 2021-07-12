@@ -28,7 +28,7 @@ All CLI commands are using Cosmos CLI command format. For example get all module
 
 ### Module owner
 
-####Transaction
+#### Transaction
 
 1. Add init module owner in genesis file  
 The init module owner address and public key are required.  
@@ -67,7 +67,7 @@ getModuleOwnerList
 
 ### Feed Owner
 
-####Transaction
+#### Transaction
 WIP
 
 #### Query
@@ -99,9 +99,3 @@ getRoundFeedData [roundId] [feedId]
 ```bash
 getLatestFeedData [feedId]
 ```
-
-
-
-
-
-
