@@ -61,7 +61,7 @@ message MsgAddFeedProvider {
   string feedId = 1;
   // DataProvider is the new data provider of the feed to add
   DataProvider dataProvider = 2;
-  // Signer TODO
+  // Signer is the feed owner who signs the add feed provided tx
   bytes signer = 3 [(gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"];
 }
 
@@ -71,7 +71,7 @@ message MsgRemoveFeedProvider {
   string feedId = 1;
   // Address of the data provider to remove from the feed
   bytes address = 2 [(gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"];
-  // Signer TODO
+  // Signer is the feed owner who signs the remove feed provided tx
   bytes signer = 3 [(gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"];
 }
 

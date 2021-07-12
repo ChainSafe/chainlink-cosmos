@@ -11,6 +11,8 @@ func RegisterCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(MsgModuleOwner{}, "chainlink/AddModuleOwner", nil)
 	cdc.RegisterConcrete(MsgModuleOwnershipTransfer{}, "chainlink/ModuleOwnershipTransfer", nil)
 	cdc.RegisterConcrete(MsgFeed{}, "chainlink/AddFeed", nil)
+	cdc.RegisterConcrete(MsgAddFeedProvider{}, "chainlink/AddFeedProvider", nil)
+	cdc.RegisterConcrete(MsgRemoveFeedProvider{}, "chainlink/RemoveFeedProvider", nil)
 }
 
 func RegisterInterfaces(registry cdctypes.InterfaceRegistry) {
@@ -18,6 +20,8 @@ func RegisterInterfaces(registry cdctypes.InterfaceRegistry) {
 	registry.RegisterImplementations((*sdk.Msg)(nil), &MsgModuleOwner{})
 	registry.RegisterImplementations((*sdk.Msg)(nil), &MsgModuleOwnershipTransfer{})
 	registry.RegisterImplementations((*sdk.Msg)(nil), &MsgFeed{})
+	registry.RegisterImplementations((*sdk.Msg)(nil), &MsgAddFeedProvider{})
+	registry.RegisterImplementations((*sdk.Msg)(nil), &MsgRemoveFeedProvider{})
 }
 
 var (

@@ -2,18 +2,39 @@
 # List existing keys
 chainlinkd keys list --keyring-backend test
 
+aliceAddr=$(chainlinkd keys show alice -a)
+alicePK=$(chainlinkd keys show alice -p)
+
+bobAddr=$(chainlinkd keys show bob -a)
+bobPK=$(chainlinkd keys show bob -p)
+
+cerloAddr=$(chainlinkd keys show cerlo -a)
+cerloPK=$(chainlinkd keys show cerlo -p)
+
 # List all module owner
 chainlinkd query chainlink getModuleOwnerList --chain-id testchain -o json
 
 # Add new module owner by alice
-chainlinkd tx chainlink addModuleOwner cosmos1p68ydzcyq6khyyz8up8l4pl56lzqentfguytnu cosmospub1addwnpepqwd9c7dtj8er34j4wfjc8hf50nzakgcx04tmdd0qf42ryxl85p665rvmpmy --from alice --keyring-backend test --chain-id testchain
+chainlinkd tx chainlink addModuleOwner "$bobAddr" "$bobPK" --from alice --keyring-backend test --chain-id testchain
 
 # module ownership transfer by bob
-chainlinkd tx chainlink moduleOwnershipTransfer cosmos1wxzkyuqnte8z6m0vt7g4r3j9z6rj2v7mclj92k cosmospub1addwnpepq03r94dzyvw70rff4kc72h90kra7vu6yurq2l5cfggtevsgrzdem598g989 --from bob --keyring-backend test --chain-id testchain
+chainlinkd tx chainlink moduleOwnershipTransfer "$aliceAddr" "$alicePK" --from bob --keyring-backend test --chain-id testchain
 
 # feed
 # Add new feed
-chainlinkd tx chainlink addFeed feedid1 cosmos1j8t7v6tt98wjhzhcuwjqmnqzgaz4v8uffhd4gq 1 2 3 cosmos1j8t7v6tt98wjhzhcuwjqmnqzgaz4v8uffhd4gq,cosmospub1addwnpepq2cxc37a5kwle7rhtj0qvhlx8nhrujvf2r6h66vhx2leakl2wpn2qnj0j8m --from alice --keyring-backend test --chain-id testchain
+chainlinkd tx chainlink addFeed feedid1 "$cerloAddr" 1 2 3 "$cerloAddr,$cerloPK" --from alice --keyring-backend test --chain-id testchain
+
+# Query feed info by feedId
+chainlinkd query chainlink getFeedInfo feedid1 --chain-id testchain
+
+# Add feed data provider
+chainlinkd tx chainlink addFeedProvider feedid1 "$bobAddr" "$bobPK" --from alice --keyring-backend test --chain-id testchain
+
+# Query feed info by feedId
+chainlinkd query chainlink getFeedInfo feedid1 --chain-id testchain
+
+# Remove feed data provider
+chainlinkd tx chainlink removeFeedProvider feedid1 "$cerloAddr" --from alice --keyring-backend test --chain-id testchain
 
 # Query feed info by feedId
 chainlinkd query chainlink getFeedInfo feedid1 --chain-id testchain

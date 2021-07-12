@@ -131,7 +131,7 @@ func (fd FeedDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 			if feed.Feed.Empty() {
 				return ctx, sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, "feed does not exist")
 			}
-			if (types.DataProviders)(feed.GetFeed().GetDataProviders()).Contains(t.GetSigner()) {
+			if (types.DataProviders)(feed.GetFeed().GetDataProviders()).Contains(t.GetDataProvider().GetAddress()) {
 				return ctx, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "data provider already registered")
 			}
 		case *types.MsgRemoveFeedProvider:
@@ -139,7 +139,7 @@ func (fd FeedDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 			if feed.Feed.Empty() {
 				return ctx, sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, "feed does not exist")
 			}
-			if !(types.DataProviders)(feed.GetFeed().GetDataProviders()).Contains(t.GetSigner()) {
+			if !(types.DataProviders)(feed.GetFeed().GetDataProviders()).Contains(t.GetAddress()) {
 				return ctx, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "data provider not present")
 			}
 		default:
