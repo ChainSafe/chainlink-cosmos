@@ -1,12 +1,13 @@
 package app
 
 import (
-	chainlindkante "github.com/ChainSafe/chainlink-cosmos/x/chainlink/ante"
 	"io"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
+
+	chainlindkante "github.com/ChainSafe/chainlink-cosmos/x/chainlink/ante"
 
 	appparams "github.com/ChainSafe/chainlink-cosmos/app/params"
 	"github.com/ChainSafe/chainlink-cosmos/docs"
@@ -84,7 +85,7 @@ import (
 	dbm "github.com/tendermint/tm-db"
 )
 
-const Name = "ChainLink"
+const Name = "chainlink"
 
 var (
 	// DefaultNodeHome default home directories for the application daemon
