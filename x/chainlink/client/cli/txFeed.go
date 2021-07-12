@@ -83,6 +83,74 @@ func CmdAddFeed() *cobra.Command {
 	return cmd
 }
 
+func CmdAddFeedProvider() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "addFeedProvider [feedId] [address] [publicKey]",
+		Short: "Add new data provider to the feed. Signer must be the existing module owner.",
+		Args:  cobra.MinimumNArgs(3),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			argsFeedId := args[0]
+			argsAddress := args[1]
+			argsPublicKey := args[2]
+
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			addr, err := sdk.AccAddressFromBech32(argsAddress)
+			if err != nil {
+				return err
+			}
+
+			msg := types.NewMsgAddFeedProvider(clientCtx.GetFromAddress(), argsFeedId, &types.DataProvider{
+				Address: addr,
+				PubKey:  []byte(argsPublicKey),
+			})
+			if err := msg.ValidateBasic(); err != nil {
+				return err
+			}
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
+		},
+	}
+
+	flags.AddTxFlagsToCmd(cmd)
+
+	return cmd
+}
+
+func CmdRemoveFeedProvider() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "removeFeedProvider [feedId] [address]",
+		Short: "Remove data provider from the feed. Signer must be the existing module owner.",
+		Args:  cobra.MinimumNArgs(2),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			argsFeedId := args[0]
+			argsAddress := args[1]
+
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			addr, err := sdk.AccAddressFromBech32(argsAddress)
+			if err != nil {
+				return err
+			}
+
+			msg := types.NewMsgRemoveFeedProvider(clientCtx.GetFromAddress(), argsFeedId, addr)
+			if err := msg.ValidateBasic(); err != nil {
+				return err
+			}
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
+		},
+	}
+
+	flags.AddTxFlagsToCmd(cmd)
+
+	return cmd
+}
+
 func CmdSubmitFeedData() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "submitFeedData [feedId] [feedData] [signatures]",

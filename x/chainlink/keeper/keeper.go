@@ -246,3 +246,41 @@ func (k Keeper) GetFeed(ctx sdk.Context, feedId string) *types.GetFeedByIdRespon
 		Feed: &feed,
 	}
 }
+
+func (k Keeper) AddFeedProvider(ctx sdk.Context, addFeedProvider *types.MsgAddFeedProvider) (int64, []byte, error) {
+	// retrieve feed from store
+	resp := k.GetFeed(ctx, addFeedProvider.GetFeedId())
+	feed := resp.GetFeed()
+	if feed == nil {
+		return 0, nil, fmt.Errorf("feed '%s' not found", addFeedProvider.GetFeedId())
+	}
+
+	// add new data provider
+	feed.DataProviders = append(feed.DataProviders, addFeedProvider.DataProvider)
+
+	// put back feed in the store
+	f := k.cdc.MustMarshalBinaryBare(feed)
+	feedInfoStore := ctx.KVStore(k.feedInfoStoreKey)
+	feedInfoStore.Set(types.KeyPrefix(types.FeedInfoKey+feed.GetFeedId()), f)
+
+	return ctx.BlockHeight(), ctx.TxBytes(), nil
+}
+
+func (k Keeper) RemoveFeedProvider(ctx sdk.Context, removeFeedProvider *types.MsgRemoveFeedProvider) (int64, []byte, error) {
+	// retrieve feed from store
+	resp := k.GetFeed(ctx, removeFeedProvider.GetFeedId())
+	feed := resp.GetFeed()
+	if feed == nil {
+		return 0, nil, fmt.Errorf("feed '%s' not found", removeFeedProvider.GetFeedId())
+	}
+
+	// remove data provider from the list
+	feed.DataProviders = (types.DataProviders)(feed.DataProviders).Remove(removeFeedProvider.GetAddress())
+
+	// put back feed in the store
+	f := k.cdc.MustMarshalBinaryBare(feed)
+	feedInfoStore := ctx.KVStore(k.feedInfoStoreKey)
+	feedInfoStore.Set(types.KeyPrefix(types.FeedInfoKey+feed.GetFeedId()), f)
+
+	return ctx.BlockHeight(), ctx.TxBytes(), nil
+}

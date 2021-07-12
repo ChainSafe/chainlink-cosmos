@@ -37,3 +37,16 @@ func (dp DataProviders) Contains(addr sdk.Address) bool {
 
 	return false
 }
+
+func (dp DataProviders) Remove(addr sdk.Address) DataProviders {
+	m := map[sdk.Address]*DataProvider{}
+	for _, acc := range dp {
+		m[acc.GetAddress()] = acc
+	}
+	delete(m, addr)
+	s := make([]*DataProvider, 0, len(m))
+	for _, acc := range m {
+		s = append(s, acc)
+	}
+	return s
+}
