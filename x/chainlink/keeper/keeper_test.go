@@ -1,6 +1,7 @@
 package keeper
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/ChainSafe/chainlink-cosmos/x/chainlink/types"
@@ -39,19 +40,56 @@ func setupKeeper(t testing.TB) (*Keeper, sdk.Context) {
 	return keeper, ctx
 }
 
-// func setupKeeper(t testing.TB) (*Keeper, sdk.Context) {
-// 	storeKey := sdk.NewKVStoreKey(types.StoreKey)
-// 	memStoreKey := storetypes.NewMemoryStoreKey(types.MemStoreKey)
+func TestFeedKeyStructure(t *testing.T) {
+	k, ctx := setupKeeper(t)
+	roundStore := ctx.KVStore(k.roundStoreKey)
+	feedStore := ctx.KVStore(k.feedDataStoreKey)
 
-// 	db := tmdb.NewMemDB()
-// 	stateStore := store.NewCommitMultiStore(db)
-// 	stateStore.MountStoreWithDB(storeKey, sdk.StoreTypeIAVL, db)
-// 	stateStore.MountStoreWithDB(memStoreKey, sdk.StoreTypeMemory, nil)
-// 	require.NoError(t, stateStore.LoadLatestVersion())
+	testCases := []struct {
+		feedId   string
+		roundIds []uint64
+	}{
+		{feedId: "test1", roundIds: []uint64{1, 11, 111, 1111}},
+		{feedId: "test11", roundIds: []uint64{1, 11, 111, 1111}},
+		{feedId: "test111", roundIds: []uint64{1, 11, 111, 1111}},
+		{feedId: "test1111", roundIds: []uint64{1, 11, 111, 1111}},
+	}
 
-// 	registry := codectypes.NewInterfaceRegistry()
-// 	keeper := NewKeeper(codec.NewProtoCodec(registry), storeKey, memStoreKey)
+	// Add all feed cases to store
+	for _, tc := range testCases {
+		for _, roundId := range tc.roundIds {
+			// force set roundId-1 for SetFeedData
+			roundStore.Set(types.GetRoundIdKey(tc.feedId), i64tob(roundId-1))
 
-// 	ctx := sdk.NewContext(stateStore, tmproto.Header{}, false, log.NewNopLogger())
-// 	return keeper, ctx
-// }
+			feedData := types.MsgFeedData{
+				FeedId:    tc.feedId,
+				Submitter: []byte(fmt.Sprintf("%s/%d", tc.feedId, roundId)),
+			}
+
+			k.SetFeedData(ctx, &feedData)
+		}
+	}
+
+	// Retrieve key
+	for _, tc := range testCases {
+		testName := fmt.Sprintf("%s,%v", tc.feedId, tc.roundIds)
+		t.Run(testName, func(t *testing.T) {
+			prefixKey := types.GetFeedDataKey(tc.feedId, "")
+			//fmt.Println("[DEBUG] search for key", string(prefixKey))
+
+			iterator := sdk.KVStorePrefixIterator(feedStore, prefixKey)
+
+			defer iterator.Close()
+
+			for ; iterator.Valid(); iterator.Next() {
+				var feedData types.OCRFeedDataInStore
+				k.cdc.MustUnmarshalBinaryBare(iterator.Value(), &feedData)
+				//fmt.Println("[DEBUG] found key", string(iterator.Key()), feedData.FeedData.FeedId, feedData.RoundId)
+
+				require.Equal(t, tc.feedId, feedData.GetFeedData().GetFeedId())
+				require.Equal(t, []byte(fmt.Sprintf("%s/%d", tc.feedId, feedData.GetRoundId())), feedData.GetFeedData().GetSubmitter().Bytes())
+				require.Contains(t, tc.roundIds, feedData.GetRoundId())
+			}
+		})
+	}
+}

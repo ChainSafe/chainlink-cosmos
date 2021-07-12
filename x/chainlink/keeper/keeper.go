@@ -2,6 +2,8 @@ package keeper
 
 import (
 	"fmt"
+	"strconv"
+
 	"github.com/cosmos/cosmos-sdk/types/query"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -52,7 +54,7 @@ func (k Keeper) SetFeedData(ctx sdk.Context, feedData *types.MsgFeedData) (int64
 	roundId := currentLatestRoundId + 1
 
 	// update the latest roundId of the current feedId
-	roundStore.Set(types.KeyPrefix(types.RoundIdKey+feedData.FeedId), i64tob(roundId))
+	roundStore.Set(types.GetRoundIdKey(feedData.GetFeedId()), i64tob(roundId))
 
 	// TODO: add more complex feed validation here such as verify against other modules
 
@@ -81,7 +83,7 @@ func (k Keeper) SetFeedData(ctx sdk.Context, feedData *types.MsgFeedData) (int64
 
 	f := k.cdc.MustMarshalBinaryBare(&finalFeedDataInStore)
 
-	feedDateStore.Set(types.KeyPrefix(types.FeedDataKey+feedData.FeedId+fmt.Sprintf("%d", roundId)), f)
+	feedDateStore.Set(types.GetFeedDataKey(feedData.GetFeedId(), strconv.FormatUint(roundId, 10)), f)
 
 	return ctx.BlockHeight(), ctx.TxBytes()
 }
@@ -132,7 +134,7 @@ func (k Keeper) GetLatestRoundFeedDataByFilter(ctx sdk.Context, req *types.GetLa
 	latestRoundId := k.GetLatestRoundId(roundStore, req.GetFeedId())
 
 	feedDataStore := ctx.KVStore(k.feedDataStoreKey)
-	iterator := sdk.KVStorePrefixIterator(feedDataStore, types.KeyPrefix(types.FeedDataKey))
+	iterator := sdk.KVStorePrefixIterator(feedDataStore, types.GetFeedDataKey("", ""))
 
 	defer iterator.Close()
 
@@ -155,8 +157,7 @@ func (k Keeper) GetLatestRoundFeedDataByFilter(ctx sdk.Context, req *types.GetLa
 // returns the global latest roundId in roundStore regardless of feedId if feedId is not given.
 func (k Keeper) GetLatestRoundId(store sdk.KVStore, feedId string) uint64 {
 	if feedId != "" {
-		feedRoundIdKey := types.KeyPrefix(types.RoundIdKey + feedId)
-		roundIdBytes := store.Get(feedRoundIdKey)
+		roundIdBytes := store.Get(types.GetRoundIdKey(feedId))
 
 		if len(roundIdBytes) == 0 {
 			return 0
@@ -165,7 +166,7 @@ func (k Keeper) GetLatestRoundId(store sdk.KVStore, feedId string) uint64 {
 	}
 
 	var latestRoundId uint64
-	roundIdIterator := sdk.KVStorePrefixIterator(store, types.KeyPrefix(types.RoundIdKey))
+	roundIdIterator := sdk.KVStorePrefixIterator(store, types.GetRoundIdKey(""))
 	defer roundIdIterator.Close()
 
 	for ; roundIdIterator.Valid(); roundIdIterator.Next() {
@@ -183,7 +184,7 @@ func (k Keeper) SetModuleOwner(ctx sdk.Context, moduleOwner *types.MsgModuleOwne
 
 	f := k.cdc.MustMarshalBinaryBare(moduleOwner)
 
-	moduleStore.Set(types.KeyPrefix(types.ModuleOwnerKey+moduleOwner.GetAddress().String()), f)
+	moduleStore.Set(types.GetModuleOwnerKey(moduleOwner.GetAddress().String()), f)
 
 	return ctx.BlockHeight(), ctx.TxBytes()
 }
@@ -191,14 +192,14 @@ func (k Keeper) SetModuleOwner(ctx sdk.Context, moduleOwner *types.MsgModuleOwne
 func (k Keeper) RemoveModuleOwner(ctx sdk.Context, transfer *types.MsgModuleOwnershipTransfer) (int64, []byte) {
 	moduleStore := ctx.KVStore(k.moduleOwnerStoreKey)
 
-	moduleStore.Delete(types.KeyPrefix(types.ModuleOwnerKey + transfer.GetAssignerAddress().String()))
+	moduleStore.Delete(types.GetModuleOwnerKey(transfer.GetAssignerAddress().String()))
 
 	return ctx.BlockHeight(), ctx.TxBytes()
 }
 
 func (k Keeper) GetModuleOwnerList(ctx sdk.Context) *types.GetModuleOwnerResponse {
 	moduleStore := ctx.KVStore(k.moduleOwnerStoreKey)
-	iterator := sdk.KVStorePrefixIterator(moduleStore, types.KeyPrefix(types.ModuleOwnerKey))
+	iterator := sdk.KVStorePrefixIterator(moduleStore, types.GetModuleOwnerKey(""))
 
 	defer iterator.Close()
 
@@ -221,17 +222,14 @@ func (k Keeper) SetFeed(ctx sdk.Context, feed *types.MsgFeed) (int64, []byte) {
 
 	f := k.cdc.MustMarshalBinaryBare(feed)
 
-	feedInfoStore.Set(types.KeyPrefix(types.FeedInfoKey+feed.GetFeedId()), f)
+	feedInfoStore.Set(types.GetFeedInfoKey(feed.GetFeedId()), f)
 
 	return ctx.BlockHeight(), ctx.TxBytes()
 }
 
 func (k Keeper) GetFeed(ctx sdk.Context, feedId string) *types.GetFeedByIdResponse {
 	feedInfoStore := ctx.KVStore(k.feedInfoStoreKey)
-
-	feedKey := types.KeyPrefix(types.FeedInfoKey + feedId)
-
-	feedIdBytes := feedInfoStore.Get(feedKey)
+	feedIdBytes := feedInfoStore.Get(types.GetFeedInfoKey(feedId))
 
 	if feedIdBytes == nil {
 		return &types.GetFeedByIdResponse{
