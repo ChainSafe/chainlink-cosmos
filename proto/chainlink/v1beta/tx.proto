@@ -47,6 +47,7 @@ message MsgFeed {
   // Module owner who signs the add feed tx
   bytes moduleOwnerAddress = 7 [(gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"];
   // TODO: RewardConfig: Struct describing how rewards should be paid
+  uint32 feedReward = 8;
 }
 
 // DataProvider is the type defined for feed data provider
