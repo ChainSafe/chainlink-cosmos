@@ -13,13 +13,12 @@ import (
 	"github.com/ChainSafe/chainlink-cosmos/x/chainlink/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 )
 
 type (
 	Keeper struct {
 		cdc                 codec.Marshaler
-		accountKeeper       authkeeper.AccountKeeper
+		bankKeeper          types.BankKeeper
 		feedDataStoreKey    sdk.StoreKey
 		roundStoreKey       sdk.StoreKey
 		moduleOwnerStoreKey sdk.StoreKey
@@ -30,7 +29,7 @@ type (
 
 func NewKeeper(
 	cdc codec.Marshaler,
-	ak authkeeper.AccountKeeper,
+	bk types.BankKeeper,
 	feedDataStoreKey,
 	roundStoreKey,
 	moduleOwnerStoreKey,
@@ -39,7 +38,7 @@ func NewKeeper(
 ) *Keeper {
 	return &Keeper{
 		cdc:                 cdc,
-		accountKeeper:       ak,
+		bankKeeper:          bk,
 		feedDataStoreKey:    feedDataStoreKey,
 		roundStoreKey:       roundStoreKey,
 		moduleOwnerStoreKey: moduleOwnerStoreKey,
@@ -285,4 +284,24 @@ func (k Keeper) RemoveDataProvider(ctx sdk.Context, removeDataProvider *types.Ms
 	feedInfoStore.Set(types.KeyPrefix(types.FeedInfoKey+feed.GetFeedId()), f)
 
 	return ctx.BlockHeight(), ctx.TxBytes(), nil
+}
+
+// this will mint the reward from the module
+// then transfer the reward to the receiver (data provider)
+func (k Keeper) DistributeReward(ctx sdk.Context, receiver sdk.AccAddress, tokens sdk.Coin) error {
+	// mint new tokens if the source of the transfer is the same chain
+	if err := k.bankKeeper.MintCoins(
+		ctx, types.ModuleName, sdk.NewCoins(tokens),
+	); err != nil {
+		return err
+	}
+
+	// send to receiver
+	if err := k.bankKeeper.SendCoinsFromModuleToAccount(
+		ctx, types.ModuleName, receiver, sdk.NewCoins(tokens),
+	); err != nil {
+		panic(fmt.Sprintf("unable to send coins from module to account despite previously minting coins to module account: %v", err))
+	}
+
+	return nil
 }
