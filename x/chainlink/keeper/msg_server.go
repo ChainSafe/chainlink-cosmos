@@ -22,9 +22,7 @@ func (k Keeper) SubmitFeedDataTx(c context.Context, msg *types.MsgFeedData) (*ty
 	feed := k.GetFeed(ctx, msg.FeedId)
 	reward := feed.GetFeed().FeedReward
 
-	rewardAmount := sdk.NewCoins(
-		sdk.NewCoin(types.LinkDenom, int(reward)),
-	)
+	rewardAmount := sdk.NewCoin(types.LinkDenom, sdk.NewInt(int64(reward)))
 
 	err := k.DistributeReward(ctx, msg.Submitter, rewardAmount)
 	if err != nil {
