@@ -14,9 +14,11 @@ const (
 	AddModuleOwner          = "AddModuleOwner"
 	ModuleOwnershipTransfer = "ModuleOwnershipTransfer"
 	AddFeed                 = "AddFeed"
+	AddDataProvider         = "AddDataProvider"
+	RemoveDataProvider      = "RemoveDataProvider"
 )
 
-var _, _, _, _ sdk.Msg = &MsgFeedData{}, &MsgModuleOwnershipTransfer{}, &MsgModuleOwner{}, &MsgFeed{}
+var _, _, _, _, _, _ sdk.Msg = &MsgFeedData{}, &MsgModuleOwnershipTransfer{}, &MsgModuleOwner{}, &MsgFeed{}, &MsgAddDataProvider{}, &MsgRemoveDataProvider{}
 var _ sdk.Tx = &MsgModuleOwner{}
 
 func NewMsgFeedData(submitter sdk.Address, feedId string, feedData []byte, signatures [][]byte) *MsgFeedData {
@@ -212,4 +214,75 @@ func (m *MsgFeed) GetSigners() []githubcosmossdktypes.AccAddress {
 
 func (m *MsgFeed) Empty() bool {
 	return m == nil
+}
+
+func NewMsgAddDataProvider(signer githubcosmossdktypes.AccAddress, feedId string, provider *DataProvider) *MsgAddDataProvider {
+	return &MsgAddDataProvider{
+		FeedId:       feedId,
+		DataProvider: provider,
+		Signer:       signer,
+	}
+}
+
+func (m *MsgAddDataProvider) Route() string {
+	return RouterKey
+}
+
+func (m *MsgAddDataProvider) Type() string {
+	return AddDataProvider
+}
+
+func (m *MsgAddDataProvider) ValidateBasic() error {
+	if len(m.GetFeedId()) == 0 {
+		return errors.New("invalid feedId")
+	}
+	provider := m.GetDataProvider()
+	if !provider.Verify() {
+		return errors.New("data provider address and pubKey does not match")
+	}
+	return nil
+}
+
+func (m *MsgAddDataProvider) GetSignBytes() []byte {
+	bz := ModuleCdc.MustMarshalJSON(m)
+	return sdk.MustSortJSON(bz)
+}
+
+func (m *MsgAddDataProvider) GetSigners() []githubcosmossdktypes.AccAddress {
+	return []sdk.AccAddress{m.Signer}
+}
+
+func NewMsgRemoveDataProvider(signer githubcosmossdktypes.AccAddress, feedId string, address githubcosmossdktypes.AccAddress) *MsgRemoveDataProvider {
+	return &MsgRemoveDataProvider{
+		FeedId:  feedId,
+		Address: address,
+		Signer:  signer,
+	}
+}
+
+func (m *MsgRemoveDataProvider) Route() string {
+	return RouterKey
+}
+
+func (m *MsgRemoveDataProvider) Type() string {
+	return RemoveDataProvider
+}
+
+func (m *MsgRemoveDataProvider) ValidateBasic() error {
+	if len(m.GetFeedId()) == 0 {
+		return errors.New("invalid feedId")
+	}
+	if m.GetAddress().Empty() {
+		return errors.New("data provider address is empty")
+	}
+	return nil
+}
+
+func (m *MsgRemoveDataProvider) GetSignBytes() []byte {
+	bz := ModuleCdc.MustMarshalJSON(m)
+	return sdk.MustSortJSON(bz)
+}
+
+func (m *MsgRemoveDataProvider) GetSigners() []githubcosmossdktypes.AccAddress {
+	return []sdk.AccAddress{m.Signer}
 }

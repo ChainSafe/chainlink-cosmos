@@ -15,6 +15,8 @@ service Msg {
   rpc AddModuleOwnerTx(MsgModuleOwner) returns (MsgResponse);
   rpc ModuleOwnershipTransferTx(MsgModuleOwnershipTransfer) returns (MsgResponse);
   rpc AddFeedTx(MsgFeed) returns (MsgResponse);
+  rpc AddDataProviderTx(MsgAddDataProvider) returns (MsgResponse);
+  rpc RemoveDataProviderTx(MsgRemoveDataProvider) returns (MsgResponse);
 }
 
 // MsgModuleOwnershipTransfer is the type defined for module ownership transfer
@@ -51,6 +53,26 @@ message MsgFeed {
 message DataProvider {
   bytes address = 1 [(gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"];
   bytes pubKey = 2;
+}
+
+// MsgAddProvider is the type defined for adding new data provider of the feed
+message MsgAddDataProvider {
+  // FeedId is the unique identifier of the feed
+  string feedId = 1;
+  // DataProvider is the new data provider of the feed to add
+  DataProvider dataProvider = 2;
+  // Signer is the feed owner who signs the add feed provided tx
+  bytes signer = 3 [(gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"];
+}
+
+// MsgRemoveProvider is the type defined for removing a data provider of the feed
+message MsgRemoveDataProvider {
+  // FeedId is the unique identifier of the feed
+  string feedId = 1;
+  // Address of the data provider to remove from the feed
+  bytes address = 2 [(gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"];
+  // Signer is the feed owner who signs the remove feed provided tx
+  bytes signer = 3 [(gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"];
 }
 
 // MsgFeedData is the type defined for the data of the feed

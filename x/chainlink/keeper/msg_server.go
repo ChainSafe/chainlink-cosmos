@@ -78,3 +78,43 @@ func (k Keeper) AddFeedTx(c context.Context, msg *types.MsgFeed) (*types.MsgResp
 		TxHash: string(txHash),
 	}, nil
 }
+
+// AddDataProviderTx implements the tx/AddDataProvider gRPC method
+func (k Keeper) AddDataProviderTx(c context.Context, msg *types.MsgAddDataProvider) (*types.MsgResponse, error) {
+	ctx := sdk.UnwrapSDKContext(c)
+
+	height, txHash, err := k.AddDataProvider(ctx, msg)
+
+	if err != nil {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, err.Error())
+	}
+
+	if height == 0 {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidHeight, "incorrect height found")
+	}
+
+	return &types.MsgResponse{
+		Height: uint64(height),
+		TxHash: string(txHash),
+	}, nil
+}
+
+// RemoveDataProviderTx implements the tx/RemoveDataProvider gRPC method
+func (k Keeper) RemoveDataProviderTx(c context.Context, msg *types.MsgRemoveDataProvider) (*types.MsgResponse, error) {
+	ctx := sdk.UnwrapSDKContext(c)
+
+	height, txHash, err := k.RemoveDataProvider(ctx, msg)
+
+	if err != nil {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, err.Error())
+	}
+
+	if height == 0 {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidHeight, "incorrect height found")
+	}
+
+	return &types.MsgResponse{
+		Height: uint64(height),
+		TxHash: string(txHash),
+	}, nil
+}
