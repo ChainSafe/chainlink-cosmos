@@ -280,7 +280,7 @@ func New(
 	// Create Chainlink keepers
 	app.ChainLinkKeeper = *chainlinkkeeper.NewKeeper(
 		appCodec,
-		app.AccountKeeper,
+		app.BankKeeper,
 		keys[chainlinktypes.FeedDataStoreKey],
 		keys[chainlinktypes.RoundStoreKey],
 		keys[chainlinktypes.ModuleOwnerStoreKey],
