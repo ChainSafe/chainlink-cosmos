@@ -22,10 +22,10 @@ func NewHandler(k keeper.Keeper) sdk.Handler {
 			return handlerMsgModuleOwnershipTransfer(ctx, k, msg)
 		case *types.MsgFeed:
 			return handlerMsgAddNewFeed(ctx, k, msg)
-		case *types.MsgAddFeedProvider:
-			return handlerMsgAddFeedProvider(ctx, k, msg)
-		case *types.MsgRemoveFeedProvider:
-			return handlerMsgRemoveFeedProvider(ctx, k, msg)
+		case *types.MsgAddDataProvider:
+			return handlerMsgAddDataProvider(ctx, k, msg)
+		case *types.MsgRemoveDataProvider:
+			return handlerMsgRemoveDataProvider(ctx, k, msg)
 		default:
 			errMsg := fmt.Sprintf("unrecognized %s message type: %T", types.ModuleName, msg)
 			return nil, sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, errMsg)
@@ -85,8 +85,8 @@ func handlerMsgAddNewFeed(ctx sdk.Context, k keeper.Keeper, newFeed *types.MsgFe
 	return result, nil
 }
 
-func handlerMsgAddFeedProvider(ctx sdk.Context, k keeper.Keeper, msgAddFeedProvider *types.MsgAddFeedProvider) (*sdk.Result, error) {
-	msgResult, err := k.AddFeedProviderTx(sdk.WrapSDKContext(ctx), msgAddFeedProvider)
+func handlerMsgAddDataProvider(ctx sdk.Context, k keeper.Keeper, msgAddDataProvider *types.MsgAddDataProvider) (*sdk.Result, error) {
+	msgResult, err := k.AddDataProviderTx(sdk.WrapSDKContext(ctx), msgAddDataProvider)
 	if err != nil {
 		return nil, err
 	}
@@ -97,8 +97,8 @@ func handlerMsgAddFeedProvider(ctx sdk.Context, k keeper.Keeper, msgAddFeedProvi
 	return result, nil
 }
 
-func handlerMsgRemoveFeedProvider(ctx sdk.Context, k keeper.Keeper, msgRemoveFeedProvider *types.MsgRemoveFeedProvider) (*sdk.Result, error) {
-	msgResult, err := k.RemoveFeedProviderTx(sdk.WrapSDKContext(ctx), msgRemoveFeedProvider)
+func handlerMsgRemoveDataProvider(ctx sdk.Context, k keeper.Keeper, msgRemoveDataProvider *types.MsgRemoveDataProvider) (*sdk.Result, error) {
+	msgResult, err := k.RemoveDataProviderTx(sdk.WrapSDKContext(ctx), msgRemoveDataProvider)
 	if err != nil {
 		return nil, err
 	}

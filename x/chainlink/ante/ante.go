@@ -126,7 +126,7 @@ func (fd FeedDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 			if !feed.Feed.Empty() {
 				return ctx, sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, "feed already exists")
 			}
-		case *types.MsgAddFeedProvider:
+		case *types.MsgAddDataProvider:
 			feed := fd.chainLinkKeeper.GetFeed(ctx, t.GetFeedId())
 			if feed.Feed.Empty() {
 				return ctx, sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, "feed does not exist")
@@ -134,7 +134,7 @@ func (fd FeedDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 			if (types.DataProviders)(feed.GetFeed().GetDataProviders()).Contains(t.GetDataProvider().GetAddress()) {
 				return ctx, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "data provider already registered")
 			}
-		case *types.MsgRemoveFeedProvider:
+		case *types.MsgRemoveDataProvider:
 			feed := fd.chainLinkKeeper.GetFeed(ctx, t.GetFeedId())
 			if feed.Feed.Empty() {
 				return ctx, sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, "feed does not exist")

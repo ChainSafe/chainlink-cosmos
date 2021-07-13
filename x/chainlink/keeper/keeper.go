@@ -247,16 +247,16 @@ func (k Keeper) GetFeed(ctx sdk.Context, feedId string) *types.GetFeedByIdRespon
 	}
 }
 
-func (k Keeper) AddFeedProvider(ctx sdk.Context, addFeedProvider *types.MsgAddFeedProvider) (int64, []byte, error) {
+func (k Keeper) AddDataProvider(ctx sdk.Context, addDataProvider *types.MsgAddDataProvider) (int64, []byte, error) {
 	// retrieve feed from store
-	resp := k.GetFeed(ctx, addFeedProvider.GetFeedId())
+	resp := k.GetFeed(ctx, addDataProvider.GetFeedId())
 	feed := resp.GetFeed()
 	if feed == nil {
-		return 0, nil, fmt.Errorf("feed '%s' not found", addFeedProvider.GetFeedId())
+		return 0, nil, fmt.Errorf("feed '%s' not found", addDataProvider.GetFeedId())
 	}
 
 	// add new data provider
-	feed.DataProviders = append(feed.DataProviders, addFeedProvider.DataProvider)
+	feed.DataProviders = append(feed.DataProviders, addDataProvider.DataProvider)
 
 	// put back feed in the store
 	f := k.cdc.MustMarshalBinaryBare(feed)
@@ -266,16 +266,16 @@ func (k Keeper) AddFeedProvider(ctx sdk.Context, addFeedProvider *types.MsgAddFe
 	return ctx.BlockHeight(), ctx.TxBytes(), nil
 }
 
-func (k Keeper) RemoveFeedProvider(ctx sdk.Context, removeFeedProvider *types.MsgRemoveFeedProvider) (int64, []byte, error) {
+func (k Keeper) RemoveDataProvider(ctx sdk.Context, removeDataProvider *types.MsgRemoveDataProvider) (int64, []byte, error) {
 	// retrieve feed from store
-	resp := k.GetFeed(ctx, removeFeedProvider.GetFeedId())
+	resp := k.GetFeed(ctx, removeDataProvider.GetFeedId())
 	feed := resp.GetFeed()
 	if feed == nil {
-		return 0, nil, fmt.Errorf("feed '%s' not found", removeFeedProvider.GetFeedId())
+		return 0, nil, fmt.Errorf("feed '%s' not found", removeDataProvider.GetFeedId())
 	}
 
 	// remove data provider from the list
-	feed.DataProviders = (types.DataProviders)(feed.DataProviders).Remove(removeFeedProvider.GetAddress())
+	feed.DataProviders = (types.DataProviders)(feed.DataProviders).Remove(removeDataProvider.GetAddress())
 
 	// put back feed in the store
 	f := k.cdc.MustMarshalBinaryBare(feed)

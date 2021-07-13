@@ -79,11 +79,11 @@ func (k Keeper) AddFeedTx(c context.Context, msg *types.MsgFeed) (*types.MsgResp
 	}, nil
 }
 
-// AddFeedProviderTx implements the tx/AddFeedProvider gRPC method
-func (k Keeper) AddFeedProviderTx(c context.Context, msg *types.MsgAddFeedProvider) (*types.MsgResponse, error) {
+// AddDataProviderTx implements the tx/AddDataProvider gRPC method
+func (k Keeper) AddDataProviderTx(c context.Context, msg *types.MsgAddDataProvider) (*types.MsgResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
 
-	height, txHash, err := k.AddFeedProvider(ctx, msg)
+	height, txHash, err := k.AddDataProvider(ctx, msg)
 
 	if err != nil {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, err.Error())
@@ -99,11 +99,11 @@ func (k Keeper) AddFeedProviderTx(c context.Context, msg *types.MsgAddFeedProvid
 	}, nil
 }
 
-// RemoveFeedProviderTx implements the tx/RemoveFeedProvider gRPC method
-func (k Keeper) RemoveFeedProviderTx(c context.Context, msg *types.MsgRemoveFeedProvider) (*types.MsgResponse, error) {
+// RemoveDataProviderTx implements the tx/RemoveDataProvider gRPC method
+func (k Keeper) RemoveDataProviderTx(c context.Context, msg *types.MsgRemoveDataProvider) (*types.MsgResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
 
-	height, txHash, err := k.RemoveFeedProvider(ctx, msg)
+	height, txHash, err := k.RemoveDataProvider(ctx, msg)
 
 	if err != nil {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, err.Error())

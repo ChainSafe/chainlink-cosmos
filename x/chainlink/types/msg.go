@@ -13,11 +13,11 @@ const (
 	AddModuleOwner          = "AddModuleOwner"
 	ModuleOwnershipTransfer = "ModuleOwnershipTransfer"
 	AddFeed                 = "AddFeed"
-	AddFeedProvider         = "AddFeedProvider"
-	RemoveFeedProvider      = "RemoveFeedProvider"
+	AddDataProvider         = "AddDataProvider"
+	RemoveDataProvider      = "RemoveDataProvider"
 )
 
-var _, _, _, _, _, _ sdk.Msg = &MsgFeedData{}, &MsgModuleOwnershipTransfer{}, &MsgModuleOwner{}, &MsgFeed{}, &MsgAddFeedProvider{}, &MsgRemoveFeedProvider{}
+var _, _, _, _, _, _ sdk.Msg = &MsgFeedData{}, &MsgModuleOwnershipTransfer{}, &MsgModuleOwner{}, &MsgFeed{}, &MsgAddDataProvider{}, &MsgRemoveDataProvider{}
 var _ sdk.Tx = &MsgModuleOwner{}
 
 func NewMsgFeedData(submitter sdk.Address, feedId string, feedData []byte, signatures [][]byte) *MsgFeedData {
@@ -212,23 +212,23 @@ func (m *MsgFeed) Empty() bool {
 	return m == nil
 }
 
-func NewMsgAddFeedProvider(signer githubcosmossdktypes.AccAddress, feedId string, provider *DataProvider) *MsgAddFeedProvider {
-	return &MsgAddFeedProvider{
+func NewMsgAddDataProvider(signer githubcosmossdktypes.AccAddress, feedId string, provider *DataProvider) *MsgAddDataProvider {
+	return &MsgAddDataProvider{
 		FeedId:       feedId,
 		DataProvider: provider,
 		Signer:       signer,
 	}
 }
 
-func (m *MsgAddFeedProvider) Route() string {
+func (m *MsgAddDataProvider) Route() string {
 	return RouterKey
 }
 
-func (m *MsgAddFeedProvider) Type() string {
-	return AddFeedProvider
+func (m *MsgAddDataProvider) Type() string {
+	return AddDataProvider
 }
 
-func (m *MsgAddFeedProvider) ValidateBasic() error {
+func (m *MsgAddDataProvider) ValidateBasic() error {
 	if len(m.GetFeedId()) == 0 {
 		return errors.New("invalid feedId")
 	}
@@ -239,32 +239,32 @@ func (m *MsgAddFeedProvider) ValidateBasic() error {
 	return nil
 }
 
-func (m *MsgAddFeedProvider) GetSignBytes() []byte {
+func (m *MsgAddDataProvider) GetSignBytes() []byte {
 	bz := ModuleCdc.MustMarshalJSON(m)
 	return sdk.MustSortJSON(bz)
 }
 
-func (m *MsgAddFeedProvider) GetSigners() []githubcosmossdktypes.AccAddress {
+func (m *MsgAddDataProvider) GetSigners() []githubcosmossdktypes.AccAddress {
 	return []sdk.AccAddress{m.Signer}
 }
 
-func NewMsgRemoveFeedProvider(signer githubcosmossdktypes.AccAddress, feedId string, address githubcosmossdktypes.AccAddress) *MsgRemoveFeedProvider {
-	return &MsgRemoveFeedProvider{
+func NewMsgRemoveDataProvider(signer githubcosmossdktypes.AccAddress, feedId string, address githubcosmossdktypes.AccAddress) *MsgRemoveDataProvider {
+	return &MsgRemoveDataProvider{
 		FeedId:  feedId,
 		Address: address,
 		Signer:  signer,
 	}
 }
 
-func (m *MsgRemoveFeedProvider) Route() string {
+func (m *MsgRemoveDataProvider) Route() string {
 	return RouterKey
 }
 
-func (m *MsgRemoveFeedProvider) Type() string {
-	return RemoveFeedProvider
+func (m *MsgRemoveDataProvider) Type() string {
+	return RemoveDataProvider
 }
 
-func (m *MsgRemoveFeedProvider) ValidateBasic() error {
+func (m *MsgRemoveDataProvider) ValidateBasic() error {
 	if len(m.GetFeedId()) == 0 {
 		return errors.New("invalid feedId")
 	}
@@ -274,11 +274,11 @@ func (m *MsgRemoveFeedProvider) ValidateBasic() error {
 	return nil
 }
 
-func (m *MsgRemoveFeedProvider) GetSignBytes() []byte {
+func (m *MsgRemoveDataProvider) GetSignBytes() []byte {
 	bz := ModuleCdc.MustMarshalJSON(m)
 	return sdk.MustSortJSON(bz)
 }
 
-func (m *MsgRemoveFeedProvider) GetSigners() []githubcosmossdktypes.AccAddress {
+func (m *MsgRemoveDataProvider) GetSigners() []githubcosmossdktypes.AccAddress {
 	return []sdk.AccAddress{m.Signer}
 }

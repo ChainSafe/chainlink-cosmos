@@ -83,9 +83,9 @@ func CmdAddFeed() *cobra.Command {
 	return cmd
 }
 
-func CmdAddFeedProvider() *cobra.Command {
+func CmdAddDataProvider() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "addFeedProvider [feedId] [address] [publicKey]",
+		Use:   "addDataProvider [feedId] [address] [publicKey]",
 		Short: "Add new data provider to the feed. Signer must be the existing module owner.",
 		Args:  cobra.MinimumNArgs(3),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -103,7 +103,7 @@ func CmdAddFeedProvider() *cobra.Command {
 				return err
 			}
 
-			msg := types.NewMsgAddFeedProvider(clientCtx.GetFromAddress(), argsFeedId, &types.DataProvider{
+			msg := types.NewMsgAddDataProvider(clientCtx.GetFromAddress(), argsFeedId, &types.DataProvider{
 				Address: addr,
 				PubKey:  []byte(argsPublicKey),
 			})
@@ -119,9 +119,9 @@ func CmdAddFeedProvider() *cobra.Command {
 	return cmd
 }
 
-func CmdRemoveFeedProvider() *cobra.Command {
+func CmdRemoveDataProvider() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "removeFeedProvider [feedId] [address]",
+		Use:   "removeDataProvider [feedId] [address]",
 		Short: "Remove data provider from the feed. Signer must be the existing module owner.",
 		Args:  cobra.MinimumNArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -138,7 +138,7 @@ func CmdRemoveFeedProvider() *cobra.Command {
 				return err
 			}
 
-			msg := types.NewMsgRemoveFeedProvider(clientCtx.GetFromAddress(), argsFeedId, addr)
+			msg := types.NewMsgRemoveDataProvider(clientCtx.GetFromAddress(), argsFeedId, addr)
 			if err := msg.ValidateBasic(); err != nil {
 				return err
 			}

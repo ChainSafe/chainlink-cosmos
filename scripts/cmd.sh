@@ -28,13 +28,13 @@ chainlinkd tx chainlink addFeed feedid1 "$cerloAddr" 1 2 3 "$cerloAddr,$cerloPK"
 chainlinkd query chainlink getFeedInfo feedid1 --chain-id testchain
 
 # Add feed data provider
-chainlinkd tx chainlink addFeedProvider feedid1 "$bobAddr" "$bobPK" --from alice --keyring-backend test --chain-id testchain
+chainlinkd tx chainlink addDataProvider feedid1 "$bobAddr" "$bobPK" --from alice --keyring-backend test --chain-id testchain
 
 # Query feed info by feedId
 chainlinkd query chainlink getFeedInfo feedid1 --chain-id testchain
 
 # Remove feed data provider
-chainlinkd tx chainlink removeFeedProvider feedid1 "$cerloAddr" --from alice --keyring-backend test --chain-id testchain
+chainlinkd tx chainlink removeDataProvider feedid1 "$cerloAddr" --from alice --keyring-backend test --chain-id testchain
 
 # Query feed info by feedId
 chainlinkd query chainlink getFeedInfo feedid1 --chain-id testchain
