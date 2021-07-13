@@ -278,8 +278,15 @@ func New(
 	app.EvidenceKeeper = *evidenceKeeper
 
 	// Create Chainlink keepers
-	app.ChainLinkKeeper = *chainlinkkeeper.NewKeeper(appCodec, keys[chainlinktypes.FeedDataStoreKey], keys[chainlinktypes.RoundStoreKey],
-		keys[chainlinktypes.ModuleOwnerStoreKey], keys[chainlinktypes.FeedInfoStoreKey], keys[chainlinktypes.MemStoreKey])
+	app.ChainLinkKeeper = *chainlinkkeeper.NewKeeper(
+		appCodec,
+		app.AccountKeeper,
+		keys[chainlinktypes.FeedDataStoreKey],
+		keys[chainlinktypes.RoundStoreKey],
+		keys[chainlinktypes.ModuleOwnerStoreKey],
+		keys[chainlinktypes.FeedInfoStoreKey],
+		keys[chainlinktypes.MemStoreKey],
+	)
 
 	/****  Module Options ****/
 

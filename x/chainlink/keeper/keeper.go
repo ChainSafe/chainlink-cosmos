@@ -2,7 +2,10 @@ package keeper
 
 import (
 	"fmt"
+<<<<<<< Updated upstream
 	"strconv"
+=======
+>>>>>>> Stashed changes
 
 	"github.com/cosmos/cosmos-sdk/types/query"
 	"google.golang.org/grpc/codes"
@@ -13,11 +16,13 @@ import (
 	"github.com/ChainSafe/chainlink-cosmos/x/chainlink/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 )
 
 type (
 	Keeper struct {
 		cdc                 codec.Marshaler
+		accountKeeper       authkeeper.AccountKeeper
 		feedDataStoreKey    sdk.StoreKey
 		roundStoreKey       sdk.StoreKey
 		moduleOwnerStoreKey sdk.StoreKey
@@ -28,6 +33,7 @@ type (
 
 func NewKeeper(
 	cdc codec.Marshaler,
+	ak authkeeper.AccountKeeper,
 	feedDataStoreKey,
 	roundStoreKey,
 	moduleOwnerStoreKey,
@@ -36,6 +42,7 @@ func NewKeeper(
 ) *Keeper {
 	return &Keeper{
 		cdc:                 cdc,
+		accountKeeper:       ak,
 		feedDataStoreKey:    feedDataStoreKey,
 		roundStoreKey:       roundStoreKey,
 		moduleOwnerStoreKey: moduleOwnerStoreKey,

@@ -178,6 +178,24 @@ func (fd FeedDataDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool
 			if !(types.DataProviders)(feed.GetFeed().GetDataProviders()).Contains(t.GetSubmitter()) {
 				return ctx, sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "invalid data provider")
 			}
+
+			// fetch sender account from signature
+			// senderAcc, err := auth.GetSignerAcc(ctx, egcd.ak, address)
+			// if err != nil {
+			// 	return ctx, err
+			// }
+			// if senderAcc == nil {
+			// 	return ctx, sdkerrors.Wrapf(
+			// 		sdkerrors.ErrUnknownAddress,
+			// 		"sender account %s (%s) is nil", common.BytesToAddress(address.Bytes()), address,
+			// 	)
+			// }
+
+			// get the reward associated with the feedId in the tx msg
+
+			// send rewards here
+			// reward :=
+
 		default:
 			continue
 		}
@@ -185,3 +203,21 @@ func (fd FeedDataDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool
 
 	return next(ctx, tx, simulate)
 }
+
+// type RewardDistributionDecorator struct {
+// 	chainLinkKeeper chainlinkkeeper.Keeper
+// }
+
+// func NewRewardDistributionDecorator(chainLinkKeeper chainlinkkeeper.Keeper) RewardDistributionDecorator {
+// 	return RewardDistributionDecorator{
+// 		chainLinkKeeper: chainLinkKeeper,
+// 	}
+// }
+
+// func (rd RewardDistributionDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (newCtx sdk.Context, err error) {
+// 	if len(tx.GetMsgs()) == 0 {
+// 		return ctx, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "invalid Msg: empty Msg: %T", tx)
+// 	}
+
+// 	return next(ctx, tx, simulate)
+// }
