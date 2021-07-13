@@ -2,10 +2,7 @@ package keeper
 
 import (
 	"fmt"
-<<<<<<< Updated upstream
 	"strconv"
-=======
->>>>>>> Stashed changes
 
 	"github.com/cosmos/cosmos-sdk/types/query"
 	"google.golang.org/grpc/codes"
