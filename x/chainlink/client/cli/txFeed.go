@@ -152,6 +152,102 @@ func CmdRemoveDataProvider() *cobra.Command {
 	return cmd
 }
 
+func CmdSetSubmissionCount() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "setSubmissionCount [feedId] [count]",
+		Short: "Set the required number of signatures. Signer must be the existing module owner.",
+		Args:  cobra.MinimumNArgs(2),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			argsFeedId := args[0]
+			argsSubmissionCount := args[1]
+
+			submissionCount, err := strconv.Atoi(argsSubmissionCount)
+			if err != nil {
+				return err
+			}
+
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			msg := types.NewMsgSetSubmissionCount(clientCtx.GetFromAddress(), argsFeedId, uint32(submissionCount))
+			if err := msg.ValidateBasic(); err != nil {
+				return err
+			}
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
+		},
+	}
+
+	flags.AddTxFlagsToCmd(cmd)
+
+	return cmd
+}
+
+func CmdSetHeartbeatTrigger() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "setHeartbeatTrigger [feedId] [heartbeatTrigger]",
+		Short: "Set the interval between which a new round should automatically be triggered. Signer must be the existing module owner.", // TODO
+		Args:  cobra.MinimumNArgs(2),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			argsFeedId := args[0]
+			argsHeartbeatTrigger := args[1]
+
+			heartbeatTrigger, err := strconv.Atoi(argsHeartbeatTrigger)
+			if err != nil {
+				return err
+			}
+
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			msg := types.NewMsgSetHeartbeatTrigger(clientCtx.GetFromAddress(), argsFeedId, uint32(heartbeatTrigger))
+			if err := msg.ValidateBasic(); err != nil {
+				return err
+			}
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
+		},
+	}
+
+	flags.AddTxFlagsToCmd(cmd)
+
+	return cmd
+}
+
+func CmdSetDeviationThreshold() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "setDeviationThresholdTrigger [feedId] [deviationThresholdTrigger]",
+		Short: "Set the fraction of deviation in the feed data required to trigger a new round. Signer must be the existing module owner.",
+		Args:  cobra.MinimumNArgs(2),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			argsFeedId := args[0]
+			argsDeviationThresholdTrigger := args[1]
+
+			deviationThresholdTrigger, err := strconv.Atoi(argsDeviationThresholdTrigger)
+			if err != nil {
+				return err
+			}
+
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			msg := types.NewMsgSetDeviationThreshold(clientCtx.GetFromAddress(), argsFeedId, uint32(deviationThresholdTrigger))
+			if err := msg.ValidateBasic(); err != nil {
+				return err
+			}
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
+		},
+	}
+
+	flags.AddTxFlagsToCmd(cmd)
+
+	return cmd
+}
+
 func CmdSubmitFeedData() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "submitFeedData [feedId] [feedData] [signatures]",

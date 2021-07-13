@@ -26,6 +26,9 @@ func GetTxCmd() *cobra.Command {
 	cmd.AddCommand(CmdAddFeed())
 	cmd.AddCommand(CmdAddDataProvider())
 	cmd.AddCommand(CmdRemoveDataProvider())
+	cmd.AddCommand(CmdSetSubmissionCount())
+	cmd.AddCommand(CmdSetHeartbeatTrigger())
+	cmd.AddCommand(CmdSetDeviationThreshold())
 
 	return cmd
 }

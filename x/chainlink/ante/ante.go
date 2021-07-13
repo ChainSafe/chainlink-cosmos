@@ -12,6 +12,10 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 )
 
+const (
+	ErrFeedDoesNotExist = "feed does not exist"
+)
+
 func NewAnteHandler(
 	ak authkeeper.AccountKeeper, bankKeeper bankkeeper.Keeper, chainLinkKeeper chainlinkkeeper.Keeper,
 	sigGasConsumer authante.SignatureVerificationGasConsumer,
@@ -129,7 +133,7 @@ func (fd FeedDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 		case *types.MsgAddDataProvider:
 			feed := fd.chainLinkKeeper.GetFeed(ctx, t.GetFeedId())
 			if feed.Feed.Empty() {
-				return ctx, sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, "feed does not exist")
+				return ctx, sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, ErrFeedDoesNotExist)
 			}
 			if (types.DataProviders)(feed.GetFeed().GetDataProviders()).Contains(t.GetDataProvider().GetAddress()) {
 				return ctx, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "data provider already registered")
@@ -137,10 +141,25 @@ func (fd FeedDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 		case *types.MsgRemoveDataProvider:
 			feed := fd.chainLinkKeeper.GetFeed(ctx, t.GetFeedId())
 			if feed.Feed.Empty() {
-				return ctx, sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, "feed does not exist")
+				return ctx, sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, ErrFeedDoesNotExist)
 			}
 			if !(types.DataProviders)(feed.GetFeed().GetDataProviders()).Contains(t.GetAddress()) {
 				return ctx, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "data provider not present")
+			}
+		case *types.MsgSetSubmissionCount:
+			feed := fd.chainLinkKeeper.GetFeed(ctx, t.GetFeedId())
+			if feed.Feed.Empty() {
+				return ctx, sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, ErrFeedDoesNotExist)
+			}
+		case *types.MsgSetHeartbeatTrigger:
+			feed := fd.chainLinkKeeper.GetFeed(ctx, t.GetFeedId())
+			if feed.Feed.Empty() {
+				return ctx, sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, ErrFeedDoesNotExist)
+			}
+		case *types.MsgSetDeviationThresholdTrigger:
+			feed := fd.chainLinkKeeper.GetFeed(ctx, t.GetFeedId())
+			if feed.Feed.Empty() {
+				return ctx, sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, ErrFeedDoesNotExist)
 			}
 		default:
 			continue

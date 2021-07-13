@@ -257,9 +257,7 @@ func (k Keeper) AddDataProvider(ctx sdk.Context, addDataProvider *types.MsgAddDa
 	feed.DataProviders = append(feed.DataProviders, addDataProvider.DataProvider)
 
 	// put back feed in the store
-	f := k.cdc.MustMarshalBinaryBare(feed)
-	feedInfoStore := ctx.KVStore(k.feedInfoStoreKey)
-	feedInfoStore.Set(types.KeyPrefix(types.FeedInfoKey+feed.GetFeedId()), f)
+	k.SetFeed(ctx, feed)
 
 	return ctx.BlockHeight(), ctx.TxBytes(), nil
 }
@@ -276,9 +274,58 @@ func (k Keeper) RemoveDataProvider(ctx sdk.Context, removeDataProvider *types.Ms
 	feed.DataProviders = (types.DataProviders)(feed.DataProviders).Remove(removeDataProvider.GetAddress())
 
 	// put back feed in the store
-	f := k.cdc.MustMarshalBinaryBare(feed)
-	feedInfoStore := ctx.KVStore(k.feedInfoStoreKey)
-	feedInfoStore.Set(types.KeyPrefix(types.FeedInfoKey+feed.GetFeedId()), f)
+	k.SetFeed(ctx, feed)
+
+	return ctx.BlockHeight(), ctx.TxBytes(), nil
+}
+
+func (k Keeper) SetSubmissionCount(ctx sdk.Context, setSubmissionCount *types.MsgSetSubmissionCount) (int64, []byte, error) {
+	// retrieve feed from store
+	resp := k.GetFeed(ctx, setSubmissionCount.GetFeedId())
+	feed := resp.GetFeed()
+	if feed == nil {
+		return 0, nil, fmt.Errorf("feed '%s' not found", setSubmissionCount.GetFeedId())
+	}
+
+	// update submission count
+	feed.SubmissionCount = setSubmissionCount.GetSubmissionCount()
+
+	// put back feed in the store
+	k.SetFeed(ctx, feed)
+
+	return ctx.BlockHeight(), ctx.TxBytes(), nil
+}
+
+func (k Keeper) SetHeartbeatTrigger(ctx sdk.Context, setHeartbeatTrigger *types.MsgSetHeartbeatTrigger) (int64, []byte, error) {
+	// retrieve feed from store
+	resp := k.GetFeed(ctx, setHeartbeatTrigger.GetFeedId())
+	feed := resp.GetFeed()
+	if feed == nil {
+		return 0, nil, fmt.Errorf("feed '%s' not found", setHeartbeatTrigger.GetFeedId())
+	}
+
+	// update heartbeat trigger
+	feed.HeartbeatTrigger = setHeartbeatTrigger.GetHeartbeatTrigger()
+
+	// put back feed in the store
+	k.SetFeed(ctx, feed)
+
+	return ctx.BlockHeight(), ctx.TxBytes(), nil
+}
+
+func (k Keeper) SetDeviationThresholdTrigger(ctx sdk.Context, setDeviationThresholdTrigger *types.MsgSetDeviationThresholdTrigger) (int64, []byte, error) {
+	// retrieve feed from store
+	resp := k.GetFeed(ctx, setDeviationThresholdTrigger.GetFeedId())
+	feed := resp.GetFeed()
+	if feed == nil {
+		return 0, nil, fmt.Errorf("feed '%s' not found", setDeviationThresholdTrigger.GetFeedId())
+	}
+
+	// update deviation threshold trigger
+	feed.DeviationThresholdTrigger = setDeviationThresholdTrigger.GetDeviationThresholdTrigger()
+
+	// put back feed in the store
+	k.SetFeed(ctx, feed)
 
 	return ctx.BlockHeight(), ctx.TxBytes(), nil
 }
