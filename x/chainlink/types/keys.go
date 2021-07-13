@@ -26,6 +26,11 @@ const (
 	MemStoreKey = "mem_chainlink"
 )
 
+const (
+	// Chainlink token denom
+	LinkDenom = "LINK"
+)
+
 func KeyPrefix(p string) []byte {
 	return []byte(p)
 }
