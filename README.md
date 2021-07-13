@@ -6,13 +6,17 @@
 
 ```
 $ make install
-
-$ ./scripts/start.sh
 ```
 
-## Configure
-
 ## Launch
+
+```
+$ make start
+```
+
+## Documentation
+[Cosmos ChainLink Module Documentation](./docs/doc.md)
+
  
 ## Learn more
 - [Cosmos SDK documentation](https://docs.cosmos.network)
