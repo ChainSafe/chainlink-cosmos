@@ -16,9 +16,9 @@ import (
 
 func CmdAddFeed() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "addFeed [feedId] [feedOwnerAddress] [submissionCount] [heartbeatTrigger] [deviationThresholdTrigger] [initDataProviderList]",
+		Use:   "addFeed [feedId] [feedOwnerAddress] [submissionCount] [heartbeatTrigger] [deviationThresholdTrigger] [feedReward] [initDataProviderList]",
 		Short: "Add new feed. Signer must be the existing module owner.",
-		Long:  "The following fields are required:\n\tThe feedId will be a string that uniquely identifies the feed. The feedOwnerAddress must be a valid cosmos address.\n\tThe submissionCount in the required number of signatures.\n\tThe deviationThresholdTrigger is the fraction of deviation in the feed data required to trigger a new round.\n\tThe initDataProviderList is a string contains each data provider's address with pubkey and split by comma.",
+		Long:  "The following fields are required:\n\tThe feedId will be a string that uniquely identifies the feed. The feedOwnerAddress must be a valid cosmos address.\n\tThe submissionCount in the required number of signatures.\n\tThe deviationThresholdTrigger is the fraction of deviation in the feed data required to trigger a new round.\n\tThe initDataProviderList is a string contains each data provider's address with pubkey and split by comma.\n\tThe feedReward is a uint32 value that represents the data provider reward for submitting data to a feed.",
 		Args:  cobra.MinimumNArgs(6),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			argsFeedId := args[0]
@@ -26,7 +26,8 @@ func CmdAddFeed() *cobra.Command {
 			argsSubmissionCount := args[2]
 			argsHeartbeatTrigger := args[3]
 			argsDeviationThresholdTrigger := args[4]
-			argsInitDataProviderListStr := strings.TrimSpace(args[5])
+			argsFeedReward := args[5]
+			argsInitDataProviderListStr := strings.TrimSpace(args[6])
 
 			submissionCount, err := strconv.Atoi(argsSubmissionCount)
 			if err != nil {
@@ -37,6 +38,10 @@ func CmdAddFeed() *cobra.Command {
 				return err
 			}
 			deviationThresholdTrigger, err := strconv.Atoi(argsDeviationThresholdTrigger)
+			if err != nil {
+				return err
+			}
+			feedReward, err := strconv.Atoi(argsFeedReward)
 			if err != nil {
 				return err
 			}
@@ -71,7 +76,7 @@ func CmdAddFeed() *cobra.Command {
 				return err
 			}
 
-			msg := types.NewMsgFeed(argsFeedId, feedOwnerAddr, clientCtx.GetFromAddress(), initDataProviderList, uint32(submissionCount), uint32(heartbeatTrigger), uint32(deviationThresholdTrigger))
+			msg := types.NewMsgFeed(argsFeedId, feedOwnerAddr, clientCtx.GetFromAddress(), initDataProviderList, uint32(submissionCount), uint32(heartbeatTrigger), uint32(deviationThresholdTrigger), uint32(feedReward))
 			if err := msg.ValidateBasic(); err != nil {
 				return err
 			}
