@@ -155,7 +155,8 @@ func CmdRemoveDataProvider() *cobra.Command {
 func CmdSetSubmissionCount() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "setSubmissionCount [feedId] [count]",
-		Short: "Set the required number of signatures. Signer must be the existing module owner.",
+		Short: "Sets a new submission count for a given feed",
+		Long:  "Set the required number of signatures. Signer must be the existing module owner.",
 		Args:  cobra.MinimumNArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			argsFeedId := args[0]
@@ -187,7 +188,8 @@ func CmdSetSubmissionCount() *cobra.Command {
 func CmdSetHeartbeatTrigger() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "setHeartbeatTrigger [feedId] [heartbeatTrigger]",
-		Short: "Set the interval between which a new round should automatically be triggered. Signer must be the existing module owner.", // TODO
+		Short: "Sets a new heartbeat trigger for the given feed",
+		Long:  "Set the interval between which a new round should automatically be triggered. Signer must be the existing module owner.",
 		Args:  cobra.MinimumNArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			argsFeedId := args[0]
@@ -219,7 +221,8 @@ func CmdSetHeartbeatTrigger() *cobra.Command {
 func CmdSetDeviationThreshold() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "setDeviationThresholdTrigger [feedId] [deviationThresholdTrigger]",
-		Short: "Set the fraction of deviation in the feed data required to trigger a new round. Signer must be the existing module owner.",
+		Short: "Sets a new deviation threshold trigger for the given feed",
+		Long:  "Set the fraction of deviation in the feed data required to trigger a new round. Signer must be the existing module owner.",
 		Args:  cobra.MinimumNArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			argsFeedId := args[0]
