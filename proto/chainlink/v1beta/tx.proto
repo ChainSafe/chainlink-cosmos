@@ -17,6 +17,9 @@ service Msg {
   rpc AddFeedTx(MsgFeed) returns (MsgResponse);
   rpc AddDataProviderTx(MsgAddDataProvider) returns (MsgResponse);
   rpc RemoveDataProviderTx(MsgRemoveDataProvider) returns (MsgResponse);
+  rpc SetSubmissionCountTx(MsgSetSubmissionCount) returns (MsgResponse);
+  rpc SetHeartbeatTriggerTx(MsgSetHeartbeatTrigger) returns (MsgResponse);
+  rpc SetDeviationThresholdTriggerTx(MsgSetDeviationThresholdTrigger) returns (MsgResponse);
 }
 
 // MsgModuleOwnershipTransfer is the type defined for module ownership transfer
@@ -72,6 +75,36 @@ message MsgRemoveDataProvider {
   // Address of the data provider to remove from the feed
   bytes address = 2 [(gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"];
   // Signer is the feed owner who signs the remove feed provided tx
+  bytes signer = 3 [(gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"];
+}
+
+message MsgSetSubmissionCount {
+  // FeedId is the unique identifier of the feed
+  string feedId = 1;
+  // The number of signatures required for a feedData submission to be valid
+  uint32 submissionCount = 2;
+  // Signer is the feed owner who signs the tx
+  bytes signer = 3 [(gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"];
+}
+
+message MsgSetHeartbeatTrigger {
+  // FeedId is the unique identifier of the feed
+  string feedId = 1;
+  // The interval between which a new round should automatically be triggered.
+  // The given value in milliseconds will only be approximate within block intervals
+  uint32 heartbeatTrigger = 2;
+  // Signer is the feed owner who signs the tx
+  bytes signer = 3 [(gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"];
+}
+
+message MsgSetDeviationThresholdTrigger {
+  // FeedId is the unique identifier of the feed
+  string feedId = 1;
+  // The fraction of deviation in the feed data required to trigger a new round.
+  // For example if the price of ATOM/USD changes by 1% then a new round should occur
+  // even if the heartbeat interval has not elapsed.
+  uint32 deviationThresholdTrigger = 2;
+  // Signer is the feed owner who signs the tx
   bytes signer = 3 [(gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"];
 }
 

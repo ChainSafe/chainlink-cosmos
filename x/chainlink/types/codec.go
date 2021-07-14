@@ -13,6 +13,9 @@ func RegisterCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(MsgFeed{}, "chainlink/AddFeed", nil)
 	cdc.RegisterConcrete(MsgAddDataProvider{}, "chainlink/AddDataProvider", nil)
 	cdc.RegisterConcrete(MsgRemoveDataProvider{}, "chainlink/RemoveDataProvider", nil)
+	cdc.RegisterConcrete(MsgSetSubmissionCount{}, "chainlink/SetSubmissionCount", nil)
+	cdc.RegisterConcrete(MsgSetHeartbeatTrigger{}, "chainlink/SetHeartbeatTrigger", nil)
+	cdc.RegisterConcrete(MsgSetDeviationThresholdTrigger{}, "chainlink/SetDeviationThresholdTrigger", nil)
 }
 
 func RegisterInterfaces(registry cdctypes.InterfaceRegistry) {
@@ -22,6 +25,9 @@ func RegisterInterfaces(registry cdctypes.InterfaceRegistry) {
 	registry.RegisterImplementations((*sdk.Msg)(nil), &MsgFeed{})
 	registry.RegisterImplementations((*sdk.Msg)(nil), &MsgAddDataProvider{})
 	registry.RegisterImplementations((*sdk.Msg)(nil), &MsgRemoveDataProvider{})
+	registry.RegisterImplementations((*sdk.Msg)(nil), &MsgSetSubmissionCount{})
+	registry.RegisterImplementations((*sdk.Msg)(nil), &MsgSetHeartbeatTrigger{})
+	registry.RegisterImplementations((*sdk.Msg)(nil), &MsgSetDeviationThresholdTrigger{})
 }
 
 var (

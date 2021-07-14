@@ -26,6 +26,12 @@ func NewHandler(k keeper.Keeper) sdk.Handler {
 			return handlerMsgAddDataProvider(ctx, k, msg)
 		case *types.MsgRemoveDataProvider:
 			return handlerMsgRemoveDataProvider(ctx, k, msg)
+		case *types.MsgSetSubmissionCount:
+			return handlerMsgSetSubmissionCount(ctx, k, msg)
+		case *types.MsgSetHeartbeatTrigger:
+			return handlerMsgSetHeartbeatTrigger(ctx, k, msg)
+		case *types.MsgSetDeviationThresholdTrigger:
+			return handlerMsgSetDeviationThresholdTrigger(ctx, k, msg)
 		default:
 			errMsg := fmt.Sprintf("unrecognized %s message type: %T", types.ModuleName, msg)
 			return nil, sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, errMsg)
@@ -99,6 +105,42 @@ func handlerMsgAddDataProvider(ctx sdk.Context, k keeper.Keeper, msgAddDataProvi
 
 func handlerMsgRemoveDataProvider(ctx sdk.Context, k keeper.Keeper, msgRemoveDataProvider *types.MsgRemoveDataProvider) (*sdk.Result, error) {
 	msgResult, err := k.RemoveDataProviderTx(sdk.WrapSDKContext(ctx), msgRemoveDataProvider)
+	if err != nil {
+		return nil, err
+	}
+	result, err := sdk.WrapServiceResult(ctx, msgResult, err)
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+func handlerMsgSetSubmissionCount(ctx sdk.Context, k keeper.Keeper, msgSetSubmissionCount *types.MsgSetSubmissionCount) (*sdk.Result, error) {
+	msgResult, err := k.SetSubmissionCountTx(sdk.WrapSDKContext(ctx), msgSetSubmissionCount)
+	if err != nil {
+		return nil, err
+	}
+	result, err := sdk.WrapServiceResult(ctx, msgResult, err)
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+func handlerMsgSetHeartbeatTrigger(ctx sdk.Context, k keeper.Keeper, msgSetHeartbeatTrigger *types.MsgSetHeartbeatTrigger) (*sdk.Result, error) {
+	msgResult, err := k.SetHeartbeatTriggerTx(sdk.WrapSDKContext(ctx), msgSetHeartbeatTrigger)
+	if err != nil {
+		return nil, err
+	}
+	result, err := sdk.WrapServiceResult(ctx, msgResult, err)
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+func handlerMsgSetDeviationThresholdTrigger(ctx sdk.Context, k keeper.Keeper, msgSetDeviationThresholdTrigger *types.MsgSetDeviationThresholdTrigger) (*sdk.Result, error) {
+	msgResult, err := k.SetDeviationThresholdTriggerTx(sdk.WrapSDKContext(ctx), msgSetDeviationThresholdTrigger)
 	if err != nil {
 		return nil, err
 	}
