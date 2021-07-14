@@ -28,15 +28,15 @@ func CmdAddFeed() *cobra.Command {
 			argsDeviationThresholdTrigger := args[4]
 			argsInitDataProviderListStr := strings.TrimSpace(args[5])
 
-			submissionCount, err := strconv.Atoi(argsSubmissionCount)
+			submissionCount, err := strconv.ParseUint(argsSubmissionCount, 10, 32)
 			if err != nil {
 				return err
 			}
-			heartbeatTrigger, err := strconv.Atoi(argsHeartbeatTrigger)
+			heartbeatTrigger, err := strconv.ParseUint(argsHeartbeatTrigger, 10, 32)
 			if err != nil {
 				return err
 			}
-			deviationThresholdTrigger, err := strconv.Atoi(argsDeviationThresholdTrigger)
+			deviationThresholdTrigger, err := strconv.ParseUint(argsDeviationThresholdTrigger, 10, 32)
 			if err != nil {
 				return err
 			}
@@ -162,7 +162,7 @@ func CmdSetSubmissionCount() *cobra.Command {
 			argsFeedId := args[0]
 			argsSubmissionCount := args[1]
 
-			submissionCount, err := strconv.Atoi(argsSubmissionCount)
+			submissionCount, err := strconv.ParseUint(argsSubmissionCount, 10, 32)
 			if err != nil {
 				return err
 			}
@@ -195,7 +195,7 @@ func CmdSetHeartbeatTrigger() *cobra.Command {
 			argsFeedId := args[0]
 			argsHeartbeatTrigger := args[1]
 
-			heartbeatTrigger, err := strconv.Atoi(argsHeartbeatTrigger)
+			heartbeatTrigger, err := strconv.ParseUint(argsHeartbeatTrigger, 10, 32)
 			if err != nil {
 				return err
 			}
@@ -228,7 +228,7 @@ func CmdSetDeviationThreshold() *cobra.Command {
 			argsFeedId := args[0]
 			argsDeviationThresholdTrigger := args[1]
 
-			deviationThresholdTrigger, err := strconv.Atoi(argsDeviationThresholdTrigger)
+			deviationThresholdTrigger, err := strconv.ParseUint(argsDeviationThresholdTrigger, 10, 32)
 			if err != nil {
 				return err
 			}
