@@ -34,7 +34,8 @@ func setupKeeper(t testing.TB) (*Keeper, sdk.Context) {
 	require.NoError(t, stateStore.LoadLatestVersion())
 
 	registry := codectypes.NewInterfaceRegistry()
-	keeper := NewKeeper(codec.NewProtoCodec(registry), feedDataStoreKey, roundStoreKey, moduleOwnerStoreKey, feedInfoStoreKey, memStoreKey)
+	// TODO: do i need to replace nil -> bankKeeper? not quite sure if that can be exposed from this level
+	keeper := NewKeeper(codec.NewProtoCodec(registry), nil, feedDataStoreKey, roundStoreKey, moduleOwnerStoreKey, feedInfoStoreKey, memStoreKey)
 
 	ctx := sdk.NewContext(stateStore, tmproto.Header{}, false, log.NewNopLogger())
 	return keeper, ctx
