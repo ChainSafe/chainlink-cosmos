@@ -10,13 +10,17 @@ import (
 
 var _ types.MsgServer = Keeper{}
 
+const (
+	ErrIncorrectHeightFound = "incorrect height found"
+)
+
 // SubmitFeedDataTx implements the tx/SubmitFeedDataTx gRPC method
 func (k Keeper) SubmitFeedDataTx(c context.Context, msg *types.MsgFeedData) (*types.MsgResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
 	height, txHash := k.SetFeedData(ctx, msg)
 
 	if height == 0 {
-		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidHeight, "incorrect height found")
+		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidHeight, ErrIncorrectHeightFound)
 	}
 
 	feed := k.GetFeed(ctx, msg.FeedId)
@@ -41,7 +45,7 @@ func (k Keeper) AddModuleOwnerTx(c context.Context, msg *types.MsgModuleOwner) (
 	height, txHash := k.SetModuleOwner(ctx, msg)
 
 	if height == 0 {
-		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidHeight, "incorrect height found")
+		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidHeight, ErrIncorrectHeightFound)
 	}
 
 	return &types.MsgResponse{
@@ -64,7 +68,7 @@ func (k Keeper) ModuleOwnershipTransferTx(c context.Context, msg *types.MsgModul
 	height, txHash := k.SetModuleOwner(ctx, transferMsg)
 
 	if height == 0 {
-		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidHeight, "incorrect height found")
+		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidHeight, ErrIncorrectHeightFound)
 	}
 
 	return &types.MsgResponse{
@@ -80,7 +84,7 @@ func (k Keeper) AddFeedTx(c context.Context, msg *types.MsgFeed) (*types.MsgResp
 	height, txHash := k.SetFeed(ctx, msg)
 
 	if height == 0 {
-		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidHeight, "incorrect height found")
+		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidHeight, ErrIncorrectHeightFound)
 	}
 
 	return &types.MsgResponse{
@@ -100,7 +104,7 @@ func (k Keeper) AddDataProviderTx(c context.Context, msg *types.MsgAddDataProvid
 	}
 
 	if height == 0 {
-		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidHeight, "incorrect height found")
+		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidHeight, ErrIncorrectHeightFound)
 	}
 
 	return &types.MsgResponse{
@@ -120,7 +124,64 @@ func (k Keeper) RemoveDataProviderTx(c context.Context, msg *types.MsgRemoveData
 	}
 
 	if height == 0 {
-		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidHeight, "incorrect height found")
+		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidHeight, ErrIncorrectHeightFound)
+	}
+
+	return &types.MsgResponse{
+		Height: uint64(height),
+		TxHash: string(txHash),
+	}, nil
+}
+
+func (k Keeper) SetSubmissionCountTx(c context.Context, msg *types.MsgSetSubmissionCount) (*types.MsgResponse, error) {
+	ctx := sdk.UnwrapSDKContext(c)
+
+	height, txHash, err := k.SetSubmissionCount(ctx, msg)
+
+	if err != nil {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, err.Error())
+	}
+
+	if height == 0 {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidHeight, ErrIncorrectHeightFound)
+	}
+
+	return &types.MsgResponse{
+		Height: uint64(height),
+		TxHash: string(txHash),
+	}, nil
+}
+
+func (k Keeper) SetHeartbeatTriggerTx(c context.Context, msg *types.MsgSetHeartbeatTrigger) (*types.MsgResponse, error) {
+	ctx := sdk.UnwrapSDKContext(c)
+
+	height, txHash, err := k.SetHeartbeatTrigger(ctx, msg)
+
+	if err != nil {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, err.Error())
+	}
+
+	if height == 0 {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidHeight, ErrIncorrectHeightFound)
+	}
+
+	return &types.MsgResponse{
+		Height: uint64(height),
+		TxHash: string(txHash),
+	}, nil
+}
+
+func (k Keeper) SetDeviationThresholdTriggerTx(c context.Context, msg *types.MsgSetDeviationThresholdTrigger) (*types.MsgResponse, error) {
+	ctx := sdk.UnwrapSDKContext(c)
+
+	height, txHash, err := k.SetDeviationThresholdTrigger(ctx, msg)
+
+	if err != nil {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, err.Error())
+	}
+
+	if height == 0 {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidHeight, ErrIncorrectHeightFound)
 	}
 
 	return &types.MsgResponse{
