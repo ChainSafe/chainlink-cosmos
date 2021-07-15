@@ -11,15 +11,18 @@ import (
 )
 
 const (
-	SubmitFeedData          = "SubmitFeedData"
-	AddModuleOwner          = "AddModuleOwner"
-	ModuleOwnershipTransfer = "ModuleOwnershipTransfer"
-	AddFeed                 = "AddFeed"
-	AddDataProvider         = "AddDataProvider"
-	RemoveDataProvider      = "RemoveDataProvider"
+	SubmitFeedData               = "SubmitFeedData"
+	AddModuleOwner               = "AddModuleOwner"
+	ModuleOwnershipTransfer      = "ModuleOwnershipTransfer"
+	AddFeed                      = "AddFeed"
+	AddDataProvider              = "AddDataProvider"
+	RemoveDataProvider           = "RemoveDataProvider"
+	SetSubmissionCount           = "SetSubmissionCount"
+	SetHeartbeatTrigger          = "SetHeartbeatTrigger"
+	SetDeviationThresholdTrigger = "SetDeviationThresholdTrigger"
 )
 
-var _, _, _, _, _, _ sdk.Msg = &MsgFeedData{}, &MsgModuleOwnershipTransfer{}, &MsgModuleOwner{}, &MsgFeed{}, &MsgAddDataProvider{}, &MsgRemoveDataProvider{}
+var _, _, _, _, _, _, _, _, _ sdk.Msg = &MsgFeedData{}, &MsgModuleOwnershipTransfer{}, &MsgModuleOwner{}, &MsgFeed{}, &MsgAddDataProvider{}, &MsgRemoveDataProvider{}, &MsgSetSubmissionCount{}, &MsgSetHeartbeatTrigger{}, &MsgSetDeviationThresholdTrigger{}
 var _ sdk.Tx = &MsgModuleOwner{}
 
 func NewMsgFeedData(submitter sdk.Address, feedId string, feedData []byte, signatures [][]byte) *MsgFeedData {
@@ -51,16 +54,16 @@ func (m *MsgFeedData) GetSignBytes() []byte {
 func (m *MsgFeedData) ValidateBasic() error {
 	// TODO: add any basic input checking here
 
-	if m.Submitter.Empty() {
+	if m.GetSubmitter().Empty() {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, "submitter can not be empty")
 	}
-	if m.FeedId == "" {
+	if len(m.GetFeedId()) == 0 {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "feedId can not be empty")
 	}
-	if strings.Contains(m.FeedId, "/") {
+	if strings.Contains(m.GetFeedId(), "/") {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "feedId can not contain character '/'")
 	}
-	if len(m.FeedData) == 0 {
+	if len(m.GetFeedData()) == 0 {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "feedData can not be empty")
 	}
 
@@ -134,7 +137,7 @@ func (m *MsgModuleOwnershipTransfer) ValidateBasic() error {
 	}
 	bech32PubKey := sdk.MustGetPubKeyFromBech32(sdk.Bech32PubKeyTypeAccPub, string(m.NewModuleOwnerPubKey))
 	if !bytes.Equal(bech32PubKey.Address().Bytes(), m.NewModuleOwnerAddress.Bytes()) {
-		return errors.New("new module owner address and pubKey does not match")
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, "new module owner address and pubKey does not match")
 	}
 	return nil
 }
@@ -171,22 +174,22 @@ func (m *MsgFeed) Type() string {
 
 func (m *MsgFeed) ValidateBasic() error {
 	if m.GetModuleOwnerAddress().Empty() {
-		return errors.New("invalid module owner")
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, "moduleOwner can not be empty")
 	}
 	if len(m.GetFeedId()) == 0 {
-		return errors.New("invalid feedId")
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "feedId can not be empty")
 	}
 	if m.GetFeedOwner().Empty() {
-		return errors.New("invalid feed owner")
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, "feedOwner can not be empty")
 	}
 	if m.GetSubmissionCount() == 0 {
-		return errors.New("SubmissionCount must not be 0")
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "submissionCount must not be 0")
 	}
 	if m.GetHeartbeatTrigger() == 0 {
-		return errors.New("HeartbeatTrigger must not be 0")
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "heartbeatTrigger must not be 0")
 	}
 	if m.GetDeviationThresholdTrigger() == 0 {
-		return errors.New("DeviationThresholdTrigger must not be 0")
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "deviationThresholdTrigger must not be 0")
 	}
 	if m.GetFeedReward() == 0 {
 		return errors.New("FeedReward must not be 0")
@@ -239,11 +242,11 @@ func (m *MsgAddDataProvider) Type() string {
 
 func (m *MsgAddDataProvider) ValidateBasic() error {
 	if len(m.GetFeedId()) == 0 {
-		return errors.New("invalid feedId")
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "invalid feedId")
 	}
 	provider := m.GetDataProvider()
 	if !provider.Verify() {
-		return errors.New("data provider address and pubKey does not match")
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, "data provider address and pubKey does not match")
 	}
 	return nil
 }
@@ -289,5 +292,119 @@ func (m *MsgRemoveDataProvider) GetSignBytes() []byte {
 }
 
 func (m *MsgRemoveDataProvider) GetSigners() []githubcosmossdktypes.AccAddress {
+	return []sdk.AccAddress{m.Signer}
+}
+
+func NewMsgSetSubmissionCount(signer githubcosmossdktypes.AccAddress, feedId string, submissionCount uint32) *MsgSetSubmissionCount {
+	return &MsgSetSubmissionCount{
+		FeedId:          feedId,
+		SubmissionCount: submissionCount,
+		Signer:          signer,
+	}
+}
+
+func (m *MsgSetSubmissionCount) Route() string {
+	return RouterKey
+}
+
+func (m *MsgSetSubmissionCount) Type() string {
+	return SetSubmissionCount
+}
+
+func (m *MsgSetSubmissionCount) ValidateBasic() error {
+	if m.GetSigner().Empty() {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, "signer can not be empty")
+	}
+	if len(m.GetFeedId()) == 0 {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "feedId can not be empty")
+	}
+	if m.GetSubmissionCount() == 0 {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "submissionCount must not be 0")
+	}
+	return nil
+}
+
+func (m *MsgSetSubmissionCount) GetSignBytes() []byte {
+	bz := ModuleCdc.MustMarshalJSON(m)
+	return sdk.MustSortJSON(bz)
+}
+
+func (m *MsgSetSubmissionCount) GetSigners() []githubcosmossdktypes.AccAddress {
+	return []sdk.AccAddress{m.Signer}
+}
+
+func NewMsgSetHeartbeatTrigger(signer githubcosmossdktypes.AccAddress, feedId string, heartbeatTrigger uint32) *MsgSetHeartbeatTrigger {
+	return &MsgSetHeartbeatTrigger{
+		FeedId:           feedId,
+		HeartbeatTrigger: heartbeatTrigger,
+		Signer:           signer,
+	}
+}
+
+func (m *MsgSetHeartbeatTrigger) Route() string {
+	return RouterKey
+}
+
+func (m *MsgSetHeartbeatTrigger) Type() string {
+	return SetHeartbeatTrigger
+}
+
+func (m *MsgSetHeartbeatTrigger) ValidateBasic() error {
+	if m.GetSigner().Empty() {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, "signer can not be empty")
+	}
+	if len(m.GetFeedId()) == 0 {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "feedId can not be empty")
+	}
+	if m.GetHeartbeatTrigger() == 0 {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "heartbeatTrigger must not be 0")
+	}
+	return nil
+}
+
+func (m *MsgSetHeartbeatTrigger) GetSignBytes() []byte {
+	bz := ModuleCdc.MustMarshalJSON(m)
+	return sdk.MustSortJSON(bz)
+}
+
+func (m *MsgSetHeartbeatTrigger) GetSigners() []githubcosmossdktypes.AccAddress {
+	return []sdk.AccAddress{m.Signer}
+}
+
+func NewMsgSetDeviationThreshold(signer githubcosmossdktypes.AccAddress, feedId string, deviationThresholdTrigger uint32) *MsgSetDeviationThresholdTrigger {
+	return &MsgSetDeviationThresholdTrigger{
+		FeedId:                    feedId,
+		DeviationThresholdTrigger: deviationThresholdTrigger,
+		Signer:                    signer,
+	}
+}
+
+func (m *MsgSetDeviationThresholdTrigger) Route() string {
+	return RouterKey
+}
+
+func (m *MsgSetDeviationThresholdTrigger) Type() string {
+	return SetDeviationThresholdTrigger
+}
+
+func (m *MsgSetDeviationThresholdTrigger) ValidateBasic() error {
+	if m.GetSigner().Empty() {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, "signer can not be empty")
+	}
+	if len(m.GetFeedId()) == 0 {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "feedId can not be empty")
+	}
+	if m.GetDeviationThresholdTrigger() == 0 {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "deviationThresholdTrigger must not be 0")
+	}
+	return nil
+}
+
+func (m *MsgSetDeviationThresholdTrigger) GetSignBytes() []byte {
+	bz := ModuleCdc.MustMarshalJSON(m)
+	return sdk.MustSortJSON(bz)
+}
+
+func (m *MsgSetDeviationThresholdTrigger) GetSigners() []githubcosmossdktypes.AccAddress {
 	return []sdk.AccAddress{m.Signer}
 }

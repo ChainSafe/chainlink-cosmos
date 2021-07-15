@@ -385,6 +385,198 @@ func (m *MsgRemoveDataProvider) GetSigner() github_com_cosmos_cosmos_sdk_types.A
 	return nil
 }
 
+type MsgSetSubmissionCount struct {
+	// FeedId is the unique identifier of the feed
+	FeedId string `protobuf:"bytes,1,opt,name=feedId,proto3" json:"feedId,omitempty"`
+	// The number of signatures required for a feedData submission to be valid
+	SubmissionCount uint32 `protobuf:"varint,2,opt,name=submissionCount,proto3" json:"submissionCount,omitempty"`
+	// Signer is the feed owner who signs the tx
+	Signer github_com_cosmos_cosmos_sdk_types.AccAddress `protobuf:"bytes,3,opt,name=signer,proto3,casttype=github.com/cosmos/cosmos-sdk/types.AccAddress" json:"signer,omitempty"`
+}
+
+func (m *MsgSetSubmissionCount) Reset()         { *m = MsgSetSubmissionCount{} }
+func (m *MsgSetSubmissionCount) String() string { return proto.CompactTextString(m) }
+func (*MsgSetSubmissionCount) ProtoMessage()    {}
+func (*MsgSetSubmissionCount) Descriptor() ([]byte, []int) {
+	return fileDescriptor_8e2cf97733d10959, []int{5}
+}
+func (m *MsgSetSubmissionCount) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *MsgSetSubmissionCount) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_MsgSetSubmissionCount.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *MsgSetSubmissionCount) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgSetSubmissionCount.Merge(m, src)
+}
+func (m *MsgSetSubmissionCount) XXX_Size() int {
+	return m.Size()
+}
+func (m *MsgSetSubmissionCount) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgSetSubmissionCount.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_MsgSetSubmissionCount proto.InternalMessageInfo
+
+func (m *MsgSetSubmissionCount) GetFeedId() string {
+	if m != nil {
+		return m.FeedId
+	}
+	return ""
+}
+
+func (m *MsgSetSubmissionCount) GetSubmissionCount() uint32 {
+	if m != nil {
+		return m.SubmissionCount
+	}
+	return 0
+}
+
+func (m *MsgSetSubmissionCount) GetSigner() github_com_cosmos_cosmos_sdk_types.AccAddress {
+	if m != nil {
+		return m.Signer
+	}
+	return nil
+}
+
+type MsgSetHeartbeatTrigger struct {
+	// FeedId is the unique identifier of the feed
+	FeedId string `protobuf:"bytes,1,opt,name=feedId,proto3" json:"feedId,omitempty"`
+	// The interval between which a new round should automatically be triggered.
+	// The given value in milliseconds will only be approximate within block intervals
+	HeartbeatTrigger uint32 `protobuf:"varint,2,opt,name=heartbeatTrigger,proto3" json:"heartbeatTrigger,omitempty"`
+	// Signer is the feed owner who signs the tx
+	Signer github_com_cosmos_cosmos_sdk_types.AccAddress `protobuf:"bytes,3,opt,name=signer,proto3,casttype=github.com/cosmos/cosmos-sdk/types.AccAddress" json:"signer,omitempty"`
+}
+
+func (m *MsgSetHeartbeatTrigger) Reset()         { *m = MsgSetHeartbeatTrigger{} }
+func (m *MsgSetHeartbeatTrigger) String() string { return proto.CompactTextString(m) }
+func (*MsgSetHeartbeatTrigger) ProtoMessage()    {}
+func (*MsgSetHeartbeatTrigger) Descriptor() ([]byte, []int) {
+	return fileDescriptor_8e2cf97733d10959, []int{6}
+}
+func (m *MsgSetHeartbeatTrigger) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *MsgSetHeartbeatTrigger) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_MsgSetHeartbeatTrigger.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *MsgSetHeartbeatTrigger) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgSetHeartbeatTrigger.Merge(m, src)
+}
+func (m *MsgSetHeartbeatTrigger) XXX_Size() int {
+	return m.Size()
+}
+func (m *MsgSetHeartbeatTrigger) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgSetHeartbeatTrigger.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_MsgSetHeartbeatTrigger proto.InternalMessageInfo
+
+func (m *MsgSetHeartbeatTrigger) GetFeedId() string {
+	if m != nil {
+		return m.FeedId
+	}
+	return ""
+}
+
+func (m *MsgSetHeartbeatTrigger) GetHeartbeatTrigger() uint32 {
+	if m != nil {
+		return m.HeartbeatTrigger
+	}
+	return 0
+}
+
+func (m *MsgSetHeartbeatTrigger) GetSigner() github_com_cosmos_cosmos_sdk_types.AccAddress {
+	if m != nil {
+		return m.Signer
+	}
+	return nil
+}
+
+type MsgSetDeviationThresholdTrigger struct {
+	// FeedId is the unique identifier of the feed
+	FeedId string `protobuf:"bytes,1,opt,name=feedId,proto3" json:"feedId,omitempty"`
+	// The fraction of deviation in the feed data required to trigger a new round.
+	// For example if the price of ATOM/USD changes by 1% then a new round should occur
+	// even if the heartbeat interval has not elapsed.
+	DeviationThresholdTrigger uint32 `protobuf:"varint,2,opt,name=deviationThresholdTrigger,proto3" json:"deviationThresholdTrigger,omitempty"`
+	// Signer is the feed owner who signs the tx
+	Signer github_com_cosmos_cosmos_sdk_types.AccAddress `protobuf:"bytes,3,opt,name=signer,proto3,casttype=github.com/cosmos/cosmos-sdk/types.AccAddress" json:"signer,omitempty"`
+}
+
+func (m *MsgSetDeviationThresholdTrigger) Reset()         { *m = MsgSetDeviationThresholdTrigger{} }
+func (m *MsgSetDeviationThresholdTrigger) String() string { return proto.CompactTextString(m) }
+func (*MsgSetDeviationThresholdTrigger) ProtoMessage()    {}
+func (*MsgSetDeviationThresholdTrigger) Descriptor() ([]byte, []int) {
+	return fileDescriptor_8e2cf97733d10959, []int{7}
+}
+func (m *MsgSetDeviationThresholdTrigger) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *MsgSetDeviationThresholdTrigger) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_MsgSetDeviationThresholdTrigger.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *MsgSetDeviationThresholdTrigger) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgSetDeviationThresholdTrigger.Merge(m, src)
+}
+func (m *MsgSetDeviationThresholdTrigger) XXX_Size() int {
+	return m.Size()
+}
+func (m *MsgSetDeviationThresholdTrigger) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgSetDeviationThresholdTrigger.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_MsgSetDeviationThresholdTrigger proto.InternalMessageInfo
+
+func (m *MsgSetDeviationThresholdTrigger) GetFeedId() string {
+	if m != nil {
+		return m.FeedId
+	}
+	return ""
+}
+
+func (m *MsgSetDeviationThresholdTrigger) GetDeviationThresholdTrigger() uint32 {
+	if m != nil {
+		return m.DeviationThresholdTrigger
+	}
+	return 0
+}
+
+func (m *MsgSetDeviationThresholdTrigger) GetSigner() github_com_cosmos_cosmos_sdk_types.AccAddress {
+	if m != nil {
+		return m.Signer
+	}
+	return nil
+}
+
 // MsgFeedData is the type defined for the data of the feed
 // It could be an OCR report feed, or any general feed data in the future
 type MsgFeedData struct {
@@ -404,7 +596,7 @@ func (m *MsgFeedData) Reset()         { *m = MsgFeedData{} }
 func (m *MsgFeedData) String() string { return proto.CompactTextString(m) }
 func (*MsgFeedData) ProtoMessage()    {}
 func (*MsgFeedData) Descriptor() ([]byte, []int) {
-	return fileDescriptor_8e2cf97733d10959, []int{5}
+	return fileDescriptor_8e2cf97733d10959, []int{8}
 }
 func (m *MsgFeedData) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -470,7 +662,7 @@ func (m *MsgResponse) Reset()         { *m = MsgResponse{} }
 func (m *MsgResponse) String() string { return proto.CompactTextString(m) }
 func (*MsgResponse) ProtoMessage()    {}
 func (*MsgResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_8e2cf97733d10959, []int{6}
+	return fileDescriptor_8e2cf97733d10959, []int{9}
 }
 func (m *MsgResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -530,7 +722,7 @@ func (m *OCRAbiEncoded) Reset()         { *m = OCRAbiEncoded{} }
 func (m *OCRAbiEncoded) String() string { return proto.CompactTextString(m) }
 func (*OCRAbiEncoded) ProtoMessage()    {}
 func (*OCRAbiEncoded) Descriptor() ([]byte, []int) {
-	return fileDescriptor_8e2cf97733d10959, []int{7}
+	return fileDescriptor_8e2cf97733d10959, []int{10}
 }
 func (m *OCRAbiEncoded) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -588,7 +780,7 @@ func (m *Observation) Reset()         { *m = Observation{} }
 func (m *Observation) String() string { return proto.CompactTextString(m) }
 func (*Observation) ProtoMessage()    {}
 func (*Observation) Descriptor() ([]byte, []int) {
-	return fileDescriptor_8e2cf97733d10959, []int{8}
+	return fileDescriptor_8e2cf97733d10959, []int{11}
 }
 func (m *Observation) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -635,7 +827,7 @@ func (m *OCRFeedDataInStore) Reset()         { *m = OCRFeedDataInStore{} }
 func (m *OCRFeedDataInStore) String() string { return proto.CompactTextString(m) }
 func (*OCRFeedDataInStore) ProtoMessage()    {}
 func (*OCRFeedDataInStore) Descriptor() ([]byte, []int) {
-	return fileDescriptor_8e2cf97733d10959, []int{9}
+	return fileDescriptor_8e2cf97733d10959, []int{12}
 }
 func (m *OCRFeedDataInStore) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -691,6 +883,9 @@ func init() {
 	proto.RegisterType((*DataProvider)(nil), "chainlink.v1beta.DataProvider")
 	proto.RegisterType((*MsgAddDataProvider)(nil), "chainlink.v1beta.MsgAddDataProvider")
 	proto.RegisterType((*MsgRemoveDataProvider)(nil), "chainlink.v1beta.MsgRemoveDataProvider")
+	proto.RegisterType((*MsgSetSubmissionCount)(nil), "chainlink.v1beta.MsgSetSubmissionCount")
+	proto.RegisterType((*MsgSetHeartbeatTrigger)(nil), "chainlink.v1beta.MsgSetHeartbeatTrigger")
+	proto.RegisterType((*MsgSetDeviationThresholdTrigger)(nil), "chainlink.v1beta.MsgSetDeviationThresholdTrigger")
 	proto.RegisterType((*MsgFeedData)(nil), "chainlink.v1beta.MsgFeedData")
 	proto.RegisterType((*MsgResponse)(nil), "chainlink.v1beta.MsgResponse")
 	proto.RegisterType((*OCRAbiEncoded)(nil), "chainlink.v1beta.OCRAbiEncoded")
@@ -781,6 +976,9 @@ type MsgClient interface {
 	AddFeedTx(ctx context.Context, in *MsgFeed, opts ...grpc.CallOption) (*MsgResponse, error)
 	AddDataProviderTx(ctx context.Context, in *MsgAddDataProvider, opts ...grpc.CallOption) (*MsgResponse, error)
 	RemoveDataProviderTx(ctx context.Context, in *MsgRemoveDataProvider, opts ...grpc.CallOption) (*MsgResponse, error)
+	SetSubmissionCountTx(ctx context.Context, in *MsgSetSubmissionCount, opts ...grpc.CallOption) (*MsgResponse, error)
+	SetHeartbeatTriggerTx(ctx context.Context, in *MsgSetHeartbeatTrigger, opts ...grpc.CallOption) (*MsgResponse, error)
+	SetDeviationThresholdTriggerTx(ctx context.Context, in *MsgSetDeviationThresholdTrigger, opts ...grpc.CallOption) (*MsgResponse, error)
 }
 
 type msgClient struct {
@@ -845,6 +1043,33 @@ func (c *msgClient) RemoveDataProviderTx(ctx context.Context, in *MsgRemoveDataP
 	return out, nil
 }
 
+func (c *msgClient) SetSubmissionCountTx(ctx context.Context, in *MsgSetSubmissionCount, opts ...grpc.CallOption) (*MsgResponse, error) {
+	out := new(MsgResponse)
+	err := c.cc.Invoke(ctx, "/chainlink.v1beta.Msg/SetSubmissionCountTx", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *msgClient) SetHeartbeatTriggerTx(ctx context.Context, in *MsgSetHeartbeatTrigger, opts ...grpc.CallOption) (*MsgResponse, error) {
+	out := new(MsgResponse)
+	err := c.cc.Invoke(ctx, "/chainlink.v1beta.Msg/SetHeartbeatTriggerTx", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *msgClient) SetDeviationThresholdTriggerTx(ctx context.Context, in *MsgSetDeviationThresholdTrigger, opts ...grpc.CallOption) (*MsgResponse, error) {
+	out := new(MsgResponse)
+	err := c.cc.Invoke(ctx, "/chainlink.v1beta.Msg/SetDeviationThresholdTriggerTx", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // MsgServer is the server API for Msg service.
 type MsgServer interface {
 	SubmitFeedDataTx(context.Context, *MsgFeedData) (*MsgResponse, error)
@@ -853,6 +1078,9 @@ type MsgServer interface {
 	AddFeedTx(context.Context, *MsgFeed) (*MsgResponse, error)
 	AddDataProviderTx(context.Context, *MsgAddDataProvider) (*MsgResponse, error)
 	RemoveDataProviderTx(context.Context, *MsgRemoveDataProvider) (*MsgResponse, error)
+	SetSubmissionCountTx(context.Context, *MsgSetSubmissionCount) (*MsgResponse, error)
+	SetHeartbeatTriggerTx(context.Context, *MsgSetHeartbeatTrigger) (*MsgResponse, error)
+	SetDeviationThresholdTriggerTx(context.Context, *MsgSetDeviationThresholdTrigger) (*MsgResponse, error)
 }
 
 // UnimplementedMsgServer can be embedded to have forward compatible implementations.
@@ -876,6 +1104,15 @@ func (*UnimplementedMsgServer) AddDataProviderTx(ctx context.Context, req *MsgAd
 }
 func (*UnimplementedMsgServer) RemoveDataProviderTx(ctx context.Context, req *MsgRemoveDataProvider) (*MsgResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RemoveDataProviderTx not implemented")
+}
+func (*UnimplementedMsgServer) SetSubmissionCountTx(ctx context.Context, req *MsgSetSubmissionCount) (*MsgResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetSubmissionCountTx not implemented")
+}
+func (*UnimplementedMsgServer) SetHeartbeatTriggerTx(ctx context.Context, req *MsgSetHeartbeatTrigger) (*MsgResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetHeartbeatTriggerTx not implemented")
+}
+func (*UnimplementedMsgServer) SetDeviationThresholdTriggerTx(ctx context.Context, req *MsgSetDeviationThresholdTrigger) (*MsgResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetDeviationThresholdTriggerTx not implemented")
 }
 
 func RegisterMsgServer(s grpc1.Server, srv MsgServer) {
@@ -990,6 +1227,60 @@ func _Msg_RemoveDataProviderTx_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Msg_SetSubmissionCountTx_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MsgSetSubmissionCount)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MsgServer).SetSubmissionCountTx(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/chainlink.v1beta.Msg/SetSubmissionCountTx",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MsgServer).SetSubmissionCountTx(ctx, req.(*MsgSetSubmissionCount))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Msg_SetHeartbeatTriggerTx_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MsgSetHeartbeatTrigger)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MsgServer).SetHeartbeatTriggerTx(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/chainlink.v1beta.Msg/SetHeartbeatTriggerTx",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MsgServer).SetHeartbeatTriggerTx(ctx, req.(*MsgSetHeartbeatTrigger))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Msg_SetDeviationThresholdTriggerTx_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MsgSetDeviationThresholdTrigger)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MsgServer).SetDeviationThresholdTriggerTx(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/chainlink.v1beta.Msg/SetDeviationThresholdTriggerTx",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MsgServer).SetDeviationThresholdTriggerTx(ctx, req.(*MsgSetDeviationThresholdTrigger))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 var _Msg_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "chainlink.v1beta.Msg",
 	HandlerType: (*MsgServer)(nil),
@@ -1017,6 +1308,18 @@ var _Msg_serviceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "RemoveDataProviderTx",
 			Handler:    _Msg_RemoveDataProviderTx_Handler,
+		},
+		{
+			MethodName: "SetSubmissionCountTx",
+			Handler:    _Msg_SetSubmissionCountTx_Handler,
+		},
+		{
+			MethodName: "SetHeartbeatTriggerTx",
+			Handler:    _Msg_SetHeartbeatTriggerTx_Handler,
+		},
+		{
+			MethodName: "SetDeviationThresholdTriggerTx",
+			Handler:    _Msg_SetDeviationThresholdTriggerTx_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
@@ -1264,6 +1567,132 @@ func (m *MsgRemoveDataProvider) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		i = encodeVarintTx(dAtA, i, uint64(len(m.Address)))
 		i--
 		dAtA[i] = 0x12
+	}
+	if len(m.FeedId) > 0 {
+		i -= len(m.FeedId)
+		copy(dAtA[i:], m.FeedId)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.FeedId)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *MsgSetSubmissionCount) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *MsgSetSubmissionCount) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *MsgSetSubmissionCount) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.Signer) > 0 {
+		i -= len(m.Signer)
+		copy(dAtA[i:], m.Signer)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.Signer)))
+		i--
+		dAtA[i] = 0x1a
+	}
+	if m.SubmissionCount != 0 {
+		i = encodeVarintTx(dAtA, i, uint64(m.SubmissionCount))
+		i--
+		dAtA[i] = 0x10
+	}
+	if len(m.FeedId) > 0 {
+		i -= len(m.FeedId)
+		copy(dAtA[i:], m.FeedId)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.FeedId)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *MsgSetHeartbeatTrigger) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *MsgSetHeartbeatTrigger) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *MsgSetHeartbeatTrigger) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.Signer) > 0 {
+		i -= len(m.Signer)
+		copy(dAtA[i:], m.Signer)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.Signer)))
+		i--
+		dAtA[i] = 0x1a
+	}
+	if m.HeartbeatTrigger != 0 {
+		i = encodeVarintTx(dAtA, i, uint64(m.HeartbeatTrigger))
+		i--
+		dAtA[i] = 0x10
+	}
+	if len(m.FeedId) > 0 {
+		i -= len(m.FeedId)
+		copy(dAtA[i:], m.FeedId)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.FeedId)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *MsgSetDeviationThresholdTrigger) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *MsgSetDeviationThresholdTrigger) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *MsgSetDeviationThresholdTrigger) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.Signer) > 0 {
+		i -= len(m.Signer)
+		copy(dAtA[i:], m.Signer)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.Signer)))
+		i--
+		dAtA[i] = 0x1a
+	}
+	if m.DeviationThresholdTrigger != 0 {
+		i = encodeVarintTx(dAtA, i, uint64(m.DeviationThresholdTrigger))
+		i--
+		dAtA[i] = 0x10
 	}
 	if len(m.FeedId) > 0 {
 		i -= len(m.FeedId)
@@ -1618,6 +2047,66 @@ func (m *MsgRemoveDataProvider) Size() (n int) {
 	l = len(m.Address)
 	if l > 0 {
 		n += 1 + l + sovTx(uint64(l))
+	}
+	l = len(m.Signer)
+	if l > 0 {
+		n += 1 + l + sovTx(uint64(l))
+	}
+	return n
+}
+
+func (m *MsgSetSubmissionCount) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.FeedId)
+	if l > 0 {
+		n += 1 + l + sovTx(uint64(l))
+	}
+	if m.SubmissionCount != 0 {
+		n += 1 + sovTx(uint64(m.SubmissionCount))
+	}
+	l = len(m.Signer)
+	if l > 0 {
+		n += 1 + l + sovTx(uint64(l))
+	}
+	return n
+}
+
+func (m *MsgSetHeartbeatTrigger) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.FeedId)
+	if l > 0 {
+		n += 1 + l + sovTx(uint64(l))
+	}
+	if m.HeartbeatTrigger != 0 {
+		n += 1 + sovTx(uint64(m.HeartbeatTrigger))
+	}
+	l = len(m.Signer)
+	if l > 0 {
+		n += 1 + l + sovTx(uint64(l))
+	}
+	return n
+}
+
+func (m *MsgSetDeviationThresholdTrigger) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.FeedId)
+	if l > 0 {
+		n += 1 + l + sovTx(uint64(l))
+	}
+	if m.DeviationThresholdTrigger != 0 {
+		n += 1 + sovTx(uint64(m.DeviationThresholdTrigger))
 	}
 	l = len(m.Signer)
 	if l > 0 {
@@ -2508,6 +2997,411 @@ func (m *MsgRemoveDataProvider) Unmarshal(dAtA []byte) error {
 				m.Address = []byte{}
 			}
 			iNdEx = postIndex
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Signer", wireType)
+			}
+			var byteLen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				byteLen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if byteLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + byteLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Signer = append(m.Signer[:0], dAtA[iNdEx:postIndex]...)
+			if m.Signer == nil {
+				m.Signer = []byte{}
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTx(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthTx
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *MsgSetSubmissionCount) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTx
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: MsgSetSubmissionCount: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: MsgSetSubmissionCount: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field FeedId", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.FeedId = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field SubmissionCount", wireType)
+			}
+			m.SubmissionCount = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.SubmissionCount |= uint32(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Signer", wireType)
+			}
+			var byteLen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				byteLen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if byteLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + byteLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Signer = append(m.Signer[:0], dAtA[iNdEx:postIndex]...)
+			if m.Signer == nil {
+				m.Signer = []byte{}
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTx(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthTx
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *MsgSetHeartbeatTrigger) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTx
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: MsgSetHeartbeatTrigger: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: MsgSetHeartbeatTrigger: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field FeedId", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.FeedId = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field HeartbeatTrigger", wireType)
+			}
+			m.HeartbeatTrigger = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.HeartbeatTrigger |= uint32(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Signer", wireType)
+			}
+			var byteLen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				byteLen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if byteLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + byteLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Signer = append(m.Signer[:0], dAtA[iNdEx:postIndex]...)
+			if m.Signer == nil {
+				m.Signer = []byte{}
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTx(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthTx
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *MsgSetDeviationThresholdTrigger) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTx
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: MsgSetDeviationThresholdTrigger: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: MsgSetDeviationThresholdTrigger: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field FeedId", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.FeedId = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field DeviationThresholdTrigger", wireType)
+			}
+			m.DeviationThresholdTrigger = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.DeviationThresholdTrigger |= uint32(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
 		case 3:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Signer", wireType)
