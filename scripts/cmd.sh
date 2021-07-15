@@ -22,7 +22,7 @@ chainlinkd tx chainlink moduleOwnershipTransfer "$aliceAddr" "$alicePK" --from b
 
 # feed
 # Add new feed
-chainlinkd tx chainlink addFeed feedid1 "$cerloAddr" 1 2 3 "$cerloAddr,$cerloPK" --from alice --keyring-backend test --chain-id testchain
+chainlinkd tx chainlink addFeed feedid1 "$cerloAddr" 1 2 3 4 "$cerloAddr,$cerloPK" --from alice --keyring-backend test --chain-id testchain
 
 # Query feed info by feedId
 chainlinkd query chainlink getFeedInfo feedid1 --chain-id testchain
@@ -57,4 +57,3 @@ chainlinkd query chainlink getLatestFeedData feedid2 --chain-id testchain -o jso
 
 # Query the latest round of feed data
 chainlinkd query chainlink getLatestFeedData --chain-id testchain -o json
-
