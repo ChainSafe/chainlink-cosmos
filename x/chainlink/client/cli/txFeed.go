@@ -41,7 +41,7 @@ func CmdAddFeed() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			feedReward, err := strconv.Atoi(argsFeedReward)
+			feedReward, err := strconv.ParseUint(argsFeedReward, 10, 32)
 			if err != nil {
 				return err
 			}
