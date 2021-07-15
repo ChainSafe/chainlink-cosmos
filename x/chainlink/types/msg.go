@@ -19,9 +19,10 @@ const (
 	SetSubmissionCount           = "SetSubmissionCount"
 	SetHeartbeatTrigger          = "SetHeartbeatTrigger"
 	SetDeviationThresholdTrigger = "SetDeviationThresholdTrigger"
+	FeedOwnershipTransfer        = "FeedOwnershipTransfer"
 )
 
-var _, _, _, _, _, _, _, _, _ sdk.Msg = &MsgFeedData{}, &MsgModuleOwnershipTransfer{}, &MsgModuleOwner{}, &MsgFeed{}, &MsgAddDataProvider{}, &MsgRemoveDataProvider{}, &MsgSetSubmissionCount{}, &MsgSetHeartbeatTrigger{}, &MsgSetDeviationThresholdTrigger{}
+var _, _, _, _, _, _, _, _, _, _ sdk.Msg = &MsgFeedData{}, &MsgModuleOwnershipTransfer{}, &MsgModuleOwner{}, &MsgFeed{}, &MsgAddDataProvider{}, &MsgRemoveDataProvider{}, &MsgSetSubmissionCount{}, &MsgSetHeartbeatTrigger{}, &MsgSetDeviationThresholdTrigger{}, &MsgFeedOwnershipTransfer{}
 var _ sdk.Tx = &MsgModuleOwner{}
 
 func NewMsgFeedData(submitter sdk.Address, feedId string, feedData []byte, signatures [][]byte) *MsgFeedData {
@@ -401,5 +402,40 @@ func (m *MsgSetDeviationThresholdTrigger) GetSignBytes() []byte {
 }
 
 func (m *MsgSetDeviationThresholdTrigger) GetSigners() []githubcosmossdktypes.AccAddress {
+	return []sdk.AccAddress{m.Signer}
+}
+
+func NewMsgFeedOwnershipTransfer(signer githubcosmossdktypes.AccAddress, feedId string, newFeedOwnerAddress sdk.AccAddress) *MsgFeedOwnershipTransfer {
+	return &MsgFeedOwnershipTransfer{
+		FeedId:              feedId,
+		NewFeedOwnerAddress: newFeedOwnerAddress,
+		Signer:              signer,
+	}
+}
+
+func (m *MsgFeedOwnershipTransfer) Route() string {
+	return RouterKey
+}
+
+func (m *MsgFeedOwnershipTransfer) Type() string {
+	return FeedOwnershipTransfer
+}
+
+func (m *MsgFeedOwnershipTransfer) ValidateBasic() error {
+	if m.GetSigner().Empty() {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, "signer can not be empty")
+	}
+	if len(m.GetFeedId()) == 0 {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "feedId can not be empty")
+	}
+	return nil
+}
+
+func (m *MsgFeedOwnershipTransfer) GetSignBytes() []byte {
+	bz := ModuleCdc.MustMarshalJSON(m)
+	return sdk.MustSortJSON(bz)
+}
+
+func (m *MsgFeedOwnershipTransfer) GetSigners() []githubcosmossdktypes.AccAddress {
 	return []sdk.AccAddress{m.Signer}
 }

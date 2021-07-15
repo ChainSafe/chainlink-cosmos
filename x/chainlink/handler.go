@@ -32,6 +32,8 @@ func NewHandler(k keeper.Keeper) sdk.Handler {
 			return handlerMsgSetHeartbeatTrigger(ctx, k, msg)
 		case *types.MsgSetDeviationThresholdTrigger:
 			return handlerMsgSetDeviationThresholdTrigger(ctx, k, msg)
+		case *types.MsgFeedOwnershipTransfer:
+			return handlerMsgFeedOwnershipTransfer(ctx, k, msg)
 		default:
 			errMsg := fmt.Sprintf("unrecognized %s message type: %T", types.ModuleName, msg)
 			return nil, sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, errMsg)
@@ -150,3 +152,17 @@ func handlerMsgSetDeviationThresholdTrigger(ctx sdk.Context, k keeper.Keeper, ms
 	}
 	return result, nil
 }
+
+func handlerMsgFeedOwnershipTransfer(ctx sdk.Context, k keeper.Keeper, msgFeedOwnershipTransfer *types.MsgFeedOwnershipTransfer) (*sdk.Result, error) {
+	msgResult, err := k.FeedOwnershipTransferTx(sdk.WrapSDKContext(ctx), msgFeedOwnershipTransfer)
+	if err != nil {
+		return nil, err
+	}
+	result, err := sdk.WrapServiceResult(ctx, msgResult, err)
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+//

@@ -329,3 +329,20 @@ func (k Keeper) SetDeviationThresholdTrigger(ctx sdk.Context, setDeviationThresh
 
 	return ctx.BlockHeight(), ctx.TxBytes(), nil
 }
+
+func (k Keeper) FeedOwnershipTransfer(ctx sdk.Context, feedOwnershipTransfer *types.MsgFeedOwnershipTransfer) (int64, []byte, error) {
+	// retrieve feed from store
+	resp := k.GetFeed(ctx, feedOwnershipTransfer.GetFeedId())
+	feed := resp.GetFeed()
+	if feed == nil {
+		return 0, nil, fmt.Errorf("feed '%s' not found", feedOwnershipTransfer.GetFeedId())
+	}
+
+	// update the feed owner
+	feed.FeedOwner = feedOwnershipTransfer.GetNewFeedOwnerAddress()
+
+	// put back feed in the store
+	k.SetFeed(ctx, feed)
+
+	return ctx.BlockHeight(), ctx.TxBytes(), nil
+}
