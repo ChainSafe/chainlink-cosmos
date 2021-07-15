@@ -6,8 +6,6 @@ sleep 10
 
 aliceAddr=$(chainlinkd keys show alice -a)
 alicePK=$(chainlinkd keys show alice -p)
-echo $aliceAddr
-echo $alicePK
 
 bobAddr=$(chainlinkd keys show bob -a)
 bobPK=$(chainlinkd keys show bob -p)
@@ -22,9 +20,17 @@ goodTx1Resp=$(echo "$goodTx1" | jq '.raw_log')
 # "[{\"events\":[{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"AddFeed\"}]}]}]"
 echo "sending goodTx1"
 if [ "$goodTx1Resp" != "\"[{\\\"events\\\":[{\\\"type\\\":\\\"message\\\",\\\"attributes\\\":[{\\\"key\\\":\\\"action\\\",\\\"value\\\":\\\"AddFeed\\\"}]}]}]\"" ]
-
 then
   echo "Error in goodTx1: $goodTx1Resp"
+  pkill chainlinkd
+  exit 1
+fi
+
+# iNiTiAl BaLaNcE oF aLiCe b4 rEwArD
+aliceInitBal=$(chainlinkd query bank balances $(chainlinkd keys show alice -a) --denom link --output json | jq '.amount')
+if [ "$aliceInitBal" != "\"1000000\"" ]
+then
+  echo "Error in initial distribution; expected 1000000, got $aliceCurrBal"
   pkill chainlinkd
   exit 1
 fi
@@ -33,10 +39,19 @@ fi
 goodTx2=$(chainlinkd tx chainlink submitFeedData feedid1 "feed 1 test data" "dummy signatures" --from alice --keyring-backend test --chain-id testchain <<< 'y\n')
 goodTx2Resp=$(echo "$goodTx2" | jq '.height')
 echo "sending goodTx2"
-
 if [ "$goodTx2Resp" == "\"0\"" ]
 then
   echo "Error in goodTx2: $goodTx2Resp"
+  pkill chainlinkd
+  exit 1
+fi
+
+# cHeCk If AlIcE gOt ThE rEwArD
+aliceCurrBal=$(chainlinkd query bank balances $(chainlinkd keys show alice -a) --denom link --output json | jq '.amount')
+echo "checking reward distribution"
+if [ "$aliceCurrBal" != "\"1000004\"" ]
+then
+  echo "Error in reward distribution; expected 1000004, got $aliceCurrBal"
   pkill chainlinkd
   exit 1
 fi
