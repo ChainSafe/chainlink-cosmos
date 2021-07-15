@@ -19,7 +19,7 @@ func CmdAddFeed() *cobra.Command {
 		Use:   "addFeed [feedId] [feedOwnerAddress] [submissionCount] [heartbeatTrigger] [deviationThresholdTrigger] [feedReward] [initDataProviderList]",
 		Short: "Add new feed. Signer must be the existing module owner.",
 		Long:  "The following fields are required:\n\tThe feedId will be a string that uniquely identifies the feed. The feedOwnerAddress must be a valid cosmos address.\n\tThe submissionCount in the required number of signatures.\n\tThe deviationThresholdTrigger is the fraction of deviation in the feed data required to trigger a new round.\n\tThe initDataProviderList is a string contains each data provider's address with pubkey and split by comma.\n\tThe feedReward is a uint32 value that represents the data provider reward for submitting data to a feed.",
-		Args:  cobra.MinimumNArgs(6),
+		Args:  cobra.MinimumNArgs(7),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			argsFeedId := args[0]
 			argsFeedOwnerAddr := args[1]
