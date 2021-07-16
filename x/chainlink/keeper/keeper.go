@@ -347,7 +347,7 @@ func (k Keeper) DistributeReward(ctx sdk.Context, receiver sdk.AccAddress, token
 	if err := k.bankKeeper.SendCoinsFromModuleToAccount(
 		ctx, types.ModuleName, receiver, sdk.NewCoins(tokens),
 	); err != nil {
-		panic(fmt.Sprintf("unable to send coins from module to account despite previously minting coins to module account: %v", err))
+		return err
 	}
 
 	return nil
