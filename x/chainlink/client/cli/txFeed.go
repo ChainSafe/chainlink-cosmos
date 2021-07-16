@@ -251,6 +251,38 @@ func CmdSetDeviationThreshold() *cobra.Command {
 	return cmd
 }
 
+func CmdTransferFeedOwnership() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "feedOwnershipTransfer [feedId] [newFeedOwnerAddress]",
+		Short: "Transfer chainLink feed ownership from an existing feed owner account to another account. Signer must be an existing feed owner.",
+		Args:  cobra.MinimumNArgs(2),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			argsFeedId := args[0]
+			argsAddress := args[1]
+
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			addr, err := sdk.AccAddressFromBech32(argsAddress)
+			if err != nil {
+				return err
+			}
+
+			msg := types.NewMsgFeedOwnershipTransfer(clientCtx.GetFromAddress(), argsFeedId, addr)
+			if err := msg.ValidateBasic(); err != nil {
+				return err
+			}
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
+		},
+	}
+
+	flags.AddTxFlagsToCmd(cmd)
+
+	return cmd
+}
+
 func CmdSubmitFeedData() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "submitFeedData [feedId] [feedData] [signatures]",
