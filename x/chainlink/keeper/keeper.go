@@ -18,6 +18,7 @@ import (
 type (
 	Keeper struct {
 		cdc                 codec.Marshaler
+		bankKeeper          types.BankKeeper
 		feedDataStoreKey    sdk.StoreKey
 		roundStoreKey       sdk.StoreKey
 		moduleOwnerStoreKey sdk.StoreKey
@@ -28,6 +29,7 @@ type (
 
 func NewKeeper(
 	cdc codec.Marshaler,
+	bk types.BankKeeper,
 	feedDataStoreKey,
 	roundStoreKey,
 	moduleOwnerStoreKey,
@@ -36,6 +38,7 @@ func NewKeeper(
 ) *Keeper {
 	return &Keeper{
 		cdc:                 cdc,
+		bankKeeper:          bk,
 		feedDataStoreKey:    feedDataStoreKey,
 		roundStoreKey:       roundStoreKey,
 		moduleOwnerStoreKey: moduleOwnerStoreKey,
@@ -329,6 +332,26 @@ func (k Keeper) SetDeviationThresholdTrigger(ctx sdk.Context, setDeviationThresh
 	k.SetFeed(ctx, feed)
 
 	return ctx.BlockHeight(), ctx.TxBytes(), nil
+}
+
+// this will mint the reward from the module
+// then transfer the reward to the receiver (data provider)
+func (k Keeper) DistributeReward(ctx sdk.Context, receiver sdk.AccAddress, tokens sdk.Coin) error {
+	// mint new tokens if the source of the transfer is the same chain
+	if err := k.bankKeeper.MintCoins(
+		ctx, types.ModuleName, sdk.NewCoins(tokens),
+	); err != nil {
+		return err
+	}
+
+	// send to receiver
+	if err := k.bankKeeper.SendCoinsFromModuleToAccount(
+		ctx, types.ModuleName, receiver, sdk.NewCoins(tokens),
+	); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (k Keeper) FeedOwnershipTransfer(ctx sdk.Context, feedOwnershipTransfer *types.MsgFeedOwnershipTransfer) (int64, []byte, error) {

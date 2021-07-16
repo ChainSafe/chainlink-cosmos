@@ -224,6 +224,7 @@ func (fd FeedDataDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool
 			if !(types.DataProviders)(feed.GetFeed().GetDataProviders()).Contains(t.GetSubmitter()) {
 				return ctx, sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "invalid data provider")
 			}
+
 		default:
 			continue
 		}

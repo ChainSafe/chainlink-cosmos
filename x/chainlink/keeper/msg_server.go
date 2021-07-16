@@ -23,6 +23,16 @@ func (k Keeper) SubmitFeedDataTx(c context.Context, msg *types.MsgFeedData) (*ty
 		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidHeight, ErrIncorrectHeightFound)
 	}
 
+	feed := k.GetFeed(ctx, msg.FeedId)
+	reward := feed.GetFeed().FeedReward
+
+	rewardTokenAmount := types.NewLinkCoinInt64(int64(reward))
+
+	err := k.DistributeReward(ctx, msg.Submitter, rewardTokenAmount)
+	if err != nil {
+		return nil, err
+	}
+
 	return &types.MsgResponse{
 		Height: uint64(height),
 		TxHash: string(txHash),
