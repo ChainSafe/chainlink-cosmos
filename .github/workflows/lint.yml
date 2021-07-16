@@ -10,7 +10,7 @@ on:
 
 jobs:
   lint:
-    name: Lint
+    name: Lint and License Headers
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -20,3 +20,5 @@ jobs:
         with:
           version: v1.36
           args: --timeout=5m
+      - name: License Check
+        run: make license-check
