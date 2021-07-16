@@ -1,6 +1,6 @@
-package keeper
-
 // SPDX-License-Identifier: MIT
+
+package keeper
 
 import (
 	"github.com/ChainSafe/chainlink-cosmos/x/chainlink/types"
