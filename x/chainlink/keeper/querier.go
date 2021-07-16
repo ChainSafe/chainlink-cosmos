@@ -1,5 +1,7 @@
 package keeper
 
+// SPDX-License-Identifier: MIT
+
 import (
 	"github.com/ChainSafe/chainlink-cosmos/x/chainlink/types"
 	"github.com/cosmos/cosmos-sdk/codec"

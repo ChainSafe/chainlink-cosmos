@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT
+
 package rest
 
 import "github.com/cosmos/cosmos-sdk/types/rest"

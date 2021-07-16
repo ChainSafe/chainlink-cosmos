@@ -21,4 +21,7 @@ $ make start
 ## Learn more
 - [Cosmos SDK documentation](https://docs.cosmos.network)
 - [Cosmos SDK Tutorials](https://tutorials.cosmos.network)
- 
+
+## License
+
+[MIT](LICENSE) © ChainSafe Systems

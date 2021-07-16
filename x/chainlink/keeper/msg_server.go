@@ -1,5 +1,7 @@
 package keeper
 
+// SPDX-License-Identifier: MIT
+
 import (
 	"context"
 
