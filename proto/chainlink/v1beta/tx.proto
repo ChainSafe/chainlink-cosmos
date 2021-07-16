@@ -12,15 +12,33 @@ service Msg {
   rpc SubmitFeedDataTx(MsgFeedData) returns (MsgResponse) {
     option (google.api.http).put = "/chainlink/feed/data";
   }
-  rpc AddModuleOwnerTx(MsgModuleOwner) returns (MsgResponse);
-  rpc ModuleOwnershipTransferTx(MsgModuleOwnershipTransfer) returns (MsgResponse);
-  rpc AddFeedTx(MsgFeed) returns (MsgResponse);
-  rpc AddDataProviderTx(MsgAddDataProvider) returns (MsgResponse);
-  rpc RemoveDataProviderTx(MsgRemoveDataProvider) returns (MsgResponse);
-  rpc SetSubmissionCountTx(MsgSetSubmissionCount) returns (MsgResponse);
-  rpc SetHeartbeatTriggerTx(MsgSetHeartbeatTrigger) returns (MsgResponse);
-  rpc SetDeviationThresholdTriggerTx(MsgSetDeviationThresholdTrigger) returns (MsgResponse);
-  rpc FeedOwnershipTransferTx(MsgFeedOwnershipTransfer) returns (MsgResponse);
+  rpc AddModuleOwnerTx(MsgModuleOwner) returns (MsgResponse) {
+    option (google.api.http).put = "/chainlink/feed/owner";
+  }
+  rpc ModuleOwnershipTransferTx(MsgModuleOwnershipTransfer) returns (MsgResponse) {
+    option (google.api.http).put = "/chainlink/module/ownershipTransfer";
+  }
+  rpc AddFeedTx(MsgFeed) returns (MsgResponse) {
+    option (google.api.http).put = "/chainlink/feed/add";
+  }
+  rpc AddDataProviderTx(MsgAddDataProvider) returns (MsgResponse) {
+    option (google.api.http).put = "/chainlink/feed/addDataProvider";
+  }
+  rpc RemoveDataProviderTx(MsgRemoveDataProvider) returns (MsgResponse) {
+    option (google.api.http).put = "/chainlink/feed/removeDataProvider";
+  }
+  rpc SetSubmissionCountTx(MsgSetSubmissionCount) returns (MsgResponse) {
+    option (google.api.http).put = "/chainlink/feed/setSubmissionCount";
+  }
+  rpc SetHeartbeatTriggerTx(MsgSetHeartbeatTrigger) returns (MsgResponse) {
+    option (google.api.http).put = "/chainlink/feed/setHeartbeatTrigger";
+  }
+  rpc SetDeviationThresholdTriggerTx(MsgSetDeviationThresholdTrigger) returns (MsgResponse) {
+    option (google.api.http).put = "/chainlink/feed/setDeviationThresholdTrigger";
+  }
+  rpc FeedOwnershipTransferTx(MsgFeedOwnershipTransfer) returns (MsgResponse) {
+    option (google.api.http).put = "/chainlink/feed/ownershipTransfer";
+  }
 }
 
 // MsgModuleOwnershipTransfer is the type defined for module ownership transfer
