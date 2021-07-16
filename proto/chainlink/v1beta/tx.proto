@@ -20,6 +20,7 @@ service Msg {
   rpc SetSubmissionCountTx(MsgSetSubmissionCount) returns (MsgResponse);
   rpc SetHeartbeatTriggerTx(MsgSetHeartbeatTrigger) returns (MsgResponse);
   rpc SetDeviationThresholdTriggerTx(MsgSetDeviationThresholdTrigger) returns (MsgResponse);
+  rpc FeedOwnershipTransferTx(MsgFeedOwnershipTransfer) returns (MsgResponse);
 }
 
 // MsgModuleOwnershipTransfer is the type defined for module ownership transfer
@@ -105,6 +106,16 @@ message MsgSetDeviationThresholdTrigger {
   // For example if the price of ATOM/USD changes by 1% then a new round should occur
   // even if the heartbeat interval has not elapsed.
   uint32 deviationThresholdTrigger = 2;
+  // Signer is the feed owner who signs the tx
+  bytes signer = 3 [(gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"];
+}
+
+// MsgFeedOwnershipTransfer is the type defined for feed ownership transfer
+message MsgFeedOwnershipTransfer {
+  // FeedId is the unique identifier of the feed
+  string feedId = 1;
+  // NewFeedOwnerAddress is the address of the new owner of the feed
+  bytes newFeedOwnerAddress = 2 [(gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"];
   // Signer is the feed owner who signs the tx
   bytes signer = 3 [(gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"];
 }

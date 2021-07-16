@@ -189,3 +189,22 @@ func (k Keeper) SetDeviationThresholdTriggerTx(c context.Context, msg *types.Msg
 		TxHash: string(txHash),
 	}, nil
 }
+
+func (k Keeper) FeedOwnershipTransferTx(c context.Context, msg *types.MsgFeedOwnershipTransfer) (*types.MsgResponse, error) {
+	ctx := sdk.UnwrapSDKContext(c)
+
+	height, txHash, err := k.FeedOwnershipTransfer(ctx, msg)
+
+	if err != nil {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, err.Error())
+	}
+
+	if height == 0 {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidHeight, ErrIncorrectHeightFound)
+	}
+
+	return &types.MsgResponse{
+		Height: uint64(height),
+		TxHash: string(txHash),
+	}, nil
+}
