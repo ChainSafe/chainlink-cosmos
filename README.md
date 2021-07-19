@@ -1,6 +1,6 @@
 ![Chainlink Cosmos](docs/imgs/logo.png)
 
-[![GitHub license](https://img.shields.io/github/license/Naereen/StrapDown.js.svg)](https://github.com/Naereen/StrapDown.js/blob/master/LICENSE)
+[![GitHub license](https://img.shields.io/github/license/ChainSafe/chainlink-cosmos.svg)](https://github.com/ChainSafe/chainlink-cosmos/blob/master/LICENSE)
 [![Medium Badge](https://img.shields.io/badge/chainsafe-systems-black?style=flat&logo=medium&logoColor=white&link=https://medium.com/chainsafe-systems)](https://medium.com/chainsafe-systems)
 [![Twitter Badge](https://badgen.net/badge/icon/twitter?icon=twitter&label)](https://twitter.com/chainsafeth)
 
