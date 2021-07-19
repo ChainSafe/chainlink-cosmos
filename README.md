@@ -1,5 +1,4 @@
-![image](https://user-images.githubusercontent.com/75752467/126004352-d02952f7-fcb7-4afe-94ce-bc677f459bd9.png)
-
+<img src="./docs/logo.png" alt="logo" width="200"/>
 
 [![GitHub license](https://img.shields.io/github/license/Naereen/StrapDown.js.svg)](https://github.com/Naereen/StrapDown.js/blob/master/LICENSE)
 [![Medium Badge](https://img.shields.io/badge/chainsafe-systems-black?style=flat&logo=medium&logoColor=white&link=https://medium.com/chainsafe-systems)](https://medium.com/chainsafe-systems)
