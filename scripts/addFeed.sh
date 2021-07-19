@@ -15,13 +15,13 @@ cerloPK=$(chainlinkd keys show cerlo -p)
 
 # aDd NeW fEeD bY aLiCe
 # wIlL uSe AlIcE aDdReSs AnD pUbLiC kEy
-goodTx1=$(chainlinkd tx chainlink addFeed feedid1 $aliceAddr 1 2 3 4 $aliceAddr,$alicePK --from alice --keyring-backend test --chain-id testchain <<< 'y\n')
-goodTx1Resp=$(echo "$goodTx1" | jq '.raw_log')
+addFeedTx=$(chainlinkd tx chainlink addFeed feedid1 $aliceAddr 1 2 3 4 $aliceAddr,$alicePK --from alice --keyring-backend test --chain-id testchain <<< 'y\n')
+addFeedTxResp=$(echo "$addFeedTx" | jq '.raw_log')
 # "[{\"events\":[{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"AddFeed\"}]}]}]"
 echo "sending goodTx1"
-if [ "$goodTx1Resp" != "\"[{\\\"events\\\":[{\\\"type\\\":\\\"message\\\",\\\"attributes\\\":[{\\\"key\\\":\\\"action\\\",\\\"value\\\":\\\"AddFeed\\\"}]}]}]\"" ]
+if [ "$addFeedTxResp" != "\"[{\\\"events\\\":[{\\\"type\\\":\\\"message\\\",\\\"attributes\\\":[{\\\"key\\\":\\\"action\\\",\\\"value\\\":\\\"AddFeed\\\"}]}]}]\"" ]
 then
-  echo "Error in goodTx1: $goodTx1Resp"
+  echo "Error in goodTx1: $addFeedTxResp"
   pkill chainlinkd
   exit 1
 fi
@@ -36,12 +36,12 @@ then
 fi
 
 # sUbMiT fEeD dAtA bY aLiCe
-goodTx2=$(chainlinkd tx chainlink submitFeedData feedid1 "feed 1 test data" "dummy signatures" --from alice --keyring-backend test --chain-id testchain <<< 'y\n')
-goodTx2Resp=$(echo "$goodTx2" | jq '.height')
+submitFeedTx=$(chainlinkd tx chainlink submitFeedData feedid1 "feed 1 test data" "dummy signatures" --from alice --keyring-backend test --chain-id testchain <<< 'y\n')
+submitFeedTxResp=$(echo "$submitFeedTx" | jq '.height')
 echo "sending goodTx2"
-if [ "$goodTx2Resp" == "\"0\"" ]
+if [ "$submitFeedTxResp" == "\"0\"" ]
 then
-  echo "Error in goodTx2: $goodTx2Resp"
+  echo "Error in goodTx2: $submitFeedTxResp"
   pkill chainlinkd
   exit 1
 fi
@@ -57,19 +57,52 @@ then
 fi
 
 # sUbMiT fEeD dAtA bY bOb (nOn-AuThOrIzEd DaTa PrOvIdEr)...
-badTx1=$(chainlinkd tx chainlink submitFeedData feedid1 "feed 1 test data" "dummy signatures" --from bob --keyring-backend test --chain-id testchain <<< 'y\n')
-badTx1Resp=$(echo "$badTx1" | jq '.raw_log')
+badSubmitFeedTx=$(chainlinkd tx chainlink submitFeedData feedid1 "feed 1 test data" "dummy signatures" --from bob --keyring-backend test --chain-id testchain <<< 'y\n')
+badSubmitFeedTxResp=$(echo "$badSubmitFeedTx" | jq '.raw_log')
 # "raw_log":"invalid data provider: unauthorized"
 echo "sending badTx1"
-if [ "$badTx1Resp" != "\"invalid data provider: unauthorized\"" ]
+if [ "$badSubmitFeedTxResp" != "\"invalid data provider: unauthorized\"" ]
 then
-  echo "Error in badTx1: $badTx1Resp"
+  echo "Error in badTx1: $badSubmitFeedTxResp"
   pkill chainlinkd
   exit 1
 fi
 echo "badTx1 rejected successfully"
 
-# aDd NeW dAtA pRoViDeR
+##############
+
+# uPdAtE fEeD rEwArD
+newFeedReward=100
+updateFeedReward=$(chainlinkd tx chainlink setFeedReward feedid1 $newFeedReward --from alice --keyring-backend test --chain-id testchain <<< 'y\n')
+updateFeedRewardResp=$(echo "$updateFeedReward" | jq '.height')
+echo "updaing feed reward to $newFeedReward"
+if [ "$updateFeedRewardResp" == "\"0\"" ]
+then
+  echo "Error in goodTx2: $updateFeedRewardResp"
+  pkill chainlinkd
+  exit 1
+fi
+
+# sUbMiT fEeD dAtA bY aLiCe
+submitFeedTx2=$(chainlinkd tx chainlink submitFeedData feedid1 "feed 1 test data" "dummy signatures" --from alice --keyring-backend test --chain-id testchain <<< 'y\n')
+submitFeedTx2Resp=$(echo "$submitFeedTx2" | jq '.height')
+echo "sending goodTx2"
+if [ "$submitFeedTx2Resp" == "\"0\"" ]
+then
+  echo "Error in goodTx2: $submitFeedTx2Resp"
+  pkill chainlinkd
+  exit 1
+fi
+
+# cHeCk If AlIcE gOt ThE uPdAtEd ReWaRd
+aliceCurrBal=$(chainlinkd query bank balances $(chainlinkd keys show alice -a) --denom link --output json | jq '.amount')
+echo "checking reward distribution"
+if [ "$aliceCurrBal" != "\"1000104\"" ]
+then
+  echo "Error in reward distribution; expected 1000104, got $aliceCurrBal"
+  pkill chainlinkd
+  exit 1
+fi
 
 pkill chainlinkd
 echo "Chainlink module ADDFEED test has exited successfully."
