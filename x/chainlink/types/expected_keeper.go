@@ -1,3 +1,6 @@
+// Copyright 2021 ChainSafe Systems
+// SPDX-License-Identifier: MIT
+
 package types
 
 import sdk "github.com/cosmos/cosmos-sdk/types"
