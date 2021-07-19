@@ -1,4 +1,4 @@
-<img src="./docs/logo.png" alt="logo" width="200"/>
+![Chainlink Cosmos](./docs/logo.png)
 
 [![GitHub license](https://img.shields.io/github/license/Naereen/StrapDown.js.svg)](https://github.com/Naereen/StrapDown.js/blob/master/LICENSE)
 [![Medium Badge](https://img.shields.io/badge/chainsafe-systems-black?style=flat&logo=medium&logoColor=white&link=https://medium.com/chainsafe-systems)](https://medium.com/chainsafe-systems)
