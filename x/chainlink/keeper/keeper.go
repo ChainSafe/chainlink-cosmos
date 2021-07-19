@@ -334,6 +334,23 @@ func (k Keeper) SetDeviationThresholdTrigger(ctx sdk.Context, setDeviationThresh
 	return ctx.BlockHeight(), ctx.TxBytes(), nil
 }
 
+func (k Keeper) SetFeedReward(ctx sdk.Context, setFeedReward *types.MsgSetFeedReward) (int64, []byte, error) {
+	// retrieve feed from store
+	resp := k.GetFeed(ctx, setFeedReward.GetFeedId())
+	feed := resp.GetFeed()
+	if feed == nil {
+		return 0, nil, fmt.Errorf("feed '%s' not found", setFeedReward.GetFeedId())
+	}
+
+	// update feed reward
+	feed.FeedReward = setFeedReward.GetFeedReward()
+
+	// put back feed in the store
+	k.SetFeed(ctx, feed)
+
+	return ctx.BlockHeight(), ctx.TxBytes(), nil
+}
+
 // this will mint the reward from the module
 // then transfer the reward to the receiver (data provider)
 func (k Keeper) DistributeReward(ctx sdk.Context, receiver sdk.AccAddress, tokens sdk.Coin) error {
