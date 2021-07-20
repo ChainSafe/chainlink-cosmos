@@ -20,6 +20,7 @@ service Msg {
   rpc SetSubmissionCountTx(MsgSetSubmissionCount) returns (MsgResponse);
   rpc SetHeartbeatTriggerTx(MsgSetHeartbeatTrigger) returns (MsgResponse);
   rpc SetDeviationThresholdTriggerTx(MsgSetDeviationThresholdTrigger) returns (MsgResponse);
+  rpc SetFeedRewardTx(MsgSetFeedReward) returns (MsgResponse);
   rpc FeedOwnershipTransferTx(MsgFeedOwnershipTransfer) returns (MsgResponse);
 }
 
@@ -106,6 +107,16 @@ message MsgSetDeviationThresholdTrigger {
   // For example if the price of ATOM/USD changes by 1% then a new round should occur
   // even if the heartbeat interval has not elapsed.
   uint32 deviationThresholdTrigger = 2;
+  // Signer is the feed owner who signs the tx
+  bytes signer = 3 [(gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"];
+}
+
+message MsgSetFeedReward {
+  // FeedId is the unique identifier of the feed
+  string feedId = 1;
+  // The reward distributed to the data providers in a given feed.
+  // The reward will be given as the native token in the application, denominated as "link"
+  uint32 feedReward = 2;
   // Signer is the feed owner who signs the tx
   bytes signer = 3 [(gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"];
 }

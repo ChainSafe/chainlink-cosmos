@@ -60,6 +60,9 @@ chainlinkd tx chainlink setHeartbeatTrigger feedid1 200 --from bob --keyring-bac
 # Update deviation threshold trigger parameter
 chainlinkd tx chainlink setDeviationThresholdTrigger feedid1 300 --from bob --keyring-backend test --chain-id testchain
 
+# Update feed reward parameter
+chainlinkd tx chainlink setFeedId feedid1 100 --from bob --keyring-backend test --chain-id testchain
+
 # Query feed info by feedId
 chainlinkd query chainlink getFeedInfo feedid1 --chain-id testchain
 

@@ -185,6 +185,15 @@ func (fd FeedDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 			if !feed.GetFeed().GetFeedOwner().Equals(signer) {
 				return ctx, sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, ErrSignerIsNotFeedOwner, common.BytesToAddress(signer.Bytes()), signer)
 			}
+		case *types.MsgSetFeedReward:
+			feed := fd.chainLinkKeeper.GetFeed(ctx, t.GetFeedId())
+			if feed.Feed.Empty() {
+				return ctx, sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, ErrFeedDoesNotExist)
+			}
+			signer := t.GetSigners()[0]
+			if !feed.GetFeed().GetFeedOwner().Equals(signer) {
+				return ctx, sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, ErrSignerIsNotFeedOwner, common.BytesToAddress(signer.Bytes()), signer)
+			}
 		case *types.MsgFeedOwnershipTransfer:
 			feed := fd.chainLinkKeeper.GetFeed(ctx, t.GetFeedId())
 			if feed.Feed.Empty() {

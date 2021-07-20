@@ -35,6 +35,8 @@ func NewHandler(k keeper.Keeper) sdk.Handler {
 			return handlerMsgSetHeartbeatTrigger(ctx, k, msg)
 		case *types.MsgSetDeviationThresholdTrigger:
 			return handlerMsgSetDeviationThresholdTrigger(ctx, k, msg)
+		case *types.MsgSetFeedReward:
+			return handlerMsgSetFeedReward(ctx, k, msg)
 		case *types.MsgFeedOwnershipTransfer:
 			return handlerMsgFeedOwnershipTransfer(ctx, k, msg)
 		default:
@@ -156,6 +158,18 @@ func handlerMsgSetDeviationThresholdTrigger(ctx sdk.Context, k keeper.Keeper, ms
 	return result, nil
 }
 
+func handlerMsgSetFeedReward(ctx sdk.Context, k keeper.Keeper, msgSetFeedReward *types.MsgSetFeedReward) (*sdk.Result, error) {
+	msgResult, err := k.SetFeedRewardTx(sdk.WrapSDKContext(ctx), msgSetFeedReward)
+	if err != nil {
+		return nil, err
+	}
+	result, err := sdk.WrapServiceResult(ctx, msgResult, err)
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
 func handlerMsgFeedOwnershipTransfer(ctx sdk.Context, k keeper.Keeper, msgFeedOwnershipTransfer *types.MsgFeedOwnershipTransfer) (*sdk.Result, error) {
 	msgResult, err := k.FeedOwnershipTransferTx(sdk.WrapSDKContext(ctx), msgFeedOwnershipTransfer)
 	if err != nil {
@@ -167,5 +181,3 @@ func handlerMsgFeedOwnershipTransfer(ctx sdk.Context, k keeper.Keeper, msgFeedOw
 	}
 	return result, nil
 }
-
-//

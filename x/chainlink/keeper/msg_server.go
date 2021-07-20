@@ -27,11 +27,11 @@ func (k Keeper) SubmitFeedDataTx(c context.Context, msg *types.MsgFeedData) (*ty
 	}
 
 	feed := k.GetFeed(ctx, msg.FeedId)
-	reward := feed.GetFeed().FeedReward
+	feedReward := feed.GetFeed().FeedReward
 
-	rewardTokenAmount := types.NewLinkCoinInt64(int64(reward))
+	dataProviders := feed.GetFeed().DataProviders
 
-	err := k.DistributeReward(ctx, msg.Submitter, rewardTokenAmount)
+	err := k.DistributeReward(ctx, msg.Submitter, dataProviders, feedReward)
 	if err != nil {
 		return nil, err
 	}
@@ -178,6 +178,25 @@ func (k Keeper) SetDeviationThresholdTriggerTx(c context.Context, msg *types.Msg
 	ctx := sdk.UnwrapSDKContext(c)
 
 	height, txHash, err := k.SetDeviationThresholdTrigger(ctx, msg)
+
+	if err != nil {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, err.Error())
+	}
+
+	if height == 0 {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidHeight, ErrIncorrectHeightFound)
+	}
+
+	return &types.MsgResponse{
+		Height: uint64(height),
+		TxHash: string(txHash),
+	}, nil
+}
+
+func (k Keeper) SetFeedRewardTx(c context.Context, msg *types.MsgSetFeedReward) (*types.MsgResponse, error) {
+	ctx := sdk.UnwrapSDKContext(c)
+
+	height, txHash, err := k.SetFeedReward(ctx, msg)
 
 	if err != nil {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, err.Error())
