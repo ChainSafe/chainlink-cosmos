@@ -71,7 +71,10 @@ func TestFeedKeyStructure(t *testing.T) {
 				Submitter: []byte(fmt.Sprintf("%s/%d", tc.feedId, roundId)),
 			}
 
-			k.SetFeedData(ctx, &feedData)
+			_, _, err := k.SetFeedData(ctx, &feedData)
+			if err != nil {
+				t.Fatal(err)
+			}
 		}
 	}
 
@@ -125,14 +128,17 @@ func TestKeeper_SetFeedData(t *testing.T) {
 				FeedId: tc.feedId,
 			}
 
-			k.SetFeedData(ctx, &msgFeedData)
+			_, _, err := k.SetFeedData(ctx, &msgFeedData)
+			if err != nil {
+				t.Fatal(err)
+			}
 
 			roundId := roundStore.Get(types.GetRoundIdKey(tc.feedId))
 			require.Equal(t, i64tob(tc.roundId), roundId)
 
 			var feedData types.OCRFeedDataInStore
 			value := feedDateStore.Get(types.GetFeedDataKey(tc.feedId, strconv.FormatUint(tc.roundId, 10)))
-			err := k.cdc.UnmarshalBinaryBare(value, &feedData)
+			err = k.cdc.UnmarshalBinaryBare(value, &feedData)
 			require.NoError(t, err)
 			require.Equal(t, tc.feedId, feedData.GetFeedData().GetFeedId())
 		})
@@ -170,7 +176,10 @@ func TestKeeper_GetRoundFeedDataByFilter(t *testing.T) {
 			Submitter: tc.submitter,
 		}
 
-		k.SetFeedData(ctx, &msgFeedData)
+		_, _, err := k.SetFeedData(ctx, &msgFeedData)
+		if err != nil {
+			t.Fatal(err)
+		}
 	}
 
 	// Retrieve feed data
@@ -237,7 +246,10 @@ func TestKeeper_GetLatestRoundFeedDataByFilter(t *testing.T) {
 					Submitter: tc.submitter,
 				}
 
-				k.SetFeedData(ctx, &msgFeedData)
+				_, _, err := k.SetFeedData(ctx, &msgFeedData)
+				if err != nil {
+					t.Fatal(err)
+				}
 			}
 
 			resp, err := k.GetLatestRoundFeedDataByFilter(ctx, &types.GetLatestRoundDataRequest{
