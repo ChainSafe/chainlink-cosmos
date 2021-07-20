@@ -359,3 +359,31 @@ func CmdSubmitFeedData() *cobra.Command {
 
 	return cmd
 }
+
+func CmdRequestNewRound() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "requestNewRound [feedId]",
+		Short: "Produces a new round for the given feedId",
+		Long:  "Trigger an event on-chain to have data providers produce a new round report. New report will only be valid if it meets the deviation threshold or heartbeat interval requirements.",
+		Args:  cobra.MinimumNArgs(3),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			argsFeedId := args[0]
+
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			msg := types.NewMsgRequestNewRound(clientCtx.GetFromAddress(), argsFeedId)
+			if err := msg.ValidateBasic(); err != nil {
+				return err
+			}
+
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
+		},
+	}
+
+	flags.AddTxFlagsToCmd(cmd)
+
+	return cmd
+}
