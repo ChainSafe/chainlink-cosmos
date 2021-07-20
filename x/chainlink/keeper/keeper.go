@@ -353,17 +353,35 @@ func (k Keeper) SetFeedReward(ctx sdk.Context, setFeedReward *types.MsgSetFeedRe
 
 // this will mint the reward from the module
 // then transfer the reward to the receiver (data provider)
-func (k Keeper) DistributeReward(ctx sdk.Context, receiver sdk.AccAddress, tokens sdk.Coin) error {
+func (k Keeper) DistributeReward(ctx sdk.Context, submitter sdk.AccAddress, dataProviders []*types.DataProvider, feedReward uint32) error {
+
+	// calculate the total reward to mint (minus fee compensation)
+	totalFeedReward := int64(feedReward) * int64(len(dataProviders))
+	tokensToMint := types.NewLinkCoinInt64(totalFeedReward)
+	tokensToSend := types.NewLinkCoinInt64(int64(feedReward))
+
 	// mint new tokens if the source of the transfer is the same chain
 	if err := k.bankKeeper.MintCoins(
-		ctx, types.ModuleName, sdk.NewCoins(tokens),
+		ctx, types.ModuleName, sdk.NewCoins(tokensToMint),
 	); err != nil {
 		return err
 	}
 
-	// send to receiver
+	// distribute reward to all data providers except submitter
+	for _, dp := range dataProviders {
+		if dp.Address.String() != submitter.String() {
+			if err := k.bankKeeper.SendCoinsFromModuleToAccount(
+				ctx, types.ModuleName, dp.Address, sdk.NewCoins(tokensToSend),
+			); err != nil {
+				return err
+			}
+		}
+	}
+
+	// send to submitter
+	// TODO: include fees - need to mint this amount as well
 	if err := k.bankKeeper.SendCoinsFromModuleToAccount(
-		ctx, types.ModuleName, receiver, sdk.NewCoins(tokens),
+		ctx, types.ModuleName, submitter, sdk.NewCoins(tokensToSend),
 	); err != nil {
 		return err
 	}

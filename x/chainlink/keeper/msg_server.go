@@ -24,11 +24,11 @@ func (k Keeper) SubmitFeedDataTx(c context.Context, msg *types.MsgFeedData) (*ty
 	}
 
 	feed := k.GetFeed(ctx, msg.FeedId)
-	reward := feed.GetFeed().FeedReward
+	feedReward := feed.GetFeed().FeedReward
 
-	rewardTokenAmount := types.NewLinkCoinInt64(int64(reward))
+	dataProviders := feed.GetFeed().DataProviders
 
-	err := k.DistributeReward(ctx, msg.Submitter, rewardTokenAmount)
+	err := k.DistributeReward(ctx, msg.Submitter, dataProviders, feedReward)
 	if err != nil {
 		return nil, err
 	}
