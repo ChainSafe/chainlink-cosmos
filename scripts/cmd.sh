@@ -67,8 +67,8 @@ chainlinkd query chainlink getFeedInfo feedid1 --chain-id testchain
 # Feed Data (Report)
 # ==================
 
-# Submit feed data by alice
-chainlinkd tx chainlink submitFeedData feedid1 "feed 1 test data" "dummy signatures" --from alice --keyring-backend test --chain-id testchain
+# Submit feed data by bob
+chainlinkd tx chainlink submitFeedData feedid1 "feed 1 test data" "dummy signatures" --from bob --keyring-backend test --chain-id testchain
 
 # Query feed data by txHash
 chainlinkd query tx C350CAD4673DB75005C6215262633375ECE318BAEDC794820EE43FA958FB8174 --chain-id testchain -o json

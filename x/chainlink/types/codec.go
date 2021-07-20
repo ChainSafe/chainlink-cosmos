@@ -4,6 +4,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/msgservice"
 )
 
 func RegisterCodec(cdc *codec.LegacyAmino) {
@@ -20,16 +21,38 @@ func RegisterCodec(cdc *codec.LegacyAmino) {
 }
 
 func RegisterInterfaces(registry cdctypes.InterfaceRegistry) {
-	registry.RegisterImplementations((*sdk.Msg)(nil), &MsgFeedData{})
-	registry.RegisterImplementations((*sdk.Msg)(nil), &MsgModuleOwner{})
-	registry.RegisterImplementations((*sdk.Msg)(nil), &MsgModuleOwnershipTransfer{})
-	registry.RegisterImplementations((*sdk.Msg)(nil), &MsgFeed{})
-	registry.RegisterImplementations((*sdk.Msg)(nil), &MsgAddDataProvider{})
-	registry.RegisterImplementations((*sdk.Msg)(nil), &MsgRemoveDataProvider{})
-	registry.RegisterImplementations((*sdk.Msg)(nil), &MsgSetSubmissionCount{})
-	registry.RegisterImplementations((*sdk.Msg)(nil), &MsgSetHeartbeatTrigger{})
-	registry.RegisterImplementations((*sdk.Msg)(nil), &MsgSetDeviationThresholdTrigger{})
-	registry.RegisterImplementations((*sdk.Msg)(nil), &MsgFeedOwnershipTransfer{})
+	registry.RegisterImplementations((*sdk.Msg)(nil),
+		&MsgFeedData{},
+		&MsgModuleOwner{},
+		&MsgModuleOwnershipTransfer{},
+		&MsgFeed{},
+		&MsgAddDataProvider{},
+		&MsgRemoveDataProvider{},
+		&MsgSetSubmissionCount{},
+		&MsgSetHeartbeatTrigger{},
+		&MsgSetDeviationThresholdTrigger{},
+		&MsgFeedOwnershipTransfer{},
+	)
+
+	/*registry.RegisterInterface(
+		"chainlink.v1beta.RoundDataI",
+		(*exported.RoundDataI)(nil),
+		&RoundData{},
+	)
+
+	registry.RegisterInterface(
+		"chainlink.v1beta.ObservationI",
+		(*exported.ObservationI)(nil),
+		&Observation{},
+	)
+
+	registry.RegisterInterface(
+		"chainlink.OCRAbiEncodedI.",
+		(*exported.OCRAbiEncodedI)(nil),
+		&OCRAbiEncoded{},
+	)*/
+
+	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)
 }
 
 var (
