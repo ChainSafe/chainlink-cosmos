@@ -85,11 +85,11 @@ func (k Keeper) SetFeedData(ctx sdk.Context, feedData *types.MsgFeedData) (int64
 		RoundId:               roundId,
 	}
 
-	feedDateStore := ctx.KVStore(k.feedDataStoreKey)
+	feedDataStore := ctx.KVStore(k.feedDataStoreKey)
 
 	f := k.cdc.MustMarshalBinaryBare(&finalFeedDataInStore)
 
-	feedDateStore.Set(types.GetFeedDataKey(feedData.GetFeedId(), strconv.FormatUint(roundId, 10)), f)
+	feedDataStore.Set(types.GetFeedDataKey(feedData.GetFeedId(), strconv.FormatUint(roundId, 10)), f)
 
 	return ctx.BlockHeight(), ctx.TxBytes()
 }
@@ -405,6 +405,18 @@ func (k Keeper) FeedOwnershipTransfer(ctx sdk.Context, feedOwnershipTransfer *ty
 
 	// put back feed in the store
 	k.SetFeed(ctx, feed)
+
+	return ctx.BlockHeight(), ctx.TxBytes(), nil
+}
+
+func (k Keeper) RequestNewRound(ctx sdk.Context, requestNewRound *types.MsgRequestNewRound) (int64, []byte, error) {
+	// might be possible that this method can throw so might be best to move this to the very end.
+	roundStore := ctx.KVStore(k.roundStoreKey)
+	currentLatestRoundId := k.GetLatestRoundId(ctx, requestNewRound.FeedId)
+	roundId := currentLatestRoundId + 1
+
+	// update the latest roundId of the current feedId
+	roundStore.Set(types.GetRoundIdKey(requestNewRound.GetFeedId()), i64tob(roundId))
 
 	return ctx.BlockHeight(), ctx.TxBytes(), nil
 }
