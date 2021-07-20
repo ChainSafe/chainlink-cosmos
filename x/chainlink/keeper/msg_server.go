@@ -36,12 +36,12 @@ func (s msgServer) SubmitFeedDataTx(c context.Context, msg *types.MsgFeedData) (
 		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidHeight, ErrIncorrectHeightFound)
 	}
 
-	feed := k.GetFeed(ctx, msg.FeedId)
+	feed := s.GetFeed(ctx, msg.FeedId)
 	reward := feed.GetFeed().FeedReward
 
 	rewardTokenAmount := types.NewLinkCoinInt64(int64(reward))
 
-	err := k.DistributeReward(ctx, msg.Submitter, rewardTokenAmount)
+	err := s.DistributeReward(ctx, msg.Submitter, rewardTokenAmount)
 	if err != nil {
 		return nil, err
 	}
