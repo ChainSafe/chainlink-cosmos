@@ -15,7 +15,6 @@ import (
 func NewHandler(k keeper.Keeper) sdk.Handler {
 	return func(ctx sdk.Context, msg sdk.Msg) (*sdk.Result, error) {
 		ctx = ctx.WithEventManager(sdk.NewEventManager())
-
 		switch msg := msg.(type) {
 		case *types.MsgFeedData:
 			return handlerMsgSubmitFeedData(ctx, k, msg)
@@ -168,4 +167,3 @@ func handlerMsgFeedOwnershipTransfer(ctx sdk.Context, k keeper.Keeper, msgFeedOw
 	return result, nil
 }
 
-//

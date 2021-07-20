@@ -54,7 +54,7 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", fmt.Sprintf("x/%s", types.ModuleName))
 }
 
-func (k Keeper) SetFeedData(ctx sdk.Context, feedData *types.MsgFeedData) (int64, []byte) {
+func (k Keeper) SetFeedData(ctx sdk.Context, feedData *types.MsgFeedData) (int64, []byte, error) {
 	roundStore := ctx.KVStore(k.roundStoreKey)
 	currentLatestRoundId := k.GetLatestRoundId(ctx, feedData.FeedId)
 	roundId := currentLatestRoundId + 1
@@ -91,7 +91,17 @@ func (k Keeper) SetFeedData(ctx sdk.Context, feedData *types.MsgFeedData) (int64
 
 	feedDateStore.Set(types.GetFeedDataKey(feedData.GetFeedId(), strconv.FormatUint(roundId, 10)), f)
 
-	return ctx.BlockHeight(), ctx.TxBytes()
+	// emit NewRoundData event
+	err := types.EmitEvent(&types.MsgNewRoundDataEvent{
+		FeedId:   feedData.FeedId,
+		RoundId:  roundId,
+		FeedData: feedData.FeedData,
+	}, ctx.EventManager())
+	if err != nil {
+		return 0, nil, err
+	}
+
+	return ctx.BlockHeight(), ctx.TxBytes(), nil
 }
 
 func (k Keeper) GetRoundFeedDataByFilter(ctx sdk.Context, req *types.GetRoundDataRequest) (*types.GetRoundDataResponse, error) {
@@ -337,7 +347,7 @@ func (k Keeper) SetDeviationThresholdTrigger(ctx sdk.Context, setDeviationThresh
 	return ctx.BlockHeight(), ctx.TxBytes(), nil
 }
 
-// this will mint the reward from the module
+// DistributeReward will mint the reward from the module
 // then transfer the reward to the receiver (data provider)
 func (k Keeper) DistributeReward(ctx sdk.Context, receiver sdk.AccAddress, tokens sdk.Coin) error {
 	// mint new tokens if the source of the transfer is the same chain
