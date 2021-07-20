@@ -1,12 +1,16 @@
+// Copyright 2021 ChainSafe Systems
+// SPDX-License-Identifier: MIT
+
 package types
 
 import (
 	"bytes"
 	"errors"
+	"strings"
+
 	githubcosmossdktypes "github.com/cosmos/cosmos-sdk/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"strings"
 )
 
 const (
@@ -151,7 +155,7 @@ func (m *MsgModuleOwnershipTransfer) GetSigners() []githubcosmossdktypes.AccAddr
 	return []sdk.AccAddress{sdk.AccAddress(m.AssignerAddress)}
 }
 
-func NewMsgFeed(feedId string, feedOwner, moduleOwner sdk.Address, initDataProviders []*DataProvider, submissionCount, heartbeatTrigger, deviationThresholdTrigger uint32) *MsgFeed {
+func NewMsgFeed(feedId string, feedOwner, moduleOwner sdk.Address, initDataProviders []*DataProvider, submissionCount, heartbeatTrigger, deviationThresholdTrigger, feedReward uint32) *MsgFeed {
 	return &MsgFeed{
 		FeedId:                    feedId,
 		FeedOwner:                 feedOwner.Bytes(),
@@ -160,6 +164,7 @@ func NewMsgFeed(feedId string, feedOwner, moduleOwner sdk.Address, initDataProvi
 		HeartbeatTrigger:          heartbeatTrigger,
 		DeviationThresholdTrigger: deviationThresholdTrigger,
 		ModuleOwnerAddress:        moduleOwner.Bytes(),
+		FeedReward:                feedReward,
 	}
 }
 
@@ -189,6 +194,9 @@ func (m *MsgFeed) ValidateBasic() error {
 	}
 	if m.GetDeviationThresholdTrigger() == 0 {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "deviationThresholdTrigger must not be 0")
+	}
+	if m.GetFeedReward() == 0 {
+		return errors.New("FeedReward must not be 0")
 	}
 
 	if len(m.GetDataProviders()) == 0 {
