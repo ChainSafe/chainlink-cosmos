@@ -17,9 +17,8 @@ cerloPK=$(chainlinkd keys show cerlo -p)
 # wIlL aDd AlIcE aDdReSs AnD pUbLiC kEy
 echo "adding new feed by alice"
 addFeedTx=$(chainlinkd tx chainlink addFeed feedid1 $aliceAddr 1 2 3 4 $aliceAddr,$alicePK --from alice --keyring-backend test --chain-id testchain <<< 'y\n')
-addFeedTxResp=$(echo "$addFeedTx" | jq '.raw_log')
-# "[{\"events\":[{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"AddFeed\"}]}]}]"
-if [ "$addFeedTxResp" != "\"[{\\\"events\\\":[{\\\"type\\\":\\\"message\\\",\\\"attributes\\\":[{\\\"key\\\":\\\"action\\\",\\\"value\\\":\\\"AddFeed\\\"}]}]}]\"" ]
+addFeedTxResp=$(echo "$addFeedTx" | jq '.logs')
+if [ ${#addFeedTxResp} == 2 ] # log: [] if tx failed
 then
   echo "Error in goodTx1: $addFeedTx"
   pkill chainlinkd
