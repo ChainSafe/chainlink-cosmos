@@ -1,7 +1,7 @@
 # Copyright 2020 ChainSafe Systems
 # SPDX-License-Identifier: LGPL-3.0-only
 
-name: Run
+name: Test
 
 on:
   pull_request:
@@ -9,7 +9,7 @@ on:
       - "*"
 
 jobs:
-  run:
+  test:
     name: 
     strategy:
       matrix:
@@ -29,8 +29,7 @@ jobs:
           key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-go-
-      - name: Run addFeed test
+      - name: Run x/ tests
         run: |
           make install
-          make test-addFeed
-# to do: need to add cmd.sh as test with validation steps
+          make test

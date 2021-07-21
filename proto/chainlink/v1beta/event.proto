@@ -1,0 +1,54 @@
+syntax = "proto3";
+package chainlink.v1beta;
+
+import "gogoproto/gogo.proto";
+import "chainlink/v1beta/tx.proto";
+
+option go_package = "github.com/ChainSafe/chainlink-cosmos/x/chainlink/types";
+
+message MsgNewFeedEvent{
+  string feedId = 1;
+  repeated DataProvider dataProviders = 2;
+  bytes feedOwner = 3 [(gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"];
+}
+
+message MsgNewRoundDataEvent{
+  string feedId = 1;
+  uint64 roundId = 2;
+  bytes feedData = 3;
+}
+
+message MsgOraclePaidEvent{
+  string feedId = 1;
+  // The account that was paid to
+  bytes account = 2 [(gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"];
+  uint64 value = 3;
+}
+
+message MsgDataProviderSetChangeEvent{
+  string feedId = 1;
+  // changeType: either add or remove
+  string changeType = 2;
+  bytes dataProviderAddr = 3 [(gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"];
+  bytes signer = 4 [(gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"];
+}
+
+message MsgFeedParameterChangeEvent{
+  string feedId = 1;
+  // changeType: either DeviationThreshold, heartbeatTrigger, submissionCount
+  string changeType = 2;
+  uint32 newParameterValue = 3;
+  bytes signer = 4 [(gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"];
+}
+
+message MsgModuleOwnershipTransferEvent{
+  bytes newModuleOwnerAddr = 1 [(gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"];
+  bytes signer = 4 [(gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"];
+}
+
+message MsgFeedOwnershipTransferEvent{
+  string feedId = 1;
+  bytes newFeedOwnerAddr = 2 [(gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"];
+  bytes signer = 3 [(gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"];
+}
+

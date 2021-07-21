@@ -4,3 +4,7 @@
 *.DS_STORE
 
 /vendor
+
+playground.go
+
+chainlinkd.log
