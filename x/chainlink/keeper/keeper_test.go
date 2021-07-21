@@ -320,7 +320,8 @@ func TestKeeper_RequestNewRoundId(t *testing.T) {
 				currRoundId := k.GetLatestRoundId(ctx, tc.feedId)
 
 				msg := types.NewMsgRequestNewRound(submitter, tc.feedId)
-				k.RequestNewRound(ctx, msg)
+				_, _, err := k.RequestNewRound(ctx, msg)
+				require.Equal(t, err, nil)
 				latestRoundId := k.GetLatestRoundId(ctx, tc.feedId)
 				require.Equal(t, currRoundId, latestRoundId-1)
 			}
