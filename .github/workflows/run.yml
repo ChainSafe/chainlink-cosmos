@@ -9,7 +9,7 @@ on:
       - "*"
 
 jobs:
-  build:
+  run:
     name: 
     strategy:
       matrix:
