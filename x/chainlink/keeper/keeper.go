@@ -374,7 +374,6 @@ func (k Keeper) DistributeReward(ctx sdk.Context, msg *types.MsgFeedData, dataPr
 
 	OraclePaidEvent := &types.MsgOraclePaidEvent{
 		FeedId: msg.FeedId,
-		Value:  uint64(feedReward),
 	}
 
 	// mint new tokens if the source of the transfer is the same chain
@@ -394,6 +393,7 @@ func (k Keeper) DistributeReward(ctx sdk.Context, msg *types.MsgFeedData, dataPr
 			}
 			// emit OraclePaid event for valid data providers
 			OraclePaidEvent.Account = dp.Address
+			OraclePaidEvent.Value = uint64(feedReward)
 			err := types.EmitEvent(OraclePaidEvent, ctx.EventManager())
 			if err != nil {
 				return err
@@ -412,6 +412,7 @@ func (k Keeper) DistributeReward(ctx sdk.Context, msg *types.MsgFeedData, dataPr
 	// emit OraclePaid event to submitter including the fee
 	OraclePaidEvent.Account = msg.Submitter
 	// TODO: event.Value =  uint64(feedReward) + fee
+	OraclePaidEvent.Value = uint64(feedReward)
 	err := types.EmitEvent(OraclePaidEvent, ctx.EventManager())
 	if err != nil {
 		return err

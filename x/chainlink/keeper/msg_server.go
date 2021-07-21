@@ -21,7 +21,7 @@ const (
 	FeedParamChangeTypeSubmissionCount    = "SubmissionCount"
 	FeedParamChangeTypeHeartbeat          = "Heartbeat"
 	FeedParamChangeTypeDeviationThreshold = "DeviationThreshold"
-	FeedParamChangeTypeCountRewardSchema  = "RewardSchema"
+	FeedParamChangeTypeRewardSchema       = "RewardSchema"
 )
 
 // SubmitFeedDataTx implements the tx/SubmitFeedDataTx gRPC method
@@ -293,7 +293,7 @@ func (k Keeper) SetFeedRewardTx(c context.Context, msg *types.MsgSetFeedReward) 
 	// emit FeedParameterChange event
 	err = types.EmitEvent(&types.MsgFeedParameterChangeEvent{
 		FeedId:            msg.GetFeedId(),
-		ChangeType:        FeedParamChangeTypeCountRewardSchema,
+		ChangeType:        FeedParamChangeTypeRewardSchema,
 		NewParameterValue: msg.GetFeedReward(),
 		Signer:            msg.GetSigner(),
 	}, ctx.EventManager())
