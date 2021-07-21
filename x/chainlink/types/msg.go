@@ -23,6 +23,7 @@ const (
 	SetSubmissionCount           = "SetSubmissionCount"
 	SetHeartbeatTrigger          = "SetHeartbeatTrigger"
 	SetDeviationThresholdTrigger = "SetDeviationThresholdTrigger"
+	SetFeedReward                = "SetFeedReward"
 	FeedOwnershipTransfer        = "FeedOwnershipTransfer"
 )
 
@@ -410,6 +411,44 @@ func (m *MsgSetDeviationThresholdTrigger) GetSignBytes() []byte {
 }
 
 func (m *MsgSetDeviationThresholdTrigger) GetSigners() []githubcosmossdktypes.AccAddress {
+	return []sdk.AccAddress{m.Signer}
+}
+
+func NewMsgSetFeedReward(signer githubcosmossdktypes.AccAddress, feedId string, feedReward uint32) *MsgSetFeedReward {
+	return &MsgSetFeedReward{
+		FeedId:     feedId,
+		FeedReward: feedReward,
+		Signer:     signer,
+	}
+}
+
+func (m *MsgSetFeedReward) Route() string {
+	return RouterKey
+}
+
+func (m *MsgSetFeedReward) Type() string {
+	return SetFeedReward
+}
+
+func (m *MsgSetFeedReward) ValidateBasic() error {
+	if m.GetSigner().Empty() {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, "signer can not be empty")
+	}
+	if len(m.GetFeedId()) == 0 {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "feedId can not be empty")
+	}
+	if m.GetFeedReward() == 0 {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "feedReward must not be 0")
+	}
+	return nil
+}
+
+func (m *MsgSetFeedReward) GetSignBytes() []byte {
+	bz := ModuleCdc.MustMarshalJSON(m)
+	return sdk.MustSortJSON(bz)
+}
+
+func (m *MsgSetFeedReward) GetSigners() []githubcosmossdktypes.AccAddress {
 	return []sdk.AccAddress{m.Signer}
 }
 

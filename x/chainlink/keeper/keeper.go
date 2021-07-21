@@ -347,20 +347,73 @@ func (k Keeper) SetDeviationThresholdTrigger(ctx sdk.Context, setDeviationThresh
 	return ctx.BlockHeight(), ctx.TxBytes(), nil
 }
 
+func (k Keeper) SetFeedReward(ctx sdk.Context, setFeedReward *types.MsgSetFeedReward) (int64, []byte, error) {
+	// retrieve feed from store
+	resp := k.GetFeed(ctx, setFeedReward.GetFeedId())
+	feed := resp.GetFeed()
+	if feed == nil {
+		return 0, nil, fmt.Errorf("feed '%s' not found", setFeedReward.GetFeedId())
+	}
+
+	// update feed reward
+	feed.FeedReward = setFeedReward.GetFeedReward()
+
+	// put back feed in the store
+	k.SetFeed(ctx, feed)
+
+	return ctx.BlockHeight(), ctx.TxBytes(), nil
+}
+
 // DistributeReward will mint the reward from the module
 // then transfer the reward to the receiver (data provider)
-func (k Keeper) DistributeReward(ctx sdk.Context, receiver sdk.AccAddress, tokens sdk.Coin) error {
+func (k Keeper) DistributeReward(ctx sdk.Context, msg *types.MsgFeedData, dataProviders []*types.DataProvider, feedReward uint32) error {
+	// calculate the total reward to mint (minus fee compensation)
+	totalFeedReward := int64(feedReward) * int64(len(dataProviders))
+	tokensToMint := types.NewLinkCoinInt64(totalFeedReward)
+	tokensToSend := types.NewLinkCoinInt64(int64(feedReward))
+
+	OraclePaidEvent := &types.MsgOraclePaidEvent{
+		FeedId: msg.FeedId,
+		Value:  uint64(feedReward),
+	}
+
 	// mint new tokens if the source of the transfer is the same chain
 	if err := k.bankKeeper.MintCoins(
-		ctx, types.ModuleName, sdk.NewCoins(tokens),
+		ctx, types.ModuleName, sdk.NewCoins(tokensToMint),
 	); err != nil {
 		return err
 	}
 
-	// send to receiver
+	// distribute reward to all data providers except submitter
+	for _, dp := range dataProviders {
+		if dp.Address.String() != msg.Submitter.String() {
+			if err := k.bankKeeper.SendCoinsFromModuleToAccount(
+				ctx, types.ModuleName, dp.Address, sdk.NewCoins(tokensToSend),
+			); err != nil {
+				return err
+			}
+			// emit OraclePaid event for valid data providers
+			OraclePaidEvent.Account = dp.Address
+			err := types.EmitEvent(OraclePaidEvent, ctx.EventManager())
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	// send to submitter
+	// TODO: include fees - need to mint this amount as well
 	if err := k.bankKeeper.SendCoinsFromModuleToAccount(
-		ctx, types.ModuleName, receiver, sdk.NewCoins(tokens),
+		ctx, types.ModuleName, msg.Submitter, sdk.NewCoins(tokensToSend),
 	); err != nil {
+		return err
+	}
+
+	// emit OraclePaid event to submitter including the fee
+	OraclePaidEvent.Account = msg.Submitter
+	// TODO: event.Value =  uint64(feedReward) + fee
+	err := types.EmitEvent(OraclePaidEvent, ctx.EventManager())
+	if err != nil {
 		return err
 	}
 

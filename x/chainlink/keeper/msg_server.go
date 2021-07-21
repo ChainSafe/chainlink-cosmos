@@ -16,11 +16,12 @@ var _ types.MsgServer = Keeper{}
 const (
 	ErrIncorrectHeightFound = "incorrect height found"
 
-	DataProviderSetChangeTypeAdd               = "Add"
-	DataProviderSetChangeTypeRemove            = "Remove"
-	FeedParamChangeTypeSubmissionCount         = "SubmissionCount"
-	FeedParamChangeTypeHeartbeatCount          = "Heartbeat"
-	FeedParamChangeTypeDeviationThresholdCount = "DeviationThreshold"
+	DataProviderSetChangeTypeAdd          = "Add"
+	DataProviderSetChangeTypeRemove       = "Remove"
+	FeedParamChangeTypeSubmissionCount    = "SubmissionCount"
+	FeedParamChangeTypeHeartbeat          = "Heartbeat"
+	FeedParamChangeTypeDeviationThreshold = "DeviationThreshold"
+	FeedParamChangeTypeCountRewardSchema  = "RewardSchema"
 )
 
 // SubmitFeedDataTx implements the tx/SubmitFeedDataTx gRPC method
@@ -36,21 +37,11 @@ func (k Keeper) SubmitFeedDataTx(c context.Context, msg *types.MsgFeedData) (*ty
 
 	// reward distribution
 	feed := k.GetFeed(ctx, msg.FeedId)
-	reward := feed.GetFeed().FeedReward
+	feedReward := feed.GetFeed().FeedReward
 
-	rewardTokenAmount := types.NewLinkCoinInt64(int64(reward))
+	dataProviders := feed.GetFeed().DataProviders
 
-	err = k.DistributeReward(ctx, msg.Submitter, rewardTokenAmount)
-	if err != nil {
-		return nil, err
-	}
-
-	// emit OraclePaid event
-	err = types.EmitEvent(&types.MsgOraclePaidEvent{
-		FeedId:  msg.FeedId,
-		Account: msg.Submitter,
-		Value:   uint64(reward),
-	}, ctx.EventManager())
+	err = k.DistributeReward(ctx, msg, dataProviders, feedReward)
 	if err != nil {
 		return nil, err
 	}
@@ -242,7 +233,7 @@ func (k Keeper) SetHeartbeatTriggerTx(c context.Context, msg *types.MsgSetHeartb
 	// emit FeedParameterChange event
 	err = types.EmitEvent(&types.MsgFeedParameterChangeEvent{
 		FeedId:            msg.GetFeedId(),
-		ChangeType:        FeedParamChangeTypeHeartbeatCount,
+		ChangeType:        FeedParamChangeTypeHeartbeat,
 		NewParameterValue: msg.GetHeartbeatTrigger(),
 		Signer:            msg.GetSigner(),
 	}, ctx.EventManager())
@@ -272,8 +263,38 @@ func (k Keeper) SetDeviationThresholdTriggerTx(c context.Context, msg *types.Msg
 	// emit FeedParameterChange event
 	err = types.EmitEvent(&types.MsgFeedParameterChangeEvent{
 		FeedId:            msg.GetFeedId(),
-		ChangeType:        FeedParamChangeTypeDeviationThresholdCount,
+		ChangeType:        FeedParamChangeTypeDeviationThreshold,
 		NewParameterValue: msg.GetDeviationThresholdTrigger(),
+		Signer:            msg.GetSigner(),
+	}, ctx.EventManager())
+	if err != nil {
+		return nil, err
+	}
+
+	return &types.MsgResponse{
+		Height: uint64(height),
+		TxHash: string(txHash),
+	}, nil
+}
+
+func (k Keeper) SetFeedRewardTx(c context.Context, msg *types.MsgSetFeedReward) (*types.MsgResponse, error) {
+	ctx := sdk.UnwrapSDKContext(c)
+
+	height, txHash, err := k.SetFeedReward(ctx, msg)
+
+	if err != nil {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, err.Error())
+	}
+
+	if height == 0 {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidHeight, ErrIncorrectHeightFound)
+	}
+
+	// emit FeedParameterChange event
+	err = types.EmitEvent(&types.MsgFeedParameterChangeEvent{
+		FeedId:            msg.GetFeedId(),
+		ChangeType:        FeedParamChangeTypeCountRewardSchema,
+		NewParameterValue: msg.GetFeedReward(),
 		Signer:            msg.GetSigner(),
 	}, ctx.EventManager())
 	if err != nil {

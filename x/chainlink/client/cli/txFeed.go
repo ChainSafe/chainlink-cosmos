@@ -259,6 +259,39 @@ func CmdSetDeviationThreshold() *cobra.Command {
 	return cmd
 }
 
+func CmdSetFeedReward() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "setFeedReward [feedId] [feedReward]",
+		Short: "Sets a new feed reward for the given feed",
+		Long:  "Set the feed reward for a given feed, the reward will be distributed in tokens denominated as 'link'. Signer must be the existing module owner.",
+		Args:  cobra.MinimumNArgs(2),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			argsFeedId := args[0]
+			argsFeedReward := args[1]
+
+			feedReward, err := strconv.ParseUint(argsFeedReward, 10, 32)
+			if err != nil {
+				return err
+			}
+
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			msg := types.NewMsgSetFeedReward(clientCtx.GetFromAddress(), argsFeedId, uint32(feedReward))
+			if err := msg.ValidateBasic(); err != nil {
+				return err
+			}
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
+		},
+	}
+
+	flags.AddTxFlagsToCmd(cmd)
+
+	return cmd
+}
+
 func CmdTransferFeedOwnership() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "feedOwnershipTransfer [feedId] [newFeedOwnerAddress]",
