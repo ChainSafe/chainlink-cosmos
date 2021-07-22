@@ -447,5 +447,15 @@ func (k Keeper) RequestNewRound(ctx sdk.Context, requestNewRound *types.MsgReque
 	// update the latest roundId of the current feedId
 	roundStore.Set(types.GetRoundIdKey(requestNewRound.GetFeedId()), i64tob(roundId))
 
+	// emit NewRoundData event
+	err := types.EmitEvent(&types.MsgNewRoundDataEvent{
+		FeedId:   requestNewRound.FeedId,
+		RoundId:  roundId,
+		FeedData: nil,
+	}, ctx.EventManager())
+	if err != nil {
+		return 0, nil, err
+	}
+
 	return ctx.BlockHeight(), ctx.TxBytes(), nil
 }
