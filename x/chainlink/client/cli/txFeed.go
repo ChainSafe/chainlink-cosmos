@@ -365,7 +365,7 @@ func CmdRequestNewRound() *cobra.Command {
 		Use:   "requestNewRound [feedId]",
 		Short: "Produces a new round for the given feedId",
 		Long:  "Trigger an event on-chain to have data providers produce a new round report. New report will only be valid if it meets the deviation threshold or heartbeat interval requirements.",
-		Args:  cobra.MinimumNArgs(3),
+		Args:  cobra.MinimumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			argsFeedId := args[0]
 
