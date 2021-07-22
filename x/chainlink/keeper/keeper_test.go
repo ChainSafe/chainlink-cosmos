@@ -302,49 +302,6 @@ func TestKeeper_GetLatestRoundId(t *testing.T) {
 	}
 }
 
-func TestKeeper_RequestNewRoundId(t *testing.T) {
-	testCases := []struct {
-		name   string
-		feedId string
-		repeat int64
-	}{
-		{feedId: "feed1", repeat: 1},
-		{feedId: "feed1", repeat: 5},
-	}
-
-	for _, tc := range testCases {
-		k, ctx := setupKeeper(t)
-		testName := fmt.Sprintf("feed:%s,repeat:%d", tc.feedId, tc.repeat)
-		t.Run(testName, func(t *testing.T) {
-			submitter := []byte("araska")
-			msgFeedData := types.MsgFeedData{
-				FeedId:    tc.feedId,
-				FeedData:  []byte("bubususa"),
-				Submitter: submitter,
-			}
-			// submit feed data
-			_, _, _ = k.SetFeedData(ctx, &msgFeedData)
-			require.Equal(t, k.GetLatestRoundId(ctx, tc.feedId), uint64(1))
-
-			expectedRoundId := uint64(tc.repeat + 1)
-
-			for i := int64(0); i < tc.repeat; i++ {
-				currRoundId := k.GetLatestRoundId(ctx, tc.feedId)
-
-				msg := types.NewMsgRequestNewRound(submitter, tc.feedId)
-				_, _, err := k.RequestNewRound(ctx, msg)
-				require.Equal(t, err, nil)
-				latestRoundId := k.GetLatestRoundId(ctx, tc.feedId)
-				require.Equal(t, currRoundId, latestRoundId-1)
-			}
-
-			latestRoundId := k.GetLatestRoundId(ctx, tc.feedId)
-
-			require.Equal(t, expectedRoundId, latestRoundId)
-		})
-	}
-}
-
 func TestKeeper_SetModuleOwner(t *testing.T) {
 	t.Skip("TODO")
 }
