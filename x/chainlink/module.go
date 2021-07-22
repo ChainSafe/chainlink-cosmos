@@ -4,6 +4,7 @@
 package chainlink
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"github.com/ChainSafe/chainlink-cosmos/x/chainlink/client/rest"
@@ -85,7 +86,10 @@ func (AppModuleBasic) RegisterRESTRoutes(clientCtx client.Context, rtr *mux.Rout
 
 // RegisterGRPCGatewayRoutes registers the gRPC Gateway routes for the module.
 func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *runtime.ServeMux) {
-	// TODO: enable this using protoc-gen-grpc-gateway
+	err := types.RegisterQueryHandlerClient(context.Background(), mux, types.NewQueryClient(clientCtx))
+	if err != nil {
+		panic(err) // FIXME
+	}
 }
 
 // GetTxCmd returns the capability module's root tx command.
