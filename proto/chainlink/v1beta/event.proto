@@ -18,6 +18,10 @@ message MsgNewRoundDataEvent{
   bytes feedData = 3;
 }
 
+message MsgNewRoundRequestEvent{
+  string feedId = 1;
+}
+
 message MsgOraclePaidEvent{
   string feedId = 1;
   // The account that was paid to

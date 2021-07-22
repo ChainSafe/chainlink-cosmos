@@ -38,6 +38,8 @@ func NewHandler(k keeper.Keeper) sdk.Handler {
 			return handlerMsgSetFeedReward(ctx, k, msg)
 		case *types.MsgFeedOwnershipTransfer:
 			return handlerMsgFeedOwnershipTransfer(ctx, k, msg)
+		case *types.MsgRequestNewRound:
+			return handlerMsgRequestNewRound(ctx, k, msg)
 		default:
 			errMsg := fmt.Sprintf("unrecognized %s message type: %T", types.ModuleName, msg)
 			return nil, sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, errMsg)
@@ -171,6 +173,18 @@ func handlerMsgSetFeedReward(ctx sdk.Context, k keeper.Keeper, msgSetFeedReward 
 
 func handlerMsgFeedOwnershipTransfer(ctx sdk.Context, k keeper.Keeper, msgFeedOwnershipTransfer *types.MsgFeedOwnershipTransfer) (*sdk.Result, error) {
 	msgResult, err := k.FeedOwnershipTransferTx(sdk.WrapSDKContext(ctx), msgFeedOwnershipTransfer)
+	if err != nil {
+		return nil, err
+	}
+	result, err := sdk.WrapServiceResult(ctx, msgResult, err)
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+func handlerMsgRequestNewRound(ctx sdk.Context, k keeper.Keeper, msgRequestNewRound *types.MsgRequestNewRound) (*sdk.Result, error) {
+	msgResult, err := k.RequestNewRoundTx(sdk.WrapSDKContext(ctx), msgRequestNewRound)
 	if err != nil {
 		return nil, err
 	}

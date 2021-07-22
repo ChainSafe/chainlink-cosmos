@@ -146,6 +146,14 @@ message MsgFeedData {
   repeated bytes signatures = 4;
 }
 
+// MsgRequestNewRound is the type defined for requesting new rounds to be triggered for a given feed
+message MsgRequestNewRound {
+  // FeedId is the unique identifier of the feed
+  string feedId = 1;
+  // Signer is the feed owner who signs the tx
+  bytes signer = 3 [(gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"];
+}
+
 message MsgResponse {
   uint64 height = 1;
   string txHash = 2;
