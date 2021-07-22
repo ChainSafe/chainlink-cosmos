@@ -1,3 +1,6 @@
+// Copyright 2021 ChainSafe Systems
+// SPDX-License-Identifier: MIT
+
 package rest
 
 import (
@@ -57,7 +60,7 @@ func listRoundFeedDataHandler(clientCtx client.Context) http.HandlerFunc {
 		}
 		feedId := vars["feedId"]
 
-		res, height, err := clientCtx.QueryWithData(fmt.Sprintf("custom/%s/%s/%d/%s", types.StoreKey, types.QueryRoundFeedData, roundIdInt, feedId), nil)
+		res, height, err := clientCtx.QueryWithData(fmt.Sprintf("custom/%s/%s/%d/%s", types.FeedDataStoreKey, types.QueryRoundFeedData, roundIdInt, feedId), nil)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusNotFound, err.Error())
 			return
@@ -72,7 +75,7 @@ func listLatestFeedDataHandler(clientCtx client.Context) http.HandlerFunc {
 		vars := mux.Vars(r)
 		feedId := vars["feedId"]
 
-		res, height, err := clientCtx.QueryWithData(fmt.Sprintf("custom/%s/%s/%s", types.StoreKey, types.QueryLatestFeedData, feedId), nil)
+		res, height, err := clientCtx.QueryWithData(fmt.Sprintf("custom/%s/%s/%s", types.FeedDataStoreKey, types.QueryLatestFeedData, feedId), nil)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusNotFound, err.Error())
 			return

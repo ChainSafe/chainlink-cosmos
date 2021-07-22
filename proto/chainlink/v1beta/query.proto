@@ -4,6 +4,7 @@ package chainlink.v1beta;
 import "cosmos/base/query/v1beta1/pagination.proto";
 import "chainlink/v1beta/tx.proto";
 import "google/api/annotations.proto";
+import "chainlink/v1beta/genesis.proto";
 
 option go_package = "github.com/ChainSafe/chainlink-cosmos/x/chainlink/types";
 
@@ -15,6 +16,27 @@ service Query {
   rpc LatestRoundData(GetLatestRoundDataRequest) returns (GetLatestRoundDataResponse) {
     option (google.api.http).get = "/chainlink/feed/data/latest/{feedId}";
   }
+  rpc GetAllModuleOwner(GetModuleOwnerRequest) returns (GetModuleOwnerResponse) {
+    option (google.api.http).get = "/chainlink/module/owner";
+  }
+  rpc GetFeedByFeedId(GetFeedByIdRequest) returns (GetFeedByIdResponse) {
+    option (google.api.http).get = "/chainlink/module/feed";
+  }
+}
+
+message GetFeedByIdRequest {
+  string feedId = 1;
+}
+
+message GetFeedByIdResponse{
+  MsgFeed feed = 1;
+}
+
+message GetModuleOwnerRequest {
+}
+
+message GetModuleOwnerResponse {
+  repeated MsgModuleOwner moduleOwner = 1;
 }
 
 message GetRoundDataRequest {

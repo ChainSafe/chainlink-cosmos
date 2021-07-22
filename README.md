@@ -1,20 +1,36 @@
-# chainlink
+![Chainlink Cosmos](docs/imgs/logo.png)
 
-**chainlink** is a blockchain App built with Cosmos-SDK and chainlink module
+[![GitHub license](https://img.shields.io/github/license/ChainSafe/chainlink-cosmos.svg)](https://github.com/ChainSafe/chainlink-cosmos/blob/master/LICENSE)
+[![Medium Badge](https://img.shields.io/badge/chainsafe-systems-black?style=flat&logo=medium&logoColor=white&link=https://medium.com/chainsafe-systems)](https://medium.com/chainsafe-systems)
+[![Twitter Badge](https://badgen.net/badge/icon/twitter?icon=twitter&label)](https://twitter.com/chainsafeth)
+
+# Chainlink-Cosmos
+
+**Chainlink** is a decentralized oracle network. To make Chainlink data feeds usable within Cosmos blockchains, [ChainSafe Systems](https://chainsafe.io/) is developing a Cosmos SDK module that supports the basic Chainlink OCR functionality of accepting aggregate signed data from a set of oracles, and storing it in the blockchain state. This data is made available to other modules within the same application.
+
+Any application developer can incorporate this module directly into their application to manage and incentivize data providers & accept data submitted by these participants to the chain.
+
 
 ## Get started
 
 ```
 $ make install
-
-$ ./scripts/start.sh
 ```
 
-## Configure
-
 ## Launch
+
+```
+$ make start
+```
+
+## Documentation
+[Cosmos ChainLink Module Documentation](./docs/doc.md)
+
  
 ## Learn more
 - [Cosmos SDK documentation](https://docs.cosmos.network)
 - [Cosmos SDK Tutorials](https://tutorials.cosmos.network)
- 
+
+## License
+
+[MIT](LICENSE) © ChainSafe Systems
