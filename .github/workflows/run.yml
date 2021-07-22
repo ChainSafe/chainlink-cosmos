@@ -9,7 +9,7 @@ on:
       - "*"
 
 jobs:
-  build:
+  run:
     name: 
     strategy:
       matrix:
@@ -23,13 +23,14 @@ jobs:
           go-version: ${{ matrix.go-version }}
       - name: Checkout code
         uses: actions/checkout@v2
-      - uses: actions/cache@v2.1.4
+      - uses: actions/cache@v2.1.6
         with:
           path: ~/go/pkg/mod
           key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-go-
-      - name: Build binary
+      - name: Run addFeed test
         run: |
           make install
           make test-addFeed
+# to do: need to add cmd.sh as test with validation steps

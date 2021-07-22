@@ -1,3 +1,6 @@
+// Copyright 2021 ChainSafe Systems
+// SPDX-License-Identifier: MIT
+
 package keeper
 
 import (
@@ -18,6 +21,7 @@ import (
 type (
 	Keeper struct {
 		cdc                 codec.Marshaler
+		bankKeeper          types.BankKeeper
 		feedDataStoreKey    sdk.StoreKey
 		roundStoreKey       sdk.StoreKey
 		moduleOwnerStoreKey sdk.StoreKey
@@ -28,6 +32,7 @@ type (
 
 func NewKeeper(
 	cdc codec.Marshaler,
+	bk types.BankKeeper,
 	feedDataStoreKey,
 	roundStoreKey,
 	moduleOwnerStoreKey,
@@ -36,6 +41,7 @@ func NewKeeper(
 ) *Keeper {
 	return &Keeper{
 		cdc:                 cdc,
+		bankKeeper:          bk,
 		feedDataStoreKey:    feedDataStoreKey,
 		roundStoreKey:       roundStoreKey,
 		moduleOwnerStoreKey: moduleOwnerStoreKey,
@@ -48,9 +54,9 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", fmt.Sprintf("x/%s", types.ModuleName))
 }
 
-func (k Keeper) SetFeedData(ctx sdk.Context, feedData *types.MsgFeedData) (int64, []byte) {
+func (k Keeper) SetFeedData(ctx sdk.Context, feedData *types.MsgFeedData) (int64, []byte, error) {
 	roundStore := ctx.KVStore(k.roundStoreKey)
-	currentLatestRoundId := k.GetLatestRoundId(roundStore, feedData.FeedId)
+	currentLatestRoundId := k.GetLatestRoundId(ctx, feedData.FeedId)
 	roundId := currentLatestRoundId + 1
 
 	// update the latest roundId of the current feedId
@@ -79,13 +85,23 @@ func (k Keeper) SetFeedData(ctx sdk.Context, feedData *types.MsgFeedData) (int64
 		RoundId:               roundId,
 	}
 
-	feedDateStore := ctx.KVStore(k.feedDataStoreKey)
+	feedDataStore := ctx.KVStore(k.feedDataStoreKey)
 
 	f := k.cdc.MustMarshalBinaryBare(&finalFeedDataInStore)
 
-	feedDateStore.Set(types.GetFeedDataKey(feedData.GetFeedId(), strconv.FormatUint(roundId, 10)), f)
+	feedDataStore.Set(types.GetFeedDataKey(feedData.GetFeedId(), strconv.FormatUint(roundId, 10)), f)
 
-	return ctx.BlockHeight(), ctx.TxBytes()
+	// emit NewRoundData event
+	err := types.EmitEvent(&types.MsgNewRoundDataEvent{
+		FeedId:   feedData.FeedId,
+		RoundId:  roundId,
+		FeedData: feedData.FeedData,
+	}, ctx.EventManager())
+	if err != nil {
+		return 0, nil, err
+	}
+
+	return ctx.BlockHeight(), ctx.TxBytes(), nil
 }
 
 func (k Keeper) GetRoundFeedDataByFilter(ctx sdk.Context, req *types.GetRoundDataRequest) (*types.GetRoundDataResponse, error) {
@@ -130,8 +146,7 @@ func (k Keeper) GetLatestRoundFeedDataByFilter(ctx sdk.Context, req *types.GetLa
 	var feedRoundData []*types.RoundData
 
 	// get the roundId based on given feedId
-	roundStore := ctx.KVStore(k.roundStoreKey)
-	latestRoundId := k.GetLatestRoundId(roundStore, req.GetFeedId())
+	latestRoundId := k.GetLatestRoundId(ctx, req.GetFeedId())
 
 	feedDataStore := ctx.KVStore(k.feedDataStoreKey)
 	iterator := sdk.KVStorePrefixIterator(feedDataStore, types.GetFeedDataKey("", ""))
@@ -155,9 +170,11 @@ func (k Keeper) GetLatestRoundFeedDataByFilter(ctx sdk.Context, req *types.GetLa
 
 // GetLatestRoundId returns the current existing latest roundId of a feedId
 // returns the global latest roundId in roundStore regardless of feedId if feedId is not given.
-func (k Keeper) GetLatestRoundId(store sdk.KVStore, feedId string) uint64 {
+func (k Keeper) GetLatestRoundId(ctx sdk.Context, feedId string) uint64 {
+	roundStore := ctx.KVStore(k.roundStoreKey)
+
 	if feedId != "" {
-		roundIdBytes := store.Get(types.GetRoundIdKey(feedId))
+		roundIdBytes := roundStore.Get(types.GetRoundIdKey(feedId))
 
 		if len(roundIdBytes) == 0 {
 			return 0
@@ -166,7 +183,7 @@ func (k Keeper) GetLatestRoundId(store sdk.KVStore, feedId string) uint64 {
 	}
 
 	var latestRoundId uint64
-	roundIdIterator := sdk.KVStorePrefixIterator(store, types.GetRoundIdKey(""))
+	roundIdIterator := sdk.KVStorePrefixIterator(roundStore, types.GetRoundIdKey(""))
 	defer roundIdIterator.Close()
 
 	for ; roundIdIterator.Valid(); roundIdIterator.Next() {
@@ -326,6 +343,111 @@ func (k Keeper) SetDeviationThresholdTrigger(ctx sdk.Context, setDeviationThresh
 
 	// put back feed in the store
 	k.SetFeed(ctx, feed)
+
+	return ctx.BlockHeight(), ctx.TxBytes(), nil
+}
+
+func (k Keeper) SetFeedReward(ctx sdk.Context, setFeedReward *types.MsgSetFeedReward) (int64, []byte, error) {
+	// retrieve feed from store
+	resp := k.GetFeed(ctx, setFeedReward.GetFeedId())
+	feed := resp.GetFeed()
+	if feed == nil {
+		return 0, nil, fmt.Errorf("feed '%s' not found", setFeedReward.GetFeedId())
+	}
+
+	// update feed reward
+	feed.FeedReward = setFeedReward.GetFeedReward()
+
+	// put back feed in the store
+	k.SetFeed(ctx, feed)
+
+	return ctx.BlockHeight(), ctx.TxBytes(), nil
+}
+
+// DistributeReward will mint the reward from the module
+// then transfer the reward to the receiver (data provider)
+func (k Keeper) DistributeReward(ctx sdk.Context, msg *types.MsgFeedData, dataProviders []*types.DataProvider, feedReward uint32) error {
+	// calculate the total reward to mint (minus fee compensation)
+	totalFeedReward := int64(feedReward) * int64(len(dataProviders))
+	tokensToMint := types.NewLinkCoinInt64(totalFeedReward)
+	tokensToSend := types.NewLinkCoinInt64(int64(feedReward))
+
+	OraclePaidEvent := &types.MsgOraclePaidEvent{
+		FeedId: msg.FeedId,
+	}
+
+	// mint new tokens if the source of the transfer is the same chain
+	if err := k.bankKeeper.MintCoins(
+		ctx, types.ModuleName, sdk.NewCoins(tokensToMint),
+	); err != nil {
+		return err
+	}
+
+	// distribute reward to all data providers except submitter
+	for _, dp := range dataProviders {
+		if dp.Address.String() != msg.Submitter.String() {
+			if err := k.bankKeeper.SendCoinsFromModuleToAccount(
+				ctx, types.ModuleName, dp.Address, sdk.NewCoins(tokensToSend),
+			); err != nil {
+				return err
+			}
+			// emit OraclePaid event for valid data providers
+			OraclePaidEvent.Account = dp.Address
+			OraclePaidEvent.Value = uint64(feedReward)
+			err := types.EmitEvent(OraclePaidEvent, ctx.EventManager())
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	// send to submitter
+	// TODO: include fees - need to mint this amount as well
+	if err := k.bankKeeper.SendCoinsFromModuleToAccount(
+		ctx, types.ModuleName, msg.Submitter, sdk.NewCoins(tokensToSend),
+	); err != nil {
+		return err
+	}
+
+	// emit OraclePaid event to submitter including the fee
+	OraclePaidEvent.Account = msg.Submitter
+	// TODO: event.Value =  uint64(feedReward) + fee
+	OraclePaidEvent.Value = uint64(feedReward)
+	err := types.EmitEvent(OraclePaidEvent, ctx.EventManager())
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (k Keeper) FeedOwnershipTransfer(ctx sdk.Context, feedOwnershipTransfer *types.MsgFeedOwnershipTransfer) (int64, []byte, error) {
+	// retrieve feed from store
+	resp := k.GetFeed(ctx, feedOwnershipTransfer.GetFeedId())
+	feed := resp.GetFeed()
+	if feed == nil {
+		return 0, nil, fmt.Errorf("feed '%s' not found", feedOwnershipTransfer.GetFeedId())
+	}
+
+	// update the feed owner
+	feed.FeedOwner = feedOwnershipTransfer.GetNewFeedOwnerAddress()
+
+	// put back feed in the store
+	k.SetFeed(ctx, feed)
+
+	return ctx.BlockHeight(), ctx.TxBytes(), nil
+}
+
+// RequestNewRound will be a transaction sent by the FeedOwner to request a new report to the chainlink network
+// The event emitted will expect a data provider to submit a new report.
+func (k Keeper) RequestNewRound(ctx sdk.Context, requestNewRound *types.MsgRequestNewRound) (int64, []byte, error) {
+	// emit NewRoundData event
+	err := types.EmitEvent(&types.MsgNewRoundRequestEvent{
+		FeedId: requestNewRound.FeedId,
+	}, ctx.EventManager())
+	if err != nil {
+		return 0, nil, err
+	}
 
 	return ctx.BlockHeight(), ctx.TxBytes(), nil
 }

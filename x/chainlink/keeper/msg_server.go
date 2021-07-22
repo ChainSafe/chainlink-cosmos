@@ -1,3 +1,6 @@
+// Copyright 2021 ChainSafe Systems
+// SPDX-License-Identifier: MIT
+
 package keeper
 
 import (
@@ -12,15 +15,35 @@ var _ types.MsgServer = Keeper{}
 
 const (
 	ErrIncorrectHeightFound = "incorrect height found"
+
+	DataProviderSetChangeTypeAdd          = "Add"
+	DataProviderSetChangeTypeRemove       = "Remove"
+	FeedParamChangeTypeSubmissionCount    = "SubmissionCount"
+	FeedParamChangeTypeHeartbeat          = "Heartbeat"
+	FeedParamChangeTypeDeviationThreshold = "DeviationThreshold"
+	FeedParamChangeTypeRewardSchema       = "RewardSchema"
 )
 
 // SubmitFeedDataTx implements the tx/SubmitFeedDataTx gRPC method
 func (k Keeper) SubmitFeedDataTx(c context.Context, msg *types.MsgFeedData) (*types.MsgResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
-	height, txHash := k.SetFeedData(ctx, msg)
-
+	height, txHash, err := k.SetFeedData(ctx, msg)
+	if err != nil {
+		return nil, err
+	}
 	if height == 0 {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidHeight, ErrIncorrectHeightFound)
+	}
+
+	// reward distribution
+	feed := k.GetFeed(ctx, msg.FeedId)
+	feedReward := feed.GetFeed().FeedReward
+
+	dataProviders := feed.GetFeed().DataProviders
+
+	err = k.DistributeReward(ctx, msg, dataProviders, feedReward)
+	if err != nil {
+		return nil, err
 	}
 
 	return &types.MsgResponse{
@@ -61,6 +84,15 @@ func (k Keeper) ModuleOwnershipTransferTx(c context.Context, msg *types.MsgModul
 		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidHeight, ErrIncorrectHeightFound)
 	}
 
+	// emit ModuleOwnershipTransfer event
+	err := types.EmitEvent(&types.MsgModuleOwnershipTransferEvent{
+		NewModuleOwnerAddr: msg.GetNewModuleOwnerAddress(),
+		Signer:             msg.GetAssignerAddress(),
+	}, ctx.EventManager())
+	if err != nil {
+		return nil, err
+	}
+
 	return &types.MsgResponse{
 		Height: uint64(height),
 		TxHash: string(txHash),
@@ -75,6 +107,16 @@ func (k Keeper) AddFeedTx(c context.Context, msg *types.MsgFeed) (*types.MsgResp
 
 	if height == 0 {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidHeight, ErrIncorrectHeightFound)
+	}
+
+	// emit NewFeed event
+	err := types.EmitEvent(&types.MsgNewFeedEvent{
+		FeedId:        msg.GetFeedId(),
+		DataProviders: msg.GetDataProviders(),
+		FeedOwner:     msg.GetFeedOwner(),
+	}, ctx.EventManager())
+	if err != nil {
+		return nil, err
 	}
 
 	return &types.MsgResponse{
@@ -97,6 +139,17 @@ func (k Keeper) AddDataProviderTx(c context.Context, msg *types.MsgAddDataProvid
 		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidHeight, ErrIncorrectHeightFound)
 	}
 
+	// emit DataProviderSetChange event
+	err = types.EmitEvent(&types.MsgDataProviderSetChangeEvent{
+		FeedId:           msg.GetFeedId(),
+		ChangeType:       DataProviderSetChangeTypeAdd,
+		DataProviderAddr: msg.GetDataProvider().GetAddress(),
+		Signer:           msg.GetSigner(),
+	}, ctx.EventManager())
+	if err != nil {
+		return nil, err
+	}
+
 	return &types.MsgResponse{
 		Height: uint64(height),
 		TxHash: string(txHash),
@@ -115,6 +168,17 @@ func (k Keeper) RemoveDataProviderTx(c context.Context, msg *types.MsgRemoveData
 
 	if height == 0 {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidHeight, ErrIncorrectHeightFound)
+	}
+
+	// emit DataProviderSetChange event
+	err = types.EmitEvent(&types.MsgDataProviderSetChangeEvent{
+		FeedId:           msg.GetFeedId(),
+		ChangeType:       DataProviderSetChangeTypeRemove,
+		DataProviderAddr: msg.GetAddress(),
+		Signer:           msg.GetSigner(),
+	}, ctx.EventManager())
+	if err != nil {
+		return nil, err
 	}
 
 	return &types.MsgResponse{
@@ -136,6 +200,17 @@ func (k Keeper) SetSubmissionCountTx(c context.Context, msg *types.MsgSetSubmiss
 		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidHeight, ErrIncorrectHeightFound)
 	}
 
+	// emit FeedParameterChange event
+	err = types.EmitEvent(&types.MsgFeedParameterChangeEvent{
+		FeedId:            msg.GetFeedId(),
+		ChangeType:        FeedParamChangeTypeSubmissionCount,
+		NewParameterValue: msg.GetSubmissionCount(),
+		Signer:            msg.GetSigner(),
+	}, ctx.EventManager())
+	if err != nil {
+		return nil, err
+	}
+
 	return &types.MsgResponse{
 		Height: uint64(height),
 		TxHash: string(txHash),
@@ -155,6 +230,17 @@ func (k Keeper) SetHeartbeatTriggerTx(c context.Context, msg *types.MsgSetHeartb
 		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidHeight, ErrIncorrectHeightFound)
 	}
 
+	// emit FeedParameterChange event
+	err = types.EmitEvent(&types.MsgFeedParameterChangeEvent{
+		FeedId:            msg.GetFeedId(),
+		ChangeType:        FeedParamChangeTypeHeartbeat,
+		NewParameterValue: msg.GetHeartbeatTrigger(),
+		Signer:            msg.GetSigner(),
+	}, ctx.EventManager())
+	if err != nil {
+		return nil, err
+	}
+
 	return &types.MsgResponse{
 		Height: uint64(height),
 		TxHash: string(txHash),
@@ -170,6 +256,94 @@ func (k Keeper) SetDeviationThresholdTriggerTx(c context.Context, msg *types.Msg
 		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, err.Error())
 	}
 
+	if height == 0 {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidHeight, ErrIncorrectHeightFound)
+	}
+
+	// emit FeedParameterChange event
+	err = types.EmitEvent(&types.MsgFeedParameterChangeEvent{
+		FeedId:            msg.GetFeedId(),
+		ChangeType:        FeedParamChangeTypeDeviationThreshold,
+		NewParameterValue: msg.GetDeviationThresholdTrigger(),
+		Signer:            msg.GetSigner(),
+	}, ctx.EventManager())
+	if err != nil {
+		return nil, err
+	}
+
+	return &types.MsgResponse{
+		Height: uint64(height),
+		TxHash: string(txHash),
+	}, nil
+}
+
+func (k Keeper) SetFeedRewardTx(c context.Context, msg *types.MsgSetFeedReward) (*types.MsgResponse, error) {
+	ctx := sdk.UnwrapSDKContext(c)
+
+	height, txHash, err := k.SetFeedReward(ctx, msg)
+
+	if err != nil {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, err.Error())
+	}
+
+	if height == 0 {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidHeight, ErrIncorrectHeightFound)
+	}
+
+	// emit FeedParameterChange event
+	err = types.EmitEvent(&types.MsgFeedParameterChangeEvent{
+		FeedId:            msg.GetFeedId(),
+		ChangeType:        FeedParamChangeTypeRewardSchema,
+		NewParameterValue: msg.GetFeedReward(),
+		Signer:            msg.GetSigner(),
+	}, ctx.EventManager())
+	if err != nil {
+		return nil, err
+	}
+
+	return &types.MsgResponse{
+		Height: uint64(height),
+		TxHash: string(txHash),
+	}, nil
+}
+
+func (k Keeper) FeedOwnershipTransferTx(c context.Context, msg *types.MsgFeedOwnershipTransfer) (*types.MsgResponse, error) {
+	ctx := sdk.UnwrapSDKContext(c)
+
+	height, txHash, err := k.FeedOwnershipTransfer(ctx, msg)
+
+	if err != nil {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, err.Error())
+	}
+
+	if height == 0 {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidHeight, ErrIncorrectHeightFound)
+	}
+
+	// emit FeedOwnershipTransfer event
+	err = types.EmitEvent(&types.MsgFeedOwnershipTransferEvent{
+		FeedId:           msg.GetFeedId(),
+		NewFeedOwnerAddr: msg.GetNewFeedOwnerAddress(),
+		Signer:           msg.GetSigner(),
+	}, ctx.EventManager())
+	if err != nil {
+		return nil, err
+	}
+
+	return &types.MsgResponse{
+		Height: uint64(height),
+		TxHash: string(txHash),
+	}, nil
+}
+
+func (k Keeper) RequestNewRoundTx(c context.Context, msg *types.MsgRequestNewRound) (*types.MsgResponse, error) {
+	ctx := sdk.UnwrapSDKContext(c)
+
+	height, txHash, err := k.RequestNewRound(ctx, msg)
+
+	if err != nil {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, err.Error())
+	}
 	if height == 0 {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidHeight, ErrIncorrectHeightFound)
 	}

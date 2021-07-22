@@ -1,4 +1,3 @@
-# module owner
 # List existing keys
 chainlinkd keys list --keyring-backend test
 
@@ -11,18 +10,25 @@ bobPK=$(chainlinkd keys show bob -p)
 cerloAddr=$(chainlinkd keys show cerlo -a)
 cerloPK=$(chainlinkd keys show cerlo -p)
 
+# ======
+# Module
+# ======
+
 # List all module owner
 chainlinkd query chainlink getModuleOwnerList --chain-id testchain -o json
 
 # Add new module owner by alice
 chainlinkd tx chainlink addModuleOwner "$bobAddr" "$bobPK" --from alice --keyring-backend test --chain-id testchain
 
-# Module ownership transfer by bob
+# Module ownership transfer by bob to alice
 chainlinkd tx chainlink moduleOwnershipTransfer "$aliceAddr" "$alicePK" --from bob --keyring-backend test --chain-id testchain
 
-# feed
+# ====
+# Feed
+# ====
+
 # Add new feed
-chainlinkd tx chainlink addFeed feedid1 "$cerloAddr" 1 2 3 "$cerloAddr,$cerloPK" --from alice --keyring-backend test --chain-id testchain
+chainlinkd tx chainlink addFeed feedid1 "$cerloAddr" 1 2 3 4 "$cerloAddr,$cerloPK" --from alice --keyring-backend test --chain-id testchain
 
 # Query feed info by feedId
 chainlinkd query chainlink getFeedInfo feedid1 --chain-id testchain
@@ -39,19 +45,31 @@ chainlinkd tx chainlink removeDataProvider feedid1 "$cerloAddr" --from alice --k
 # Query feed info by feedId
 chainlinkd query chainlink getFeedInfo feedid1 --chain-id testchain
 
-# Update submission count parameter
-chainlinkd tx chainlink setSubmissionCount feedid1 100 --from alice --keyring-backend test --chain-id testchain
-
-# Update heartbeat trigger parameter
-chainlinkd tx chainlink setHeartbeatTrigger feedid1 200 --from alice --keyring-backend test --chain-id testchain
-
-# Update deviation threshold trigger parameter
-chainlinkd tx chainlink setDeviationThresholdTrigger feedid1 300 --from alice --keyring-backend test --chain-id testchain
+# Feed ownership transfer by alice to bob
+chainlinkd tx chainlink feedOwnershipTransfer feedid1 "$bobAddr" --from alice --keyring-backend test --chain-id testchain
 
 # Query feed info by feedId
 chainlinkd query chainlink getFeedInfo feedid1 --chain-id testchain
 
-# feed data (report)
+# Update submission count parameter
+chainlinkd tx chainlink setSubmissionCount feedid1 100 --from bob --keyring-backend test --chain-id testchain
+
+# Update heartbeat trigger parameter
+chainlinkd tx chainlink setHeartbeatTrigger feedid1 200 --from bob --keyring-backend test --chain-id testchain
+
+# Update deviation threshold trigger parameter
+chainlinkd tx chainlink setDeviationThresholdTrigger feedid1 300 --from bob --keyring-backend test --chain-id testchain
+
+# Update feed reward parameter
+chainlinkd tx chainlink setFeedReward feedid1 100 --from bob --keyring-backend test --chain-id testchain
+
+# Query feed info by feedId
+chainlinkd query chainlink getFeedInfo feedid1 --chain-id testchain
+
+# ==================
+# Feed Data (Report)
+# ==================
+
 # Submit feed data by alice
 chainlinkd tx chainlink submitFeedData feedid1 "feed 1 test data" "dummy signatures" --from alice --keyring-backend test --chain-id testchain
 
@@ -69,4 +87,3 @@ chainlinkd query chainlink getLatestFeedData feedid2 --chain-id testchain -o jso
 
 # Query the latest round of feed data
 chainlinkd query chainlink getLatestFeedData --chain-id testchain -o json
-

@@ -1,3 +1,6 @@
+// Copyright 2021 ChainSafe Systems
+// SPDX-License-Identifier: MIT
+
 package cli
 
 import (
@@ -29,6 +32,8 @@ func GetTxCmd() *cobra.Command {
 	cmd.AddCommand(CmdSetSubmissionCount())
 	cmd.AddCommand(CmdSetHeartbeatTrigger())
 	cmd.AddCommand(CmdSetDeviationThreshold())
+	cmd.AddCommand(CmdSetFeedReward())
+	cmd.AddCommand(CmdTransferFeedOwnership())
 
 	return cmd
 }

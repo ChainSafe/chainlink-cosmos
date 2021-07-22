@@ -1,12 +1,16 @@
+// Copyright 2021 ChainSafe Systems
+// SPDX-License-Identifier: MIT
+
 package types
 
 import (
 	"bytes"
 	"errors"
+	"strings"
+
 	githubcosmossdktypes "github.com/cosmos/cosmos-sdk/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"strings"
 )
 
 const (
@@ -19,9 +23,12 @@ const (
 	SetSubmissionCount           = "SetSubmissionCount"
 	SetHeartbeatTrigger          = "SetHeartbeatTrigger"
 	SetDeviationThresholdTrigger = "SetDeviationThresholdTrigger"
+	SetFeedReward                = "SetFeedReward"
+	FeedOwnershipTransfer        = "FeedOwnershipTransfer"
+	RequestNewRound              = "RequestNewRound"
 )
 
-var _, _, _, _, _, _, _, _, _ sdk.Msg = &MsgFeedData{}, &MsgModuleOwnershipTransfer{}, &MsgModuleOwner{}, &MsgFeed{}, &MsgAddDataProvider{}, &MsgRemoveDataProvider{}, &MsgSetSubmissionCount{}, &MsgSetHeartbeatTrigger{}, &MsgSetDeviationThresholdTrigger{}
+var _, _, _, _, _, _, _, _, _, _, _ sdk.Msg = &MsgFeedData{}, &MsgModuleOwnershipTransfer{}, &MsgModuleOwner{}, &MsgFeed{}, &MsgAddDataProvider{}, &MsgRemoveDataProvider{}, &MsgSetSubmissionCount{}, &MsgSetHeartbeatTrigger{}, &MsgSetDeviationThresholdTrigger{}, &MsgFeedOwnershipTransfer{}, &MsgRequestNewRound{}
 var _ sdk.Tx = &MsgModuleOwner{}
 
 func NewMsgFeedData(submitter sdk.Address, feedId string, feedData []byte, signatures [][]byte) *MsgFeedData {
@@ -150,7 +157,7 @@ func (m *MsgModuleOwnershipTransfer) GetSigners() []githubcosmossdktypes.AccAddr
 	return []sdk.AccAddress{sdk.AccAddress(m.AssignerAddress)}
 }
 
-func NewMsgFeed(feedId string, feedOwner, moduleOwner sdk.Address, initDataProviders []*DataProvider, submissionCount, heartbeatTrigger, deviationThresholdTrigger uint32) *MsgFeed {
+func NewMsgFeed(feedId string, feedOwner, moduleOwner sdk.Address, initDataProviders []*DataProvider, submissionCount, heartbeatTrigger, deviationThresholdTrigger, feedReward uint32) *MsgFeed {
 	return &MsgFeed{
 		FeedId:                    feedId,
 		FeedOwner:                 feedOwner.Bytes(),
@@ -159,6 +166,7 @@ func NewMsgFeed(feedId string, feedOwner, moduleOwner sdk.Address, initDataProvi
 		HeartbeatTrigger:          heartbeatTrigger,
 		DeviationThresholdTrigger: deviationThresholdTrigger,
 		ModuleOwnerAddress:        moduleOwner.Bytes(),
+		FeedReward:                feedReward,
 	}
 }
 
@@ -188,6 +196,9 @@ func (m *MsgFeed) ValidateBasic() error {
 	}
 	if m.GetDeviationThresholdTrigger() == 0 {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "deviationThresholdTrigger must not be 0")
+	}
+	if m.GetFeedReward() == 0 {
+		return errors.New("FeedReward must not be 0")
 	}
 
 	if len(m.GetDataProviders()) == 0 {
@@ -401,5 +412,112 @@ func (m *MsgSetDeviationThresholdTrigger) GetSignBytes() []byte {
 }
 
 func (m *MsgSetDeviationThresholdTrigger) GetSigners() []githubcosmossdktypes.AccAddress {
+	return []sdk.AccAddress{m.Signer}
+}
+
+func NewMsgSetFeedReward(signer githubcosmossdktypes.AccAddress, feedId string, feedReward uint32) *MsgSetFeedReward {
+	return &MsgSetFeedReward{
+		FeedId:     feedId,
+		FeedReward: feedReward,
+		Signer:     signer,
+	}
+}
+
+func (m *MsgSetFeedReward) Route() string {
+	return RouterKey
+}
+
+func (m *MsgSetFeedReward) Type() string {
+	return SetFeedReward
+}
+
+func (m *MsgSetFeedReward) ValidateBasic() error {
+	if m.GetSigner().Empty() {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, "signer can not be empty")
+	}
+	if len(m.GetFeedId()) == 0 {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "feedId can not be empty")
+	}
+	if m.GetFeedReward() == 0 {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "feedReward must not be 0")
+	}
+	return nil
+}
+
+func (m *MsgSetFeedReward) GetSignBytes() []byte {
+	bz := ModuleCdc.MustMarshalJSON(m)
+	return sdk.MustSortJSON(bz)
+}
+
+func (m *MsgSetFeedReward) GetSigners() []githubcosmossdktypes.AccAddress {
+	return []sdk.AccAddress{m.Signer}
+}
+
+func NewMsgFeedOwnershipTransfer(signer githubcosmossdktypes.AccAddress, feedId string, newFeedOwnerAddress sdk.AccAddress) *MsgFeedOwnershipTransfer {
+	return &MsgFeedOwnershipTransfer{
+		FeedId:              feedId,
+		NewFeedOwnerAddress: newFeedOwnerAddress,
+		Signer:              signer,
+	}
+}
+
+func (m *MsgFeedOwnershipTransfer) Route() string {
+	return RouterKey
+}
+
+func (m *MsgFeedOwnershipTransfer) Type() string {
+	return FeedOwnershipTransfer
+}
+
+func (m *MsgFeedOwnershipTransfer) ValidateBasic() error {
+	if m.GetSigner().Empty() {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, "signer can not be empty")
+	}
+	if len(m.GetFeedId()) == 0 {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "feedId can not be empty")
+	}
+	return nil
+}
+
+func (m *MsgFeedOwnershipTransfer) GetSignBytes() []byte {
+	bz := ModuleCdc.MustMarshalJSON(m)
+	return sdk.MustSortJSON(bz)
+}
+
+func (m *MsgFeedOwnershipTransfer) GetSigners() []githubcosmossdktypes.AccAddress {
+	return []sdk.AccAddress{m.Signer}
+}
+
+func NewMsgRequestNewRound(signer githubcosmossdktypes.AccAddress, feedId string) *MsgRequestNewRound {
+	return &MsgRequestNewRound{
+		FeedId: feedId,
+		Signer: signer,
+	}
+}
+
+func (m *MsgRequestNewRound) Route() string {
+	return RouterKey
+}
+
+func (m *MsgRequestNewRound) Type() string {
+	return RequestNewRound
+}
+
+func (m *MsgRequestNewRound) ValidateBasic() error {
+	if m.GetSigner().Empty() {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, "signer can not be empty")
+	}
+	if len(m.GetFeedId()) == 0 {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "feedId can not be empty")
+	}
+	return nil
+}
+
+func (m *MsgRequestNewRound) GetSignBytes() []byte {
+	bz := ModuleCdc.MustMarshalJSON(m)
+	return sdk.MustSortJSON(bz)
+}
+
+func (m *MsgRequestNewRound) GetSigners() []githubcosmossdktypes.AccAddress {
 	return []sdk.AccAddress{m.Signer}
 }

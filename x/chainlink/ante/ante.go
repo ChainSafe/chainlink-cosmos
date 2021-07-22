@@ -1,3 +1,6 @@
+// Copyright 2021 ChainSafe Systems
+// SPDX-License-Identifier: MIT
+
 package ante
 
 import (
@@ -13,7 +16,8 @@ import (
 )
 
 const (
-	ErrFeedDoesNotExist = "feed does not exist"
+	ErrFeedDoesNotExist     = "feed does not exist"
+	ErrSignerIsNotFeedOwner = "account %s (%s) is not a feed owner"
 )
 
 func NewAnteHandler(
@@ -138,6 +142,10 @@ func (fd FeedDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 			if (types.DataProviders)(feed.GetFeed().GetDataProviders()).Contains(t.GetDataProvider().GetAddress()) {
 				return ctx, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "data provider already registered")
 			}
+			signer := t.GetSigners()[0]
+			if !feed.GetFeed().GetFeedOwner().Equals(signer) {
+				return ctx, sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, ErrSignerIsNotFeedOwner, common.BytesToAddress(signer.Bytes()), signer)
+			}
 		case *types.MsgRemoveDataProvider:
 			feed := fd.chainLinkKeeper.GetFeed(ctx, t.GetFeedId())
 			if feed.Feed.Empty() {
@@ -146,28 +154,68 @@ func (fd FeedDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 			if !(types.DataProviders)(feed.GetFeed().GetDataProviders()).Contains(t.GetAddress()) {
 				return ctx, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "data provider not present")
 			}
+			signer := t.GetSigners()[0]
+			if !feed.GetFeed().GetFeedOwner().Equals(signer) {
+				return ctx, sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, ErrSignerIsNotFeedOwner, common.BytesToAddress(signer.Bytes()), signer)
+			}
 		case *types.MsgSetSubmissionCount:
 			feed := fd.chainLinkKeeper.GetFeed(ctx, t.GetFeedId())
 			if feed.Feed.Empty() {
 				return ctx, sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, ErrFeedDoesNotExist)
+			}
+			signer := t.GetSigners()[0]
+			if !feed.GetFeed().GetFeedOwner().Equals(signer) {
+				return ctx, sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, ErrSignerIsNotFeedOwner, common.BytesToAddress(signer.Bytes()), signer)
 			}
 		case *types.MsgSetHeartbeatTrigger:
 			feed := fd.chainLinkKeeper.GetFeed(ctx, t.GetFeedId())
 			if feed.Feed.Empty() {
 				return ctx, sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, ErrFeedDoesNotExist)
 			}
+			signer := t.GetSigners()[0]
+			if !feed.GetFeed().GetFeedOwner().Equals(signer) {
+				return ctx, sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, ErrSignerIsNotFeedOwner, common.BytesToAddress(signer.Bytes()), signer)
+			}
 		case *types.MsgSetDeviationThresholdTrigger:
 			feed := fd.chainLinkKeeper.GetFeed(ctx, t.GetFeedId())
 			if feed.Feed.Empty() {
 				return ctx, sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, ErrFeedDoesNotExist)
 			}
+			signer := t.GetSigners()[0]
+			if !feed.GetFeed().GetFeedOwner().Equals(signer) {
+				return ctx, sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, ErrSignerIsNotFeedOwner, common.BytesToAddress(signer.Bytes()), signer)
+			}
+		case *types.MsgSetFeedReward:
+			feed := fd.chainLinkKeeper.GetFeed(ctx, t.GetFeedId())
+			if feed.Feed.Empty() {
+				return ctx, sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, ErrFeedDoesNotExist)
+			}
+			signer := t.GetSigners()[0]
+			if !feed.GetFeed().GetFeedOwner().Equals(signer) {
+				return ctx, sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, ErrSignerIsNotFeedOwner, common.BytesToAddress(signer.Bytes()), signer)
+			}
+		case *types.MsgFeedOwnershipTransfer:
+			feed := fd.chainLinkKeeper.GetFeed(ctx, t.GetFeedId())
+			if feed.Feed.Empty() {
+				return ctx, sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, ErrFeedDoesNotExist)
+			}
+			signer := t.GetSigners()[0]
+			if !feed.GetFeed().GetFeedOwner().Equals(signer) {
+				return ctx, sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, ErrSignerIsNotFeedOwner, common.BytesToAddress(signer.Bytes()), signer)
+			}
+		case *types.MsgRequestNewRound:
+			feed := fd.chainLinkKeeper.GetFeed(ctx, t.GetFeedId())
+			if feed.Feed.Empty() {
+				return ctx, sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, ErrFeedDoesNotExist)
+			}
+			signer := t.GetSigners()[0]
+			if !feed.GetFeed().GetFeedOwner().Equals(signer) {
+				return ctx, sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, ErrSignerIsNotFeedOwner, common.BytesToAddress(signer.Bytes()), signer)
+			}
 		default:
 			continue
 		}
 	}
-
-	// TODO check feed owner #12
-	// https://github.com/ChainSafe/chainlink-cosmos/issues/12
 
 	return next(ctx, tx, simulate)
 }

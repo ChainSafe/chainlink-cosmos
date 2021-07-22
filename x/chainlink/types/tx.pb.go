@@ -111,6 +111,8 @@ type MsgFeed struct {
 	DeviationThresholdTrigger uint32 `protobuf:"varint,6,opt,name=deviationThresholdTrigger,proto3" json:"deviationThresholdTrigger,omitempty"`
 	// Module owner who signs the add feed tx
 	ModuleOwnerAddress github_com_cosmos_cosmos_sdk_types.AccAddress `protobuf:"bytes,7,opt,name=moduleOwnerAddress,proto3,casttype=github.com/cosmos/cosmos-sdk/types.AccAddress" json:"moduleOwnerAddress,omitempty"`
+	// TODO: RewardConfig: Struct describing how rewards should be paid
+	FeedReward uint32 `protobuf:"varint,8,opt,name=feedReward,proto3" json:"feedReward,omitempty"`
 }
 
 func (m *MsgFeed) Reset()         { *m = MsgFeed{} }
@@ -193,6 +195,13 @@ func (m *MsgFeed) GetModuleOwnerAddress() github_com_cosmos_cosmos_sdk_types.Acc
 		return m.ModuleOwnerAddress
 	}
 	return nil
+}
+
+func (m *MsgFeed) GetFeedReward() uint32 {
+	if m != nil {
+		return m.FeedReward
+	}
+	return 0
 }
 
 // DataProvider is the type defined for feed data provider
@@ -568,6 +577,134 @@ func (m *MsgSetDeviationThresholdTrigger) GetSigner() github_com_cosmos_cosmos_s
 	return nil
 }
 
+type MsgSetFeedReward struct {
+	// FeedId is the unique identifier of the feed
+	FeedId string `protobuf:"bytes,1,opt,name=feedId,proto3" json:"feedId,omitempty"`
+	// The reward distributed to the data providers in a given feed.
+	// The reward will be given as the native token in the application, denominated as "link"
+	FeedReward uint32 `protobuf:"varint,2,opt,name=feedReward,proto3" json:"feedReward,omitempty"`
+	// Signer is the feed owner who signs the tx
+	Signer github_com_cosmos_cosmos_sdk_types.AccAddress `protobuf:"bytes,3,opt,name=signer,proto3,casttype=github.com/cosmos/cosmos-sdk/types.AccAddress" json:"signer,omitempty"`
+}
+
+func (m *MsgSetFeedReward) Reset()         { *m = MsgSetFeedReward{} }
+func (m *MsgSetFeedReward) String() string { return proto.CompactTextString(m) }
+func (*MsgSetFeedReward) ProtoMessage()    {}
+func (*MsgSetFeedReward) Descriptor() ([]byte, []int) {
+	return fileDescriptor_8e2cf97733d10959, []int{8}
+}
+func (m *MsgSetFeedReward) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *MsgSetFeedReward) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_MsgSetFeedReward.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *MsgSetFeedReward) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgSetFeedReward.Merge(m, src)
+}
+func (m *MsgSetFeedReward) XXX_Size() int {
+	return m.Size()
+}
+func (m *MsgSetFeedReward) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgSetFeedReward.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_MsgSetFeedReward proto.InternalMessageInfo
+
+func (m *MsgSetFeedReward) GetFeedId() string {
+	if m != nil {
+		return m.FeedId
+	}
+	return ""
+}
+
+func (m *MsgSetFeedReward) GetFeedReward() uint32 {
+	if m != nil {
+		return m.FeedReward
+	}
+	return 0
+}
+
+func (m *MsgSetFeedReward) GetSigner() github_com_cosmos_cosmos_sdk_types.AccAddress {
+	if m != nil {
+		return m.Signer
+	}
+	return nil
+}
+
+// MsgFeedOwnershipTransfer is the type defined for feed ownership transfer
+type MsgFeedOwnershipTransfer struct {
+	// FeedId is the unique identifier of the feed
+	FeedId string `protobuf:"bytes,1,opt,name=feedId,proto3" json:"feedId,omitempty"`
+	// NewFeedOwnerAddress is the address of the new owner of the feed
+	NewFeedOwnerAddress github_com_cosmos_cosmos_sdk_types.AccAddress `protobuf:"bytes,2,opt,name=newFeedOwnerAddress,proto3,casttype=github.com/cosmos/cosmos-sdk/types.AccAddress" json:"newFeedOwnerAddress,omitempty"`
+	// Signer is the feed owner who signs the tx
+	Signer github_com_cosmos_cosmos_sdk_types.AccAddress `protobuf:"bytes,3,opt,name=signer,proto3,casttype=github.com/cosmos/cosmos-sdk/types.AccAddress" json:"signer,omitempty"`
+}
+
+func (m *MsgFeedOwnershipTransfer) Reset()         { *m = MsgFeedOwnershipTransfer{} }
+func (m *MsgFeedOwnershipTransfer) String() string { return proto.CompactTextString(m) }
+func (*MsgFeedOwnershipTransfer) ProtoMessage()    {}
+func (*MsgFeedOwnershipTransfer) Descriptor() ([]byte, []int) {
+	return fileDescriptor_8e2cf97733d10959, []int{9}
+}
+func (m *MsgFeedOwnershipTransfer) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *MsgFeedOwnershipTransfer) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_MsgFeedOwnershipTransfer.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *MsgFeedOwnershipTransfer) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgFeedOwnershipTransfer.Merge(m, src)
+}
+func (m *MsgFeedOwnershipTransfer) XXX_Size() int {
+	return m.Size()
+}
+func (m *MsgFeedOwnershipTransfer) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgFeedOwnershipTransfer.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_MsgFeedOwnershipTransfer proto.InternalMessageInfo
+
+func (m *MsgFeedOwnershipTransfer) GetFeedId() string {
+	if m != nil {
+		return m.FeedId
+	}
+	return ""
+}
+
+func (m *MsgFeedOwnershipTransfer) GetNewFeedOwnerAddress() github_com_cosmos_cosmos_sdk_types.AccAddress {
+	if m != nil {
+		return m.NewFeedOwnerAddress
+	}
+	return nil
+}
+
+func (m *MsgFeedOwnershipTransfer) GetSigner() github_com_cosmos_cosmos_sdk_types.AccAddress {
+	if m != nil {
+		return m.Signer
+	}
+	return nil
+}
+
 // MsgFeedData is the type defined for the data of the feed
 // It could be an OCR report feed, or any general feed data in the future
 type MsgFeedData struct {
@@ -587,7 +724,7 @@ func (m *MsgFeedData) Reset()         { *m = MsgFeedData{} }
 func (m *MsgFeedData) String() string { return proto.CompactTextString(m) }
 func (*MsgFeedData) ProtoMessage()    {}
 func (*MsgFeedData) Descriptor() ([]byte, []int) {
-	return fileDescriptor_8e2cf97733d10959, []int{8}
+	return fileDescriptor_8e2cf97733d10959, []int{10}
 }
 func (m *MsgFeedData) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -644,6 +781,61 @@ func (m *MsgFeedData) GetSignatures() [][]byte {
 	return nil
 }
 
+// MsgRequestNewRound is the type defined for requesting new rounds to be triggered for a given feed
+type MsgRequestNewRound struct {
+	// FeedId is the unique identifier of the feed
+	FeedId string `protobuf:"bytes,1,opt,name=feedId,proto3" json:"feedId,omitempty"`
+	// Signer is the feed owner who signs the tx
+	Signer github_com_cosmos_cosmos_sdk_types.AccAddress `protobuf:"bytes,3,opt,name=signer,proto3,casttype=github.com/cosmos/cosmos-sdk/types.AccAddress" json:"signer,omitempty"`
+}
+
+func (m *MsgRequestNewRound) Reset()         { *m = MsgRequestNewRound{} }
+func (m *MsgRequestNewRound) String() string { return proto.CompactTextString(m) }
+func (*MsgRequestNewRound) ProtoMessage()    {}
+func (*MsgRequestNewRound) Descriptor() ([]byte, []int) {
+	return fileDescriptor_8e2cf97733d10959, []int{11}
+}
+func (m *MsgRequestNewRound) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *MsgRequestNewRound) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_MsgRequestNewRound.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *MsgRequestNewRound) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgRequestNewRound.Merge(m, src)
+}
+func (m *MsgRequestNewRound) XXX_Size() int {
+	return m.Size()
+}
+func (m *MsgRequestNewRound) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgRequestNewRound.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_MsgRequestNewRound proto.InternalMessageInfo
+
+func (m *MsgRequestNewRound) GetFeedId() string {
+	if m != nil {
+		return m.FeedId
+	}
+	return ""
+}
+
+func (m *MsgRequestNewRound) GetSigner() github_com_cosmos_cosmos_sdk_types.AccAddress {
+	if m != nil {
+		return m.Signer
+	}
+	return nil
+}
+
 type MsgResponse struct {
 	Height uint64 `protobuf:"varint,1,opt,name=height,proto3" json:"height,omitempty"`
 	TxHash string `protobuf:"bytes,2,opt,name=txHash,proto3" json:"txHash,omitempty"`
@@ -653,7 +845,7 @@ func (m *MsgResponse) Reset()         { *m = MsgResponse{} }
 func (m *MsgResponse) String() string { return proto.CompactTextString(m) }
 func (*MsgResponse) ProtoMessage()    {}
 func (*MsgResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_8e2cf97733d10959, []int{9}
+	return fileDescriptor_8e2cf97733d10959, []int{12}
 }
 func (m *MsgResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -713,7 +905,7 @@ func (m *OCRAbiEncoded) Reset()         { *m = OCRAbiEncoded{} }
 func (m *OCRAbiEncoded) String() string { return proto.CompactTextString(m) }
 func (*OCRAbiEncoded) ProtoMessage()    {}
 func (*OCRAbiEncoded) Descriptor() ([]byte, []int) {
-	return fileDescriptor_8e2cf97733d10959, []int{10}
+	return fileDescriptor_8e2cf97733d10959, []int{13}
 }
 func (m *OCRAbiEncoded) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -771,7 +963,7 @@ func (m *Observation) Reset()         { *m = Observation{} }
 func (m *Observation) String() string { return proto.CompactTextString(m) }
 func (*Observation) ProtoMessage()    {}
 func (*Observation) Descriptor() ([]byte, []int) {
-	return fileDescriptor_8e2cf97733d10959, []int{11}
+	return fileDescriptor_8e2cf97733d10959, []int{14}
 }
 func (m *Observation) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -818,7 +1010,7 @@ func (m *OCRFeedDataInStore) Reset()         { *m = OCRFeedDataInStore{} }
 func (m *OCRFeedDataInStore) String() string { return proto.CompactTextString(m) }
 func (*OCRFeedDataInStore) ProtoMessage()    {}
 func (*OCRFeedDataInStore) Descriptor() ([]byte, []int) {
-	return fileDescriptor_8e2cf97733d10959, []int{12}
+	return fileDescriptor_8e2cf97733d10959, []int{15}
 }
 func (m *OCRFeedDataInStore) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -877,7 +1069,10 @@ func init() {
 	proto.RegisterType((*MsgSetSubmissionCount)(nil), "chainlink.v1beta.MsgSetSubmissionCount")
 	proto.RegisterType((*MsgSetHeartbeatTrigger)(nil), "chainlink.v1beta.MsgSetHeartbeatTrigger")
 	proto.RegisterType((*MsgSetDeviationThresholdTrigger)(nil), "chainlink.v1beta.MsgSetDeviationThresholdTrigger")
+	proto.RegisterType((*MsgSetFeedReward)(nil), "chainlink.v1beta.MsgSetFeedReward")
+	proto.RegisterType((*MsgFeedOwnershipTransfer)(nil), "chainlink.v1beta.MsgFeedOwnershipTransfer")
 	proto.RegisterType((*MsgFeedData)(nil), "chainlink.v1beta.MsgFeedData")
+	proto.RegisterType((*MsgRequestNewRound)(nil), "chainlink.v1beta.MsgRequestNewRound")
 	proto.RegisterType((*MsgResponse)(nil), "chainlink.v1beta.MsgResponse")
 	proto.RegisterType((*OCRAbiEncoded)(nil), "chainlink.v1beta.OCRAbiEncoded")
 	proto.RegisterType((*Observation)(nil), "chainlink.v1beta.Observation")
@@ -887,71 +1082,78 @@ func init() {
 func init() { proto.RegisterFile("chainlink/v1beta/tx.proto", fileDescriptor_8e2cf97733d10959) }
 
 var fileDescriptor_8e2cf97733d10959 = []byte{
-	// 1020 bytes of a gzipped FileDescriptorProto
+	// 1128 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xac, 0x57, 0x4f, 0x6f, 0xe3, 0x44,
-	0x14, 0xaf, 0x93, 0xd2, 0xd2, 0xd7, 0x94, 0x2d, 0xa3, 0xb6, 0x4a, 0xa3, 0xc5, 0x2d, 0x16, 0x12,
-	0x11, 0xa2, 0x89, 0xba, 0x1c, 0x10, 0x08, 0x0e, 0x69, 0xba, 0xab, 0xad, 0x56, 0x51, 0x96, 0x89,
-	0x91, 0x10, 0x48, 0x80, 0x93, 0x79, 0xb5, 0xad, 0x26, 0x9e, 0xc8, 0x33, 0xc9, 0xba, 0x1c, 0x39,
-	0x70, 0x46, 0xe2, 0x2b, 0x20, 0x21, 0x71, 0x41, 0xe2, 0xca, 0x05, 0x71, 0x81, 0xe3, 0x4a, 0x5c,
-	0x38, 0xad, 0x50, 0xcb, 0x8d, 0x1b, 0x47, 0x4e, 0x2b, 0x8f, 0x9d, 0xd6, 0x49, 0xec, 0x7a, 0xd5,
-	0xf6, 0x14, 0xbf, 0x79, 0xef, 0xfd, 0xde, 0xff, 0x37, 0x13, 0xd8, 0xee, 0x39, 0x96, 0xeb, 0xf5,
-	0x5d, 0xef, 0xa4, 0x3e, 0xde, 0xef, 0xa2, 0xb4, 0xea, 0x32, 0xa8, 0x0d, 0x7d, 0x2e, 0x39, 0x59,
-	0xbf, 0x60, 0xd5, 0x22, 0x56, 0x65, 0xc3, 0xe6, 0x36, 0x57, 0xcc, 0x7a, 0xf8, 0x15, 0xc9, 0x55,
-	0xee, 0xda, 0x9c, 0xdb, 0x7d, 0xac, 0x5b, 0x43, 0xb7, 0x6e, 0x79, 0x1e, 0x97, 0x96, 0x74, 0xb9,
-	0x27, 0x62, 0xae, 0x3e, 0x67, 0xc0, 0x46, 0x0f, 0x85, 0x1b, 0xf3, 0x8d, 0x1f, 0x0b, 0x50, 0x69,
-	0x09, 0xbb, 0xc5, 0xd9, 0xa8, 0x8f, 0xed, 0x27, 0x1e, 0xfa, 0xc2, 0x71, 0x87, 0xa6, 0x6f, 0x79,
-	0xe2, 0x18, 0x7d, 0xf2, 0x19, 0xdc, 0xb1, 0x84, 0x70, 0x6d, 0x0f, 0xfd, 0x06, 0x63, 0x3e, 0x0a,
-	0x51, 0xd6, 0x76, 0xb5, 0x6a, 0xe9, 0x60, 0xff, 0xff, 0x67, 0x3b, 0x7b, 0xb6, 0x2b, 0x9d, 0x51,
-	0xb7, 0xd6, 0xe3, 0x83, 0x7a, 0x8f, 0x8b, 0x01, 0x17, 0xf1, 0xcf, 0x9e, 0x60, 0x27, 0x75, 0x79,
-	0x3a, 0x44, 0x51, 0x6b, 0xf4, 0x7a, 0xb1, 0x22, 0x9d, 0x45, 0x22, 0x36, 0x6c, 0x7a, 0xf8, 0x24,
-	0x61, 0x7a, 0x62, 0xa2, 0x70, 0x5d, 0x13, 0xe9, 0x78, 0xe4, 0x01, 0x6c, 0x4c, 0x33, 0x1e, 0x8f,
-	0xba, 0x8f, 0xf0, 0xb4, 0x5c, 0x54, 0x76, 0xc8, 0x7f, 0xcf, 0x76, 0x5e, 0x39, 0xb5, 0x06, 0xfd,
-	0xf7, 0x8d, 0xe1, 0xa8, 0xfb, 0xc5, 0x09, 0x9e, 0x1a, 0x34, 0x55, 0xde, 0xf8, 0xa9, 0x08, 0xcb,
-	0x2d, 0x61, 0x3f, 0x40, 0x64, 0x64, 0x0b, 0x96, 0x8e, 0x11, 0xd9, 0x11, 0x53, 0x09, 0x59, 0xa1,
-	0x31, 0x45, 0xda, 0xb0, 0x12, 0x7e, 0x29, 0xb5, 0xeb, 0x07, 0x72, 0x89, 0x41, 0x0e, 0x61, 0x8d,
-	0x59, 0xd2, 0x7a, 0xec, 0xf3, 0xb1, 0xcb, 0xd0, 0x17, 0xe5, 0xe2, 0x6e, 0xb1, 0xba, 0x7a, 0x4f,
-	0xaf, 0xcd, 0xf6, 0x47, 0xed, 0x30, 0x21, 0x46, 0xa7, 0x95, 0x48, 0x15, 0xee, 0x88, 0x51, 0x77,
-	0xe0, 0x0a, 0xe1, 0x72, 0xaf, 0xc9, 0x47, 0x9e, 0x2c, 0x2f, 0xee, 0x6a, 0xd5, 0x35, 0x3a, 0x7b,
-	0x4c, 0xde, 0x82, 0x75, 0x07, 0x2d, 0x5f, 0x76, 0xd1, 0x92, 0xa6, 0xef, 0xda, 0x36, 0xfa, 0xe5,
-	0x97, 0x94, 0xe8, 0xdc, 0x39, 0xf9, 0x00, 0xb6, 0x19, 0x8e, 0x5d, 0xd5, 0x71, 0xa6, 0xe3, 0xa3,
-	0x70, 0x78, 0x9f, 0x4d, 0x94, 0x96, 0x94, 0x52, 0xb6, 0x00, 0xb1, 0x80, 0x0c, 0xe6, 0x8b, 0xbf,
-	0x7c, 0xdd, 0x9c, 0xa5, 0x80, 0x19, 0x02, 0x4a, 0xc9, 0xac, 0x90, 0x47, 0xb0, 0x6c, 0xdd, 0xb4,
-	0x8f, 0x27, 0x08, 0x61, 0x0b, 0x0c, 0xa3, 0x46, 0x52, 0x75, 0xa6, 0x31, 0x65, 0xfc, 0xa2, 0x01,
-	0x69, 0x09, 0xbb, 0xc1, 0xd8, 0x94, 0xed, 0xac, 0x8e, 0x39, 0x80, 0x52, 0xb2, 0x56, 0x0a, 0x2c,
-	0xbf, 0xbe, 0x53, 0x3a, 0xe4, 0x08, 0x96, 0xa2, 0xd9, 0x8a, 0x7b, 0xfa, 0x1a, 0x61, 0xc5, 0x00,
-	0xc6, 0xef, 0x1a, 0x6c, 0xb6, 0x84, 0x4d, 0x71, 0xc0, 0xc7, 0xf8, 0x42, 0x01, 0x24, 0x92, 0x5a,
-	0xb8, 0x71, 0x52, 0x6f, 0x31, 0x92, 0xef, 0xa3, 0x48, 0x3a, 0x28, 0x3b, 0x33, 0x3d, 0x9e, 0x15,
-	0x49, 0xca, 0x94, 0x14, 0xd2, 0xa7, 0xe4, 0x16, 0xdd, 0xfc, 0x41, 0x83, 0xad, 0xc8, 0xcd, 0x87,
-	0xb3, 0xf3, 0x95, 0xe5, 0x67, 0xda, 0x8c, 0x16, 0x32, 0x66, 0xf4, 0x16, 0x3d, 0xfd, 0x4d, 0x83,
-	0x9d, 0xc8, 0xd3, 0xc3, 0xcc, 0xa1, 0xce, 0x72, 0xf9, 0xca, 0x55, 0x51, 0xc8, 0x5b, 0x15, 0xb7,
-	0x18, 0xc4, 0xcf, 0x1a, 0xac, 0xc6, 0x4b, 0x3c, 0xec, 0xee, 0xab, 0x16, 0xb9, 0x2a, 0xba, 0x94,
-	0x37, 0x5a, 0xe4, 0x17, 0x18, 0xa4, 0x02, 0x2f, 0x1f, 0xc7, 0x46, 0xa3, 0x28, 0xe8, 0x05, 0x4d,
-	0x74, 0x80, 0xd0, 0x3d, 0x4b, 0x8e, 0x7c, 0x14, 0xe5, 0xc5, 0xdd, 0x62, 0xb5, 0x44, 0x13, 0x27,
-	0xc6, 0x87, 0xca, 0x67, 0x8a, 0x62, 0xc8, 0x3d, 0x81, 0xa1, 0xcf, 0x0e, 0xba, 0xb6, 0x23, 0x95,
-	0xcf, 0x8b, 0x34, 0xa6, 0xc2, 0x73, 0x19, 0x3c, 0xb4, 0x84, 0xa3, 0x1c, 0x5e, 0xa1, 0x31, 0x65,
-	0x7c, 0xa3, 0xc1, 0x5a, 0xbb, 0x49, 0x1b, 0x5d, 0xf7, 0xbe, 0xd7, 0xe3, 0x0c, 0x19, 0x29, 0xc3,
-	0x72, 0x93, 0x7b, 0x12, 0x83, 0x08, 0xa2, 0x44, 0x27, 0x64, 0xc8, 0x69, 0xfb, 0x56, 0xaf, 0x8f,
-	0xf1, 0x34, 0xd3, 0x09, 0x49, 0x1a, 0x50, 0x6a, 0x77, 0x05, 0xfa, 0xe3, 0xe8, 0x85, 0x11, 0x5f,
-	0x44, 0xaf, 0xcd, 0x2f, 0xaa, 0x84, 0x14, 0x9d, 0x52, 0x31, 0x5e, 0x87, 0xd5, 0x04, 0x4d, 0x08,
-	0x2c, 0x86, 0x6b, 0x2c, 0x76, 0x41, 0x7d, 0x1b, 0xbf, 0x6a, 0x40, 0xda, 0x4d, 0x3a, 0xa9, 0xcf,
-	0x91, 0xd7, 0x91, 0xdc, 0x47, 0xf2, 0x5e, 0x22, 0x7b, 0x9a, 0xda, 0x90, 0x29, 0x86, 0x13, 0x75,
-	0x4d, 0x24, 0xf7, 0x63, 0xd8, 0x64, 0x28, 0xd0, 0x77, 0xad, 0xbe, 0xfb, 0x15, 0xb2, 0x76, 0x93,
-	0x52, 0x1c, 0x72, 0x5f, 0xc6, 0x9b, 0x76, 0x27, 0x25, 0x80, 0x64, 0xae, 0x68, 0xba, 0x76, 0x98,
-	0x28, 0xca, 0x47, 0x5e, 0xd8, 0x39, 0x45, 0x55, 0x85, 0x09, 0x79, 0xef, 0xdf, 0x25, 0x28, 0xb6,
-	0x84, 0x4d, 0x3c, 0x58, 0x57, 0x9b, 0x47, 0x4e, 0x9c, 0x32, 0x03, 0x72, 0xb5, 0xd7, 0x95, 0x74,
-	0xf6, 0xa4, 0xf0, 0xc6, 0xdd, 0xaf, 0xff, 0xfc, 0xe7, 0xbb, 0xc2, 0x56, 0x65, 0xa3, 0x7e, 0xf9,
-	0xae, 0x0b, 0xe3, 0xac, 0x87, 0xa9, 0x23, 0x1d, 0x58, 0x6f, 0x30, 0x96, 0x78, 0xb7, 0x98, 0x01,
-	0xd9, 0x4d, 0x05, 0x4c, 0xc8, 0xe4, 0x98, 0x24, 0x0e, 0x6c, 0x67, 0xbc, 0x0e, 0xcd, 0x80, 0xbc,
-	0x9d, 0x87, 0x9e, 0x94, 0xcf, 0xb3, 0x74, 0x1f, 0x56, 0x1a, 0x8c, 0x85, 0xa9, 0x30, 0x03, 0xb2,
-	0x9d, 0x99, 0xa7, 0x3c, 0x98, 0x4f, 0xe0, 0xd5, 0x99, 0xab, 0xd7, 0x0c, 0xc8, 0x1b, 0xa9, 0x3a,
-	0x33, 0x72, 0x79, 0xc8, 0x9f, 0xc3, 0xc6, 0xfc, 0xb5, 0x68, 0x06, 0xe4, 0xcd, 0x0c, 0xb5, 0x59,
-	0xd1, 0x17, 0xc0, 0x9f, 0xbf, 0xac, 0x32, 0xf1, 0xe7, 0x45, 0xf3, 0xf0, 0xbf, 0x84, 0xcd, 0x94,
-	0x5b, 0xc6, 0x0c, 0x48, 0x35, 0xcb, 0xc0, 0xac, 0x6c, 0x9e, 0x05, 0x1f, 0xf4, 0xab, 0x6e, 0x07,
-	0x33, 0x20, 0xfb, 0x59, 0xa6, 0x32, 0x95, 0x72, 0x6c, 0x1e, 0x7c, 0xf4, 0xc7, 0x99, 0xae, 0x3d,
-	0x3d, 0xd3, 0xb5, 0xbf, 0xcf, 0x74, 0xed, 0xdb, 0x73, 0x7d, 0xe1, 0xe9, 0xb9, 0xbe, 0xf0, 0xd7,
-	0xb9, 0xbe, 0xf0, 0xe9, 0xbb, 0x89, 0x5d, 0xdd, 0x0c, 0x21, 0x3a, 0xd6, 0x31, 0x5e, 0x4e, 0xce,
-	0x5e, 0xbc, 0xbf, 0x83, 0xc4, 0x30, 0xa9, 0x05, 0xde, 0x5d, 0x52, 0x7f, 0x8e, 0xde, 0x79, 0x1e,
-	0x00, 0x00, 0xff, 0xff, 0xd9, 0xeb, 0xa3, 0xbd, 0x9f, 0x0d, 0x00, 0x00,
+	0x14, 0xaf, 0x93, 0xd2, 0x3f, 0xaf, 0x29, 0x2d, 0x43, 0x5b, 0xd2, 0x68, 0x49, 0x8b, 0x85, 0x44,
+	0xb4, 0xa2, 0x89, 0xba, 0x1c, 0x10, 0x08, 0x0e, 0x69, 0xba, 0xd5, 0x56, 0xab, 0x90, 0x65, 0x6a,
+	0x24, 0x04, 0x12, 0xe0, 0x64, 0x5e, 0x1d, 0xab, 0x89, 0x27, 0x78, 0x26, 0x8d, 0xcb, 0x91, 0x03,
+	0x67, 0x24, 0xc4, 0x37, 0x40, 0x5a, 0x89, 0x23, 0x57, 0x2e, 0x88, 0x0b, 0xdc, 0x58, 0x89, 0x0b,
+	0xa7, 0x15, 0x6a, 0xf9, 0x04, 0x1c, 0x39, 0x21, 0x8f, 0x9d, 0xd6, 0x49, 0xec, 0x7a, 0xb7, 0xcd,
+	0x29, 0x7e, 0x33, 0xef, 0xfd, 0xde, 0xff, 0x79, 0x2f, 0xb0, 0xd9, 0x6a, 0x9b, 0xb6, 0xd3, 0xb1,
+	0x9d, 0x93, 0xca, 0xe9, 0x6e, 0x13, 0xa5, 0x59, 0x91, 0x5e, 0xb9, 0xe7, 0x72, 0xc9, 0xc9, 0xea,
+	0xe5, 0x55, 0x39, 0xb8, 0x2a, 0xac, 0x59, 0xdc, 0xe2, 0xea, 0xb2, 0xe2, 0x7f, 0x05, 0x7c, 0x85,
+	0x3b, 0x16, 0xe7, 0x56, 0x07, 0x2b, 0x66, 0xcf, 0xae, 0x98, 0x8e, 0xc3, 0xa5, 0x29, 0x6d, 0xee,
+	0x88, 0xf0, 0xb6, 0x38, 0xa1, 0xc0, 0x42, 0x07, 0x85, 0x1d, 0xde, 0xeb, 0x3f, 0x66, 0xa0, 0x50,
+	0x17, 0x56, 0x9d, 0xb3, 0x7e, 0x07, 0x1b, 0x03, 0x07, 0x5d, 0xd1, 0xb6, 0x7b, 0x86, 0x6b, 0x3a,
+	0xe2, 0x18, 0x5d, 0xf2, 0x29, 0xac, 0x98, 0x42, 0xd8, 0x96, 0x83, 0x6e, 0x95, 0x31, 0x17, 0x85,
+	0xc8, 0x6b, 0xdb, 0x5a, 0x29, 0xb7, 0xb7, 0xfb, 0xdf, 0xd3, 0xad, 0x1d, 0xcb, 0x96, 0xed, 0x7e,
+	0xb3, 0xdc, 0xe2, 0xdd, 0x4a, 0x8b, 0x8b, 0x2e, 0x17, 0xe1, 0xcf, 0x8e, 0x60, 0x27, 0x15, 0x79,
+	0xd6, 0x43, 0x51, 0xae, 0xb6, 0x5a, 0xa1, 0x20, 0x1d, 0x47, 0x22, 0x16, 0xac, 0x3b, 0x38, 0x88,
+	0xa8, 0x1e, 0xaa, 0xc8, 0xdc, 0x54, 0x45, 0x3c, 0x1e, 0x39, 0x80, 0xb5, 0xd1, 0x8b, 0x47, 0xfd,
+	0xe6, 0x43, 0x3c, 0xcb, 0x67, 0x95, 0x1e, 0xf2, 0xef, 0xd3, 0xad, 0x17, 0xcf, 0xcc, 0x6e, 0xe7,
+	0x5d, 0xbd, 0xd7, 0x6f, 0x7e, 0x7e, 0x82, 0x67, 0x3a, 0x8d, 0xe5, 0xd7, 0xff, 0xc8, 0xc2, 0x7c,
+	0x5d, 0x58, 0x07, 0x88, 0x8c, 0x6c, 0xc0, 0xdc, 0x31, 0x22, 0x3b, 0x64, 0x2a, 0x20, 0x8b, 0x34,
+	0xa4, 0x48, 0x03, 0x16, 0xfd, 0x2f, 0x25, 0x76, 0x73, 0x47, 0xae, 0x30, 0xc8, 0x3e, 0x2c, 0x33,
+	0x53, 0x9a, 0x8f, 0x5c, 0x7e, 0x6a, 0x33, 0x74, 0x45, 0x3e, 0xbb, 0x9d, 0x2d, 0x2d, 0xdd, 0x2b,
+	0x96, 0xc7, 0xeb, 0xa3, 0xbc, 0x1f, 0x61, 0xa3, 0xa3, 0x42, 0xa4, 0x04, 0x2b, 0xa2, 0xdf, 0xec,
+	0xda, 0x42, 0xd8, 0xdc, 0xa9, 0xf1, 0xbe, 0x23, 0xf3, 0xb3, 0xdb, 0x5a, 0x69, 0x99, 0x8e, 0x1f,
+	0x93, 0xbb, 0xb0, 0xda, 0x46, 0xd3, 0x95, 0x4d, 0x34, 0xa5, 0xe1, 0xda, 0x96, 0x85, 0x6e, 0xfe,
+	0x05, 0xc5, 0x3a, 0x71, 0x4e, 0xde, 0x83, 0x4d, 0x86, 0xa7, 0xb6, 0xaa, 0x38, 0xa3, 0xed, 0xa2,
+	0x68, 0xf3, 0x0e, 0x1b, 0x0a, 0xcd, 0x29, 0xa1, 0x64, 0x06, 0x62, 0x02, 0xe9, 0x4e, 0x26, 0x7f,
+	0xfe, 0xa6, 0x31, 0x8b, 0x01, 0x23, 0x45, 0x00, 0x3f, 0x92, 0x14, 0x07, 0xa6, 0xcb, 0xf2, 0x0b,
+	0xca, 0xa2, 0xc8, 0x89, 0x2e, 0x20, 0x17, 0x8d, 0x1a, 0x79, 0x08, 0xf3, 0xe6, 0x6d, 0xeb, 0x7c,
+	0x88, 0xe0, 0x97, 0x48, 0x2f, 0x28, 0x34, 0x55, 0x07, 0x34, 0xa4, 0xf4, 0x9f, 0x35, 0x20, 0x75,
+	0x61, 0x55, 0x19, 0x1b, 0xd1, 0x9d, 0x54, 0x51, 0x7b, 0x90, 0x8b, 0xe6, 0x52, 0x81, 0xa5, 0xe7,
+	0x7f, 0x44, 0x86, 0x1c, 0xc2, 0x5c, 0xd0, 0x7b, 0x61, 0xcd, 0xdf, 0xc0, 0xad, 0x10, 0x40, 0xff,
+	0x4d, 0x83, 0xf5, 0xba, 0xb0, 0x28, 0x76, 0xf9, 0x29, 0x3e, 0x93, 0x03, 0x91, 0xa0, 0x66, 0x6e,
+	0x1d, 0xd4, 0x29, 0x7a, 0xf2, 0x43, 0xe0, 0xc9, 0x11, 0xca, 0xa3, 0xb1, 0x1e, 0x48, 0xf2, 0x24,
+	0xa6, 0x8b, 0x32, 0xf1, 0x5d, 0x34, 0x45, 0x33, 0x1f, 0x6b, 0xb0, 0x11, 0x98, 0xf9, 0x60, 0xbc,
+	0xff, 0x92, 0xec, 0x8c, 0xeb, 0xe1, 0x4c, 0x42, 0x0f, 0x4f, 0xd1, 0xd2, 0x5f, 0x35, 0xd8, 0x0a,
+	0x2c, 0xdd, 0x4f, 0x6c, 0xfa, 0x24, 0x93, 0xaf, 0x7d, 0x4a, 0x32, 0x69, 0x4f, 0xc9, 0x14, 0x9d,
+	0xf8, 0x5e, 0x83, 0xd5, 0xc0, 0x89, 0x83, 0xcb, 0x77, 0x22, 0xd1, 0xea, 0xd1, 0xf7, 0x25, 0x33,
+	0xfe, 0xbe, 0x4c, 0xd3, 0xae, 0x73, 0x0d, 0xf2, 0xe1, 0xf0, 0x99, 0x9c, 0xd3, 0x49, 0xf6, 0xb5,
+	0xe0, 0x65, 0x07, 0x07, 0x97, 0x32, 0xb7, 0x1e, 0xb0, 0x71, 0x68, 0xd3, 0x74, 0xf2, 0x27, 0x0d,
+	0x96, 0x42, 0x27, 0xfd, 0xa7, 0xe5, 0xba, 0x29, 0xab, 0x3a, 0x4e, 0xca, 0x5b, 0x4d, 0xd9, 0x4b,
+	0x0c, 0x52, 0x80, 0x85, 0xe3, 0x50, 0x69, 0xe0, 0x05, 0xbd, 0xa4, 0xfd, 0x24, 0xfb, 0xe6, 0x99,
+	0xb2, 0xef, 0xa2, 0xc8, 0xcf, 0x6e, 0x67, 0x4b, 0x39, 0x1a, 0x39, 0xd1, 0x07, 0xea, 0x39, 0xa7,
+	0xf8, 0x65, 0x1f, 0x85, 0xfc, 0x00, 0x07, 0x94, 0xf7, 0x9d, 0xe4, 0x92, 0x99, 0x62, 0xb4, 0xde,
+	0x57, 0xc1, 0xa2, 0x28, 0x7a, 0xdc, 0x11, 0xe8, 0x6b, 0x6c, 0xa3, 0x6d, 0xb5, 0xa5, 0xd2, 0x38,
+	0x4b, 0x43, 0xca, 0x3f, 0x97, 0xde, 0x03, 0x53, 0xb4, 0x55, 0xa4, 0x16, 0x69, 0x48, 0xe9, 0xdf,
+	0x68, 0xb0, 0xdc, 0xa8, 0xd1, 0x6a, 0xd3, 0xbe, 0xef, 0xb4, 0x38, 0x43, 0x46, 0xf2, 0x30, 0x5f,
+	0xe3, 0x8e, 0x44, 0x2f, 0x80, 0xc8, 0xd1, 0x21, 0xe9, 0xdf, 0x34, 0x5c, 0xb3, 0xd5, 0xc1, 0xb0,
+	0x78, 0xe8, 0x90, 0x24, 0x55, 0xc8, 0x35, 0x9a, 0x02, 0xdd, 0xd3, 0x60, 0xef, 0x0c, 0xd7, 0x93,
+	0x57, 0x27, 0xc7, 0x53, 0x84, 0x8b, 0x8e, 0x88, 0xe8, 0xaf, 0xc1, 0x52, 0x84, 0x26, 0x04, 0x66,
+	0xfd, 0xe1, 0x15, 0x9a, 0xa0, 0xbe, 0xf5, 0x5f, 0x34, 0x20, 0x8d, 0x1a, 0x1d, 0x16, 0xc6, 0xa1,
+	0x73, 0x24, 0xb9, 0x8b, 0xe4, 0x9d, 0x48, 0xda, 0x34, 0x35, 0x17, 0x63, 0x14, 0x47, 0x0a, 0x2a,
+	0x92, 0xd5, 0x8f, 0x60, 0x9d, 0xa1, 0x40, 0xd7, 0x36, 0x3b, 0xf6, 0x57, 0xc8, 0x1a, 0x35, 0x4a,
+	0xb1, 0xc7, 0x5d, 0x19, 0xce, 0xd7, 0xad, 0x18, 0x07, 0xa2, 0xb1, 0xa2, 0xf1, 0xd2, 0x7e, 0xa0,
+	0x54, 0xfe, 0x0f, 0x99, 0xca, 0xef, 0x2c, 0x1d, 0x92, 0xf7, 0x1e, 0x2f, 0x40, 0xb6, 0x2e, 0x2c,
+	0xe2, 0xc0, 0xaa, 0x9a, 0x37, 0x72, 0x68, 0x94, 0xe1, 0x91, 0xeb, 0xad, 0x2e, 0xc4, 0x5f, 0x0f,
+	0x13, 0xaf, 0xdf, 0xf9, 0xfa, 0xcf, 0x7f, 0xbe, 0xcb, 0x6c, 0x14, 0xd6, 0x2a, 0x57, 0xdb, 0xbe,
+	0xef, 0x67, 0xc5, 0x0f, 0x1d, 0x39, 0x82, 0xd5, 0x2a, 0x63, 0x91, 0x6d, 0xd6, 0xf0, 0xc8, 0x76,
+	0x2c, 0x60, 0x84, 0x27, 0x45, 0x25, 0x69, 0xc3, 0x66, 0xc2, 0x7f, 0x06, 0xc3, 0x23, 0x6f, 0xa6,
+	0xa1, 0x47, 0xf9, 0xd3, 0x34, 0xdd, 0x87, 0xc5, 0x2a, 0x63, 0x7e, 0x28, 0x0c, 0x8f, 0x6c, 0x26,
+	0xc6, 0x29, 0x0d, 0xe6, 0x63, 0x78, 0x69, 0x6c, 0xe1, 0x32, 0x3c, 0xf2, 0x7a, 0xac, 0xcc, 0x18,
+	0x5f, 0x1a, 0xf2, 0x67, 0xb0, 0x36, 0xb9, 0x0c, 0x19, 0x1e, 0x79, 0x23, 0x41, 0x6c, 0x9c, 0xf5,
+	0x19, 0xf0, 0x27, 0x57, 0x94, 0x44, 0xfc, 0x49, 0xd6, 0x34, 0xfc, 0x2f, 0x60, 0x3d, 0x66, 0xb7,
+	0x30, 0x3c, 0x52, 0x4a, 0x52, 0x30, 0xce, 0x9b, 0xa6, 0xc1, 0x85, 0xe2, 0x75, 0x3b, 0x81, 0xe1,
+	0x91, 0xdd, 0x24, 0x55, 0x89, 0x42, 0x69, 0x3a, 0x0d, 0x58, 0x19, 0x19, 0xe1, 0x86, 0x47, 0xf4,
+	0x24, 0x25, 0x57, 0x5c, 0x69, 0xa8, 0x0c, 0x5e, 0x89, 0x1d, 0xc0, 0x86, 0x47, 0xee, 0x26, 0x96,
+	0xe6, 0xf3, 0x96, 0xfc, 0xde, 0x87, 0xbf, 0x9f, 0x17, 0xb5, 0x27, 0xe7, 0x45, 0xed, 0xef, 0xf3,
+	0xa2, 0xf6, 0xed, 0x45, 0x71, 0xe6, 0xc9, 0x45, 0x71, 0xe6, 0xaf, 0x8b, 0xe2, 0xcc, 0x27, 0x6f,
+	0x47, 0x06, 0x45, 0xcd, 0x87, 0x38, 0x32, 0x8f, 0xf1, 0xaa, 0xeb, 0x77, 0xc2, 0xe1, 0xe1, 0x45,
+	0x1e, 0x02, 0x35, 0x3d, 0x9a, 0x73, 0xea, 0xef, 0xfe, 0x5b, 0xff, 0x07, 0x00, 0x00, 0xff, 0xff,
+	0xa0, 0x9e, 0xf7, 0x0f, 0x71, 0x10, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -975,6 +1177,8 @@ type MsgClient interface {
 	SetSubmissionCountTx(ctx context.Context, in *MsgSetSubmissionCount, opts ...grpc.CallOption) (*MsgResponse, error)
 	SetHeartbeatTriggerTx(ctx context.Context, in *MsgSetHeartbeatTrigger, opts ...grpc.CallOption) (*MsgResponse, error)
 	SetDeviationThresholdTriggerTx(ctx context.Context, in *MsgSetDeviationThresholdTrigger, opts ...grpc.CallOption) (*MsgResponse, error)
+	SetFeedRewardTx(ctx context.Context, in *MsgSetFeedReward, opts ...grpc.CallOption) (*MsgResponse, error)
+	FeedOwnershipTransferTx(ctx context.Context, in *MsgFeedOwnershipTransfer, opts ...grpc.CallOption) (*MsgResponse, error)
 }
 
 type msgClient struct {
@@ -1066,6 +1270,24 @@ func (c *msgClient) SetDeviationThresholdTriggerTx(ctx context.Context, in *MsgS
 	return out, nil
 }
 
+func (c *msgClient) SetFeedRewardTx(ctx context.Context, in *MsgSetFeedReward, opts ...grpc.CallOption) (*MsgResponse, error) {
+	out := new(MsgResponse)
+	err := c.cc.Invoke(ctx, "/chainlink.v1beta.Msg/SetFeedRewardTx", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *msgClient) FeedOwnershipTransferTx(ctx context.Context, in *MsgFeedOwnershipTransfer, opts ...grpc.CallOption) (*MsgResponse, error) {
+	out := new(MsgResponse)
+	err := c.cc.Invoke(ctx, "/chainlink.v1beta.Msg/FeedOwnershipTransferTx", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // MsgServer is the server API for Msg service.
 type MsgServer interface {
 	SubmitFeedDataTx(context.Context, *MsgFeedData) (*MsgResponse, error)
@@ -1077,6 +1299,8 @@ type MsgServer interface {
 	SetSubmissionCountTx(context.Context, *MsgSetSubmissionCount) (*MsgResponse, error)
 	SetHeartbeatTriggerTx(context.Context, *MsgSetHeartbeatTrigger) (*MsgResponse, error)
 	SetDeviationThresholdTriggerTx(context.Context, *MsgSetDeviationThresholdTrigger) (*MsgResponse, error)
+	SetFeedRewardTx(context.Context, *MsgSetFeedReward) (*MsgResponse, error)
+	FeedOwnershipTransferTx(context.Context, *MsgFeedOwnershipTransfer) (*MsgResponse, error)
 }
 
 // UnimplementedMsgServer can be embedded to have forward compatible implementations.
@@ -1109,6 +1333,12 @@ func (*UnimplementedMsgServer) SetHeartbeatTriggerTx(ctx context.Context, req *M
 }
 func (*UnimplementedMsgServer) SetDeviationThresholdTriggerTx(ctx context.Context, req *MsgSetDeviationThresholdTrigger) (*MsgResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetDeviationThresholdTriggerTx not implemented")
+}
+func (*UnimplementedMsgServer) SetFeedRewardTx(ctx context.Context, req *MsgSetFeedReward) (*MsgResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetFeedRewardTx not implemented")
+}
+func (*UnimplementedMsgServer) FeedOwnershipTransferTx(ctx context.Context, req *MsgFeedOwnershipTransfer) (*MsgResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method FeedOwnershipTransferTx not implemented")
 }
 
 func RegisterMsgServer(s grpc1.Server, srv MsgServer) {
@@ -1277,6 +1507,42 @@ func _Msg_SetDeviationThresholdTriggerTx_Handler(srv interface{}, ctx context.Co
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Msg_SetFeedRewardTx_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MsgSetFeedReward)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MsgServer).SetFeedRewardTx(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/chainlink.v1beta.Msg/SetFeedRewardTx",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MsgServer).SetFeedRewardTx(ctx, req.(*MsgSetFeedReward))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Msg_FeedOwnershipTransferTx_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MsgFeedOwnershipTransfer)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MsgServer).FeedOwnershipTransferTx(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/chainlink.v1beta.Msg/FeedOwnershipTransferTx",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MsgServer).FeedOwnershipTransferTx(ctx, req.(*MsgFeedOwnershipTransfer))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 var _Msg_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "chainlink.v1beta.Msg",
 	HandlerType: (*MsgServer)(nil),
@@ -1316,6 +1582,14 @@ var _Msg_serviceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SetDeviationThresholdTriggerTx",
 			Handler:    _Msg_SetDeviationThresholdTriggerTx_Handler,
+		},
+		{
+			MethodName: "SetFeedRewardTx",
+			Handler:    _Msg_SetFeedRewardTx_Handler,
+		},
+		{
+			MethodName: "FeedOwnershipTransferTx",
+			Handler:    _Msg_FeedOwnershipTransferTx_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
@@ -1386,6 +1660,11 @@ func (m *MsgFeed) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
+	if m.FeedReward != 0 {
+		i = encodeVarintTx(dAtA, i, uint64(m.FeedReward))
+		i--
+		dAtA[i] = 0x40
+	}
 	if len(m.ModuleOwnerAddress) > 0 {
 		i -= len(m.ModuleOwnerAddress)
 		copy(dAtA[i:], m.ModuleOwnerAddress)
@@ -1695,6 +1974,92 @@ func (m *MsgSetDeviationThresholdTrigger) MarshalToSizedBuffer(dAtA []byte) (int
 	return len(dAtA) - i, nil
 }
 
+func (m *MsgSetFeedReward) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *MsgSetFeedReward) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *MsgSetFeedReward) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.Signer) > 0 {
+		i -= len(m.Signer)
+		copy(dAtA[i:], m.Signer)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.Signer)))
+		i--
+		dAtA[i] = 0x1a
+	}
+	if m.FeedReward != 0 {
+		i = encodeVarintTx(dAtA, i, uint64(m.FeedReward))
+		i--
+		dAtA[i] = 0x10
+	}
+	if len(m.FeedId) > 0 {
+		i -= len(m.FeedId)
+		copy(dAtA[i:], m.FeedId)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.FeedId)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *MsgFeedOwnershipTransfer) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *MsgFeedOwnershipTransfer) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *MsgFeedOwnershipTransfer) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.Signer) > 0 {
+		i -= len(m.Signer)
+		copy(dAtA[i:], m.Signer)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.Signer)))
+		i--
+		dAtA[i] = 0x1a
+	}
+	if len(m.NewFeedOwnerAddress) > 0 {
+		i -= len(m.NewFeedOwnerAddress)
+		copy(dAtA[i:], m.NewFeedOwnerAddress)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.NewFeedOwnerAddress)))
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.FeedId) > 0 {
+		i -= len(m.FeedId)
+		copy(dAtA[i:], m.FeedId)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.FeedId)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
 func (m *MsgFeedData) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
@@ -1737,6 +2102,43 @@ func (m *MsgFeedData) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		i = encodeVarintTx(dAtA, i, uint64(len(m.Submitter)))
 		i--
 		dAtA[i] = 0x12
+	}
+	if len(m.FeedId) > 0 {
+		i -= len(m.FeedId)
+		copy(dAtA[i:], m.FeedId)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.FeedId)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *MsgRequestNewRound) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *MsgRequestNewRound) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *MsgRequestNewRound) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.Signer) > 0 {
+		i -= len(m.Signer)
+		copy(dAtA[i:], m.Signer)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.Signer)))
+		i--
+		dAtA[i] = 0x1a
 	}
 	if len(m.FeedId) > 0 {
 		i -= len(m.FeedId)
@@ -1981,6 +2383,9 @@ func (m *MsgFeed) Size() (n int) {
 	if l > 0 {
 		n += 1 + l + sovTx(uint64(l))
 	}
+	if m.FeedReward != 0 {
+		n += 1 + sovTx(uint64(m.FeedReward))
+	}
 	return n
 }
 
@@ -2103,6 +2508,47 @@ func (m *MsgSetDeviationThresholdTrigger) Size() (n int) {
 	return n
 }
 
+func (m *MsgSetFeedReward) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.FeedId)
+	if l > 0 {
+		n += 1 + l + sovTx(uint64(l))
+	}
+	if m.FeedReward != 0 {
+		n += 1 + sovTx(uint64(m.FeedReward))
+	}
+	l = len(m.Signer)
+	if l > 0 {
+		n += 1 + l + sovTx(uint64(l))
+	}
+	return n
+}
+
+func (m *MsgFeedOwnershipTransfer) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.FeedId)
+	if l > 0 {
+		n += 1 + l + sovTx(uint64(l))
+	}
+	l = len(m.NewFeedOwnerAddress)
+	if l > 0 {
+		n += 1 + l + sovTx(uint64(l))
+	}
+	l = len(m.Signer)
+	if l > 0 {
+		n += 1 + l + sovTx(uint64(l))
+	}
+	return n
+}
+
 func (m *MsgFeedData) Size() (n int) {
 	if m == nil {
 		return 0
@@ -2126,6 +2572,23 @@ func (m *MsgFeedData) Size() (n int) {
 			l = len(b)
 			n += 1 + l + sovTx(uint64(l))
 		}
+	}
+	return n
+}
+
+func (m *MsgRequestNewRound) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.FeedId)
+	if l > 0 {
+		n += 1 + l + sovTx(uint64(l))
+	}
+	l = len(m.Signer)
+	if l > 0 {
+		n += 1 + l + sovTx(uint64(l))
 	}
 	return n
 }
@@ -2580,6 +3043,25 @@ func (m *MsgFeed) Unmarshal(dAtA []byte) error {
 				m.ModuleOwnerAddress = []byte{}
 			}
 			iNdEx = postIndex
+		case 8:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field FeedReward", wireType)
+			}
+			m.FeedReward = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.FeedReward |= uint32(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
 		default:
 			iNdEx = preIndex
 			skippy, err := skipTx(dAtA[iNdEx:])
@@ -3426,6 +3908,291 @@ func (m *MsgSetDeviationThresholdTrigger) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
+func (m *MsgSetFeedReward) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTx
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: MsgSetFeedReward: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: MsgSetFeedReward: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field FeedId", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.FeedId = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field FeedReward", wireType)
+			}
+			m.FeedReward = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.FeedReward |= uint32(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Signer", wireType)
+			}
+			var byteLen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				byteLen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if byteLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + byteLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Signer = append(m.Signer[:0], dAtA[iNdEx:postIndex]...)
+			if m.Signer == nil {
+				m.Signer = []byte{}
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTx(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthTx
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *MsgFeedOwnershipTransfer) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTx
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: MsgFeedOwnershipTransfer: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: MsgFeedOwnershipTransfer: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field FeedId", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.FeedId = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field NewFeedOwnerAddress", wireType)
+			}
+			var byteLen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				byteLen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if byteLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + byteLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.NewFeedOwnerAddress = append(m.NewFeedOwnerAddress[:0], dAtA[iNdEx:postIndex]...)
+			if m.NewFeedOwnerAddress == nil {
+				m.NewFeedOwnerAddress = []byte{}
+			}
+			iNdEx = postIndex
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Signer", wireType)
+			}
+			var byteLen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				byteLen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if byteLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + byteLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Signer = append(m.Signer[:0], dAtA[iNdEx:postIndex]...)
+			if m.Signer == nil {
+				m.Signer = []byte{}
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTx(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthTx
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
 func (m *MsgFeedData) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -3586,6 +4353,122 @@ func (m *MsgFeedData) Unmarshal(dAtA []byte) error {
 			}
 			m.Signatures = append(m.Signatures, make([]byte, postIndex-iNdEx))
 			copy(m.Signatures[len(m.Signatures)-1], dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTx(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthTx
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *MsgRequestNewRound) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTx
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: MsgRequestNewRound: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: MsgRequestNewRound: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field FeedId", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.FeedId = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Signer", wireType)
+			}
+			var byteLen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				byteLen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if byteLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + byteLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Signer = append(m.Signer[:0], dAtA[iNdEx:postIndex]...)
+			if m.Signer == nil {
+				m.Signer = []byte{}
+			}
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
