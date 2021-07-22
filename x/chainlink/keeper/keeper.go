@@ -438,20 +438,12 @@ func (k Keeper) FeedOwnershipTransfer(ctx sdk.Context, feedOwnershipTransfer *ty
 	return ctx.BlockHeight(), ctx.TxBytes(), nil
 }
 
+// RequestNewRound will be a transaction sent by the FeedOwner to request a new report to the chainlink network
+// The event emitted will expect a data provider to submit a new report.
 func (k Keeper) RequestNewRound(ctx sdk.Context, requestNewRound *types.MsgRequestNewRound) (int64, []byte, error) {
-	// might be possible that this method can throw so might be best to move this to the very end.
-	roundStore := ctx.KVStore(k.roundStoreKey)
-	currentLatestRoundId := k.GetLatestRoundId(ctx, requestNewRound.FeedId)
-	roundId := currentLatestRoundId + 1
-
-	// update the latest roundId of the current feedId
-	roundStore.Set(types.GetRoundIdKey(requestNewRound.GetFeedId()), i64tob(roundId))
-
 	// emit NewRoundData event
-	err := types.EmitEvent(&types.MsgNewRoundDataEvent{
-		FeedId:   requestNewRound.FeedId,
-		RoundId:  roundId,
-		FeedData: nil,
+	err := types.EmitEvent(&types.MsgNewRoundRequestEvent{
+		FeedId: requestNewRound.FeedId,
 	}, ctx.EventManager())
 	if err != nil {
 		return 0, nil, err
