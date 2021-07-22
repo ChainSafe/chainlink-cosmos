@@ -323,7 +323,7 @@ func TestKeeper_RequestNewRoundId(t *testing.T) {
 				Submitter: submitter,
 			}
 			// submit feed data
-			_, _ = k.SetFeedData(ctx, &msgFeedData)
+			_, _, _ = k.SetFeedData(ctx, &msgFeedData)
 			require.Equal(t, k.GetLatestRoundId(ctx, tc.feedId), uint64(1))
 
 			expectedRoundId := uint64(tc.repeat + 1)
