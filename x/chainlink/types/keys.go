@@ -1,17 +1,23 @@
+// Copyright 2021 ChainSafe Systems
+// SPDX-License-Identifier: MIT
+
 package types
 
 const (
 	// ModuleName defines the module name
 	ModuleName = "chainlink"
 
-	// StoreKey defines the primary module store key
-	FeedStoreKey = ModuleName + "feed"
+	// FeedDataStoreKey defines the store key for feed data
+	FeedDataStoreKey = ModuleName + "feedData"
 
-	// RoundKey defines the secondary module store key
+	// RoundStoreKey defines the store key for feed roundId
 	RoundStoreKey = ModuleName + "round"
 
-	// ModuleStoreKey defines the module scope store key
-	ModuleStoreKey = ModuleName + "module"
+	// ModuleOwnerStoreKey defines the store key for module owner
+	ModuleOwnerStoreKey = ModuleName + "moduleOwner"
+
+	// FeedInfoStoreKey defines the store key for feed
+	FeedInfoStoreKey = ModuleName + "feedInfo"
 
 	// RouterKey is the message route for slashing
 	RouterKey = ModuleName
@@ -28,12 +34,50 @@ func KeyPrefix(p string) []byte {
 }
 
 const (
-	// FeedStore key pattern: types.FeedDataKey + feedId + roundId
+	// FeedDataKey FeedDataStore key pattern: types.FeedDataKey/feedId/roundId
 	FeedDataKey = "feedData"
 
-	// RoundStore key pattern: types.RoundIdKey + feedId
+	// RoundIdKey RoundStore key pattern: types.RoundIdKey/feedId
 	RoundIdKey = "roundId"
 
-	// RoundStore key pattern: types.ModuleOwnerKey
+	// ModuleOwnerKey ModuleOwnerStore key pattern: types.ModuleOwnerKey/moduleOwnerAddress
 	ModuleOwnerKey = "moduleOwner"
+
+	// FeedInfoKey FeedInfoStore key pattern: types.FeedInfoKey/feedId
+	FeedInfoKey = "feed"
 )
+
+func GetFeedDataKey(feedId, roundId string) []byte {
+	key := FeedDataKey + "/"
+	if len(feedId) > 0 {
+		key += feedId + "/"
+		if len(roundId) > 0 {
+			key += roundId
+		}
+	}
+	return KeyPrefix(key)
+}
+
+func GetRoundIdKey(feedId string) []byte {
+	key := RoundIdKey + "/"
+	if len(feedId) > 0 {
+		key += feedId
+	}
+	return KeyPrefix(key)
+}
+
+func GetModuleOwnerKey(moduleOwnerAddress string) []byte {
+	key := ModuleOwnerKey + "/"
+	if len(moduleOwnerAddress) > 0 {
+		key += moduleOwnerAddress
+	}
+	return KeyPrefix(key)
+}
+
+func GetFeedInfoKey(feedId string) []byte {
+	key := FeedInfoKey + "/"
+	if len(feedId) > 0 {
+		key += feedId
+	}
+	return KeyPrefix(key)
+}

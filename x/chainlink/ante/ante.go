@@ -1,3 +1,6 @@
+// Copyright 2021 ChainSafe Systems
+// SPDX-License-Identifier: MIT
+
 package ante
 
 import (
@@ -10,6 +13,11 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth/signing"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	"github.com/ethereum/go-ethereum/common"
+)
+
+const (
+	ErrFeedDoesNotExist     = "feed does not exist"
+	ErrSignerIsNotFeedOwner = "account %s (%s) is not a feed owner"
 )
 
 func NewAnteHandler(
@@ -35,7 +43,10 @@ func NewAnteHandler(
 			authante.NewSigGasConsumeDecorator(ak, sigGasConsumer),
 			authante.NewSigVerificationDecorator(ak, signModeHandler),
 			authante.NewIncrementSequenceDecorator(ak),
+			// all customized anteHandler below
 			NewModuleOwnerDecorator(chainLinkKeeper),
+			NewFeedDecorator(chainLinkKeeper),
+			NewFeedDataDecorator(chainLinkKeeper),
 		)
 
 		return anteHandler(ctx, tx, sim)
@@ -68,23 +79,174 @@ func (mod ModuleOwnerDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate 
 	}
 
 	signers := make([]sdk.AccAddress, 0)
+
+	// get the signers of module owner Msg types
 	for _, msg := range tx.GetMsgs() {
-		t, ok := msg.(*types.ModuleOwner)
-		if !ok {
+		switch t := msg.(type) {
+		case *types.MsgModuleOwner:
+			if len(t.GetSigners()) == 0 {
+				return ctx, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "invalid Tx: empty signer: %T", t)
+			}
+			signers = append(signers, t.GetSigners()[0])
+		case *types.MsgModuleOwnershipTransfer:
+			if len(t.GetSigners()) == 0 {
+				return ctx, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "invalid Tx: empty signer: %T", t)
+			}
+			signers = append(signers, t.GetSigners()[0])
+		case *types.MsgFeed:
+			if len(t.GetSigners()) == 0 {
+				return ctx, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "invalid Tx: empty signer: %T", t)
+			}
+			signers = append(signers, t.GetSigners()[0])
+		default:
 			continue
 		}
-
-		if len(t.GetSigners()) == 0 {
-			return ctx, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "invalid Tx: empty signer: %T", t)
-		}
-		txSigner := t.GetSigners()[0]
-
-		signers = append(signers, txSigner)
 	}
 
 	for _, signer := range signers {
-		if !(types.ModuleOwners)(existingModuleOwnerList.GetModuleOwner()).Contains(signer) {
+		if !(types.MsgModuleOwners)(existingModuleOwnerList.GetModuleOwner()).Contains(signer) {
 			return ctx, sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "account %s (%s) is not a module owner", common.BytesToAddress(signer.Bytes()), signer)
+		}
+	}
+
+	return next(ctx, tx, simulate)
+}
+
+type FeedDecorator struct {
+	chainLinkKeeper chainlinkkeeper.Keeper
+}
+
+func NewFeedDecorator(chainLinkKeeper chainlinkkeeper.Keeper) FeedDecorator {
+	return FeedDecorator{
+		chainLinkKeeper: chainLinkKeeper,
+	}
+}
+
+func (fd FeedDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (newCtx sdk.Context, err error) {
+	if len(tx.GetMsgs()) == 0 {
+		return ctx, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "invalid Msg: empty Msg: %T", tx)
+	}
+
+	for _, msg := range tx.GetMsgs() {
+		switch t := msg.(type) {
+		case *types.MsgFeed:
+			feed := fd.chainLinkKeeper.GetFeed(ctx, t.GetFeedId())
+			if !feed.Feed.Empty() {
+				return ctx, sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, "feed already exists")
+			}
+		case *types.MsgAddDataProvider:
+			feed := fd.chainLinkKeeper.GetFeed(ctx, t.GetFeedId())
+			if feed.Feed.Empty() {
+				return ctx, sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, ErrFeedDoesNotExist)
+			}
+			if (types.DataProviders)(feed.GetFeed().GetDataProviders()).Contains(t.GetDataProvider().GetAddress()) {
+				return ctx, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "data provider already registered")
+			}
+			signer := t.GetSigners()[0]
+			if !feed.GetFeed().GetFeedOwner().Equals(signer) {
+				return ctx, sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, ErrSignerIsNotFeedOwner, common.BytesToAddress(signer.Bytes()), signer)
+			}
+		case *types.MsgRemoveDataProvider:
+			feed := fd.chainLinkKeeper.GetFeed(ctx, t.GetFeedId())
+			if feed.Feed.Empty() {
+				return ctx, sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, ErrFeedDoesNotExist)
+			}
+			if !(types.DataProviders)(feed.GetFeed().GetDataProviders()).Contains(t.GetAddress()) {
+				return ctx, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "data provider not present")
+			}
+			signer := t.GetSigners()[0]
+			if !feed.GetFeed().GetFeedOwner().Equals(signer) {
+				return ctx, sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, ErrSignerIsNotFeedOwner, common.BytesToAddress(signer.Bytes()), signer)
+			}
+		case *types.MsgSetSubmissionCount:
+			feed := fd.chainLinkKeeper.GetFeed(ctx, t.GetFeedId())
+			if feed.Feed.Empty() {
+				return ctx, sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, ErrFeedDoesNotExist)
+			}
+			signer := t.GetSigners()[0]
+			if !feed.GetFeed().GetFeedOwner().Equals(signer) {
+				return ctx, sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, ErrSignerIsNotFeedOwner, common.BytesToAddress(signer.Bytes()), signer)
+			}
+		case *types.MsgSetHeartbeatTrigger:
+			feed := fd.chainLinkKeeper.GetFeed(ctx, t.GetFeedId())
+			if feed.Feed.Empty() {
+				return ctx, sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, ErrFeedDoesNotExist)
+			}
+			signer := t.GetSigners()[0]
+			if !feed.GetFeed().GetFeedOwner().Equals(signer) {
+				return ctx, sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, ErrSignerIsNotFeedOwner, common.BytesToAddress(signer.Bytes()), signer)
+			}
+		case *types.MsgSetDeviationThresholdTrigger:
+			feed := fd.chainLinkKeeper.GetFeed(ctx, t.GetFeedId())
+			if feed.Feed.Empty() {
+				return ctx, sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, ErrFeedDoesNotExist)
+			}
+			signer := t.GetSigners()[0]
+			if !feed.GetFeed().GetFeedOwner().Equals(signer) {
+				return ctx, sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, ErrSignerIsNotFeedOwner, common.BytesToAddress(signer.Bytes()), signer)
+			}
+		case *types.MsgSetFeedReward:
+			feed := fd.chainLinkKeeper.GetFeed(ctx, t.GetFeedId())
+			if feed.Feed.Empty() {
+				return ctx, sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, ErrFeedDoesNotExist)
+			}
+			signer := t.GetSigners()[0]
+			if !feed.GetFeed().GetFeedOwner().Equals(signer) {
+				return ctx, sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, ErrSignerIsNotFeedOwner, common.BytesToAddress(signer.Bytes()), signer)
+			}
+		case *types.MsgFeedOwnershipTransfer:
+			feed := fd.chainLinkKeeper.GetFeed(ctx, t.GetFeedId())
+			if feed.Feed.Empty() {
+				return ctx, sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, ErrFeedDoesNotExist)
+			}
+			signer := t.GetSigners()[0]
+			if !feed.GetFeed().GetFeedOwner().Equals(signer) {
+				return ctx, sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, ErrSignerIsNotFeedOwner, common.BytesToAddress(signer.Bytes()), signer)
+			}
+		case *types.MsgRequestNewRound:
+			feed := fd.chainLinkKeeper.GetFeed(ctx, t.GetFeedId())
+			if feed.Feed.Empty() {
+				return ctx, sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, ErrFeedDoesNotExist)
+			}
+			signer := t.GetSigners()[0]
+			if !feed.GetFeed().GetFeedOwner().Equals(signer) {
+				return ctx, sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, ErrSignerIsNotFeedOwner, common.BytesToAddress(signer.Bytes()), signer)
+			}
+		default:
+			continue
+		}
+	}
+
+	return next(ctx, tx, simulate)
+}
+
+type FeedDataDecorator struct {
+	chainLinkKeeper chainlinkkeeper.Keeper
+}
+
+func NewFeedDataDecorator(chainLinkKeeper chainlinkkeeper.Keeper) FeedDataDecorator {
+	return FeedDataDecorator{
+		chainLinkKeeper: chainLinkKeeper,
+	}
+}
+
+func (fd FeedDataDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (newCtx sdk.Context, err error) {
+	if len(tx.GetMsgs()) == 0 {
+		return ctx, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "invalid Msg: empty Msg: %T", tx)
+	}
+
+	for _, msg := range tx.GetMsgs() {
+		switch t := msg.(type) {
+		case *types.MsgFeedData:
+			feed := fd.chainLinkKeeper.GetFeed(ctx, t.GetFeedId())
+			if feed.Feed.Empty() {
+				return ctx, sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, "feed not exist")
+			}
+			if !(types.DataProviders)(feed.GetFeed().GetDataProviders()).Contains(t.GetSubmitter()) {
+				return ctx, sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "invalid data provider")
+			}
+		default:
+			continue
 		}
 	}
 

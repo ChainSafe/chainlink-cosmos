@@ -1,3 +1,6 @@
+// Copyright 2021 ChainSafe Systems
+// SPDX-License-Identifier: MIT
+
 package chainlink
 
 import (
@@ -9,7 +12,7 @@ import (
 // InitGenesis initializes the chainlink module's state from a provided genesis state.
 func InitGenesis(ctx sdk.Context, k keeper.Keeper, genState types.GenesisState) {
 	for _, owner := range genState.GetModuleOwners() {
-		m := types.ModuleOwner{
+		m := types.MsgModuleOwner{
 			Address: owner.GetAddress(),
 			PubKey:  owner.GetPubKey(),
 		}

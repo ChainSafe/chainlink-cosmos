@@ -1,7 +1,7 @@
 # Copyright 2020 ChainSafe Systems
 # SPDX-License-Identifier: LGPL-3.0-only
 
-name: Build
+name: Lint
 
 on:
   pull_request:
@@ -10,7 +10,7 @@ on:
 
 jobs:
   lint:
-    name: Lint
+    name: Lint and License Headers
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -20,3 +20,5 @@ jobs:
         with:
           version: v1.36
           args: --timeout=5m
+      - name: License Check
+        run: make license-check

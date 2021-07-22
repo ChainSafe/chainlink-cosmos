@@ -26,7 +26,7 @@ clean:
 ###                                   Lint                                  ###
 ###############################################################################
 
-.PHONY: help lint test
+.PHONY: help lint test license
 all: help
 help: Makefile
 	@echo
@@ -47,11 +47,16 @@ lint: get-lint
 ###                                Check&Testing                            ###
 ###############################################################################
 
+test-all: check test test-addFeed
+
 check:
 	gosec ./...
 
 test:
 	go test --race ./...
+
+test-addFeed:
+	./scripts/addFeed.sh
 
 ###############################################################################
 ###                                   Protobuf                              ###
@@ -59,3 +64,20 @@ test:
 
 protogen:
 	./scripts/protocgen
+
+
+###############################################################################
+###                                   License                               ###
+###############################################################################
+
+## license: Adds license header to missing files.
+license:
+	@echo "  >  \033[32mAdding license headers...\033[0m "
+	GO111MODULE=off go get -u github.com/google/addlicense
+	addlicense -c "ChainSafe Systems" -f ./scripts/header.txt -y 2021 ./x
+
+## license-check: Checks for missing license headers
+license-check:
+	@echo "  >  \033[Checking for license headers...\033[0m "
+	GO111MODULE=off go get -u github.com/google/addlicense
+	addlicense -check -c "ChainSafe Systems" -f ./scripts/header.txt -y 2021 ./x

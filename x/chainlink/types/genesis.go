@@ -1,9 +1,14 @@
+// Copyright 2021 ChainSafe Systems
+// SPDX-License-Identifier: MIT
+
 package types
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"github.com/cosmos/cosmos-sdk/codec"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 // DefaultIndex is the default capability global index
@@ -18,13 +23,12 @@ func DefaultGenesis() *GenesisState {
 // Validate performs basic genesis state validation returning an error upon any
 // failure.
 func (gs GenesisState) Validate() error {
-	// TODO: add proper module owner validation
 	if len(gs.GetModuleOwners()) == 0 {
 		return errors.New("module owner size cannot be the zero")
 	}
 
-	for _, owner := range gs.GetModuleOwners() {
-		err := owner.Validate()
+	for _, moduleOwner := range gs.GetModuleOwners() {
+		err := moduleOwner.Validate()
 		if err != nil {
 			return err
 		}
@@ -33,13 +37,17 @@ func (gs GenesisState) Validate() error {
 	return nil
 }
 
-func (m ModuleOwner) Validate() error {
-	// TODO: add proper cosmos address and pubkey validation
-	if len(m.GetAddress()) == 0 {
+func (m MsgModuleOwner) Validate() error {
+	if m.GetAddress().Empty() {
 		return errors.New("module owner address cannot be the empty")
 	}
 	if len(m.GetPubKey()) == 0 {
 		return errors.New("module owner public key cannot be the empty")
+	}
+
+	bech32PubKey := sdk.MustGetPubKeyFromBech32(sdk.Bech32PubKeyTypeAccPub, string(m.PubKey))
+	if !bytes.Equal(bech32PubKey.Address().Bytes(), m.Address.Bytes()) {
+		return errors.New("module owner address and pubKey not match")
 	}
 
 	return nil

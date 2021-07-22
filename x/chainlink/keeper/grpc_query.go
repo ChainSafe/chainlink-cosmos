@@ -1,3 +1,6 @@
+// Copyright 2021 ChainSafe Systems
+// SPDX-License-Identifier: MIT
+
 package keeper
 
 import (
@@ -25,4 +28,9 @@ func (k Keeper) LatestRoundData(c context.Context, req *types.GetLatestRoundData
 func (k Keeper) GetAllModuleOwner(c context.Context, _ *types.GetModuleOwnerRequest) (*types.GetModuleOwnerResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
 	return k.GetModuleOwnerList(ctx), nil
+}
+
+func (k Keeper) GetFeedByFeedId(c context.Context, req *types.GetFeedByIdRequest) (*types.GetFeedByIdResponse, error) {
+	ctx := sdk.UnwrapSDKContext(c)
+	return k.GetFeed(ctx, req.FeedId), nil
 }
