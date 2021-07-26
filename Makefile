@@ -62,9 +62,14 @@ test-addFeed:
 ###                                   Protobuf                              ###
 ###############################################################################
 
+proto-install:
+	./scripts/proto-tools-installer.sh
+
 protogen:
 	./scripts/protocgen
 
+swagger:
+	./scripts/protoc-swagger-gen.sh
 
 ###############################################################################
 ###                                   License                               ###

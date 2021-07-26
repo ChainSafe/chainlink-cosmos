@@ -20,7 +20,7 @@ service Query {
     option (google.api.http).get = "/chainlink/module/owner";
   }
   rpc GetFeedByFeedId(GetFeedByIdRequest) returns (GetFeedByIdResponse) {
-    option (google.api.http).get = "/chainlink/module/feed";
+    option (google.api.http).get = "/chainlink/module/feed/{feedId}";
   }
 }
 
