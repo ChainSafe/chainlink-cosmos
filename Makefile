@@ -47,6 +47,8 @@ lint: get-lint
 ###                                Check&Testing                            ###
 ###############################################################################
 
+test-all: check test test-addFeed
+
 check:
 	gosec ./...
 

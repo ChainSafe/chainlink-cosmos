@@ -46,8 +46,14 @@ func NewHandler(k keeper.Keeper) sdk.Handler {
 		case *types.MsgSetDeviationThresholdTrigger:
 			res, err := msgServer.SetDeviationThresholdTriggerTx(sdk.WrapSDKContext(ctx), msg)
 			return sdk.WrapServiceResult(ctx, res, err)
+		case *types.MsgSetFeedReward:
+			res, err := msgServer.SetFeedRewardTx(sdk.WrapSDKContext(ctx), msg)
+			return sdk.WrapServiceResult(ctx, res, err)
 		case *types.MsgFeedOwnershipTransfer:
 			res, err := msgServer.FeedOwnershipTransferTx(sdk.WrapSDKContext(ctx), msg)
+			return sdk.WrapServiceResult(ctx, res, err)
+		case *types.MsgRequestNewRound:
+			res, err := msgServer.RequestNewRoundTx(sdk.WrapSDKContext(ctx), msg)
 			return sdk.WrapServiceResult(ctx, res, err)
 		default:
 			errMsg := fmt.Sprintf("unrecognized %s message type: %T", types.ModuleName, msg)

@@ -20,6 +20,7 @@ func RegisterCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(MsgSetSubmissionCount{}, "chainlink/SetSubmissionCount", nil)
 	cdc.RegisterConcrete(MsgSetHeartbeatTrigger{}, "chainlink/SetHeartbeatTrigger", nil)
 	cdc.RegisterConcrete(MsgSetDeviationThresholdTrigger{}, "chainlink/SetDeviationThresholdTrigger", nil)
+	cdc.RegisterConcrete(MsgSetFeedReward{}, "chainlink/SetFeedReward", nil)
 	cdc.RegisterConcrete(MsgFeedOwnershipTransfer{}, "chainlink/FeedOwnershipTransfer", nil)
 }
 
@@ -34,6 +35,7 @@ func RegisterInterfaces(registry cdctypes.InterfaceRegistry) {
 		&MsgSetSubmissionCount{},
 		&MsgSetHeartbeatTrigger{},
 		&MsgSetDeviationThresholdTrigger{},
+		&MsgSetFeedReward{},
 		&MsgFeedOwnershipTransfer{},
 	)
 

@@ -12,33 +12,17 @@ service Msg {
   rpc SubmitFeedDataTx(MsgFeedData) returns (MsgResponse) {
     option (google.api.http).put = "/chainlink/feed/data";
   }
-  rpc AddModuleOwnerTx(MsgModuleOwner) returns (MsgResponse) {
-    option (google.api.http).put = "/chainlink/feed/owner";
-  }
-  rpc ModuleOwnershipTransferTx(MsgModuleOwnershipTransfer) returns (MsgResponse) {
-    option (google.api.http).put = "/chainlink/module/ownershipTransfer";
-  }
-  rpc AddFeedTx(MsgFeed) returns (MsgResponse) {
-    option (google.api.http).put = "/chainlink/feed/add";
-  }
-  rpc AddDataProviderTx(MsgAddDataProvider) returns (MsgResponse) {
-    option (google.api.http).put = "/chainlink/feed/addDataProvider";
-  }
-  rpc RemoveDataProviderTx(MsgRemoveDataProvider) returns (MsgResponse) {
-    option (google.api.http).put = "/chainlink/feed/removeDataProvider";
-  }
-  rpc SetSubmissionCountTx(MsgSetSubmissionCount) returns (MsgResponse) {
-    option (google.api.http).put = "/chainlink/feed/setSubmissionCount";
-  }
-  rpc SetHeartbeatTriggerTx(MsgSetHeartbeatTrigger) returns (MsgResponse) {
-    option (google.api.http).put = "/chainlink/feed/setHeartbeatTrigger";
-  }
-  rpc SetDeviationThresholdTriggerTx(MsgSetDeviationThresholdTrigger) returns (MsgResponse) {
-    option (google.api.http).put = "/chainlink/feed/setDeviationThresholdTrigger";
-  }
-  rpc FeedOwnershipTransferTx(MsgFeedOwnershipTransfer) returns (MsgResponse) {
-    option (google.api.http).put = "/chainlink/feed/ownershipTransfer";
-  }
+  rpc AddModuleOwnerTx(MsgModuleOwner) returns (MsgResponse);
+  rpc ModuleOwnershipTransferTx(MsgModuleOwnershipTransfer) returns (MsgResponse);
+  rpc AddFeedTx(MsgFeed) returns (MsgResponse);
+  rpc AddDataProviderTx(MsgAddDataProvider) returns (MsgResponse);
+  rpc RemoveDataProviderTx(MsgRemoveDataProvider) returns (MsgResponse);
+  rpc SetSubmissionCountTx(MsgSetSubmissionCount) returns (MsgResponse);
+  rpc SetHeartbeatTriggerTx(MsgSetHeartbeatTrigger) returns (MsgResponse);
+  rpc SetDeviationThresholdTriggerTx(MsgSetDeviationThresholdTrigger) returns (MsgResponse);
+  rpc SetFeedRewardTx(MsgSetFeedReward) returns (MsgResponse);
+  rpc RequestNewRoundTx(MsgRequestNewRound) returns (MsgResponse);
+  rpc FeedOwnershipTransferTx(MsgFeedOwnershipTransfer) returns (MsgResponse);
 }
 
 // MsgModuleOwnershipTransfer is the type defined for module ownership transfer
@@ -128,6 +112,16 @@ message MsgSetDeviationThresholdTrigger {
   bytes signer = 3 [(gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"];
 }
 
+message MsgSetFeedReward {
+  // FeedId is the unique identifier of the feed
+  string feedId = 1;
+  // The reward distributed to the data providers in a given feed.
+  // The reward will be given as the native token in the application, denominated as "link"
+  uint32 feedReward = 2;
+  // Signer is the feed owner who signs the tx
+  bytes signer = 3 [(gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"];
+}
+
 // MsgFeedOwnershipTransfer is the type defined for feed ownership transfer
 message MsgFeedOwnershipTransfer {
   // FeedId is the unique identifier of the feed
@@ -151,6 +145,14 @@ message MsgFeedData {
   bytes feedData = 3;
   // Signatures is the data provider signature list of the current round
   repeated bytes signatures = 4;
+}
+
+// MsgRequestNewRound is the type defined for requesting new rounds to be triggered for a given feed
+message MsgRequestNewRound {
+  // FeedId is the unique identifier of the feed
+  string feedId = 1;
+  // Signer is the feed owner who signs the tx
+  bytes signer = 3 [(gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"];
 }
 
 message MsgResponse {
