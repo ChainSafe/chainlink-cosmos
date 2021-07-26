@@ -120,7 +120,7 @@ setDeviationThresholdTrigger [feedId] [deviationThresholdTrigger]
 
 6. Set a new data provider reward schema of a feed  
    Can be signed by feed owner only.  
-   Currently, the feedReward is a number, the complex reward schema will be enabled later.
+   Currently, the feedReward is a number, the complex reward schema will be enabled later.  
    `feedReward` is the amount of app native token given to the valid data provider for each round as reward.
 ```bash
 setFeedReward [feedId] [feedReward]
