@@ -49,7 +49,7 @@ f_ensure_dirs() {
 }
 
 f_needs_install() {
-  if [ -x $1 ]; then
+  if which $1 &>/dev/null ; then
     echo -e "\talready installed. Skipping." >&2
     return 1
   fi
@@ -59,7 +59,7 @@ f_needs_install() {
 
 f_install_protoc() {
   f_print_installing_with_padding proto_c
-  f_needs_install "${DESTDIR}/${PREFIX}/bin/protoc" || return 0
+  f_needs_install protoc || return 0
 
   pushd "${TEMPDIR}" >/dev/null
   curl -o "${PROTOC_ZIP}" -sSL "https://github.com/protocolbuffers/protobuf/releases/download/v${PROTOC_VERSION}/${PROTOC_ZIP}"
@@ -72,6 +72,7 @@ f_install_protoc() {
 
 f_install_protoc_gen_gocosmos() {
   f_print_installing_with_padding protoc-gen-gocosmos
+  f_needs_install protoc-gen-gocosmos || return 0
 
   if ! grep "github.com/gogo/protobuf => github.com/regen-network/protobuf" go.mod &>/dev/null ; then
     echo -e "\tPlease run this command from somewhere inside the cosmos-sdk folder."
@@ -84,7 +85,7 @@ f_install_protoc_gen_gocosmos() {
 
 f_install_protoc_gen_grpc_gateway() {
   f_print_installing_with_padding protoc-gen-grpc-gateway
-  #f_needs_install "${DESTDIR}/${PREFIX}/bin/protoc-gen-grpc-gateway" || return 0
+  f_needs_install protoc-gen-grpc-gateway || return 0
 
   pushd "${TEMPDIR}" >/dev/null
   go get github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway
@@ -94,7 +95,7 @@ f_install_protoc_gen_grpc_gateway() {
 
 f_install_protoc_gen_swagger() {
   f_print_installing_with_padding protoc-gen-swagger
-  f_needs_install "${DESTDIR}/${PREFIX}/bin/protoc-gen-swagger" || return 0
+  f_needs_install protoc-gen-swagger || return 0
 
   if ! which npm &>/dev/null ; then
     echo -e "\tNPM is not installed. Skipping."
@@ -113,4 +114,4 @@ f_ensure_dirs
 f_install_protoc
 #f_install_protoc_gen_gocosmos
 f_install_protoc_gen_grpc_gateway
-#f_install_protoc_gen_swagger
+f_install_protoc_gen_swagger
