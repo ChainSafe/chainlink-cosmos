@@ -34,19 +34,19 @@ chainlinkd tx chainlink addFeed feedid1 "$cerloAddr" 1 2 3 4 "$cerloAddr,$cerloP
 chainlinkd query chainlink getFeedInfo feedid1 --chain-id testchain
 
 # Add feed data provider
-chainlinkd tx chainlink addDataProvider feedid1 "$bobAddr" "$bobPK" --from alice --keyring-backend test --chain-id testchain
+chainlinkd tx chainlink addDataProvider feedid1 "$bobAddr" "$bobPK" --from cerlo --keyring-backend test --chain-id testchain
 
 # Query feed info by feedId
 chainlinkd query chainlink getFeedInfo feedid1 --chain-id testchain
 
 # Remove feed data provider
-chainlinkd tx chainlink removeDataProvider feedid1 "$cerloAddr" --from alice --keyring-backend test --chain-id testchain
+chainlinkd tx chainlink removeDataProvider feedid1 "$cerloAddr" --from cerlo --keyring-backend test --chain-id testchain
 
 # Query feed info by feedId
 chainlinkd query chainlink getFeedInfo feedid1 --chain-id testchain
 
 # Feed ownership transfer by alice to bob
-chainlinkd tx chainlink feedOwnershipTransfer feedid1 "$bobAddr" --from alice --keyring-backend test --chain-id testchain
+chainlinkd tx chainlink feedOwnershipTransfer feedid1 "$bobAddr" --from cerlo --keyring-backend test --chain-id testchain
 
 # Query feed info by feedId
 chainlinkd query chainlink getFeedInfo feedid1 --chain-id testchain

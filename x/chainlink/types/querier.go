@@ -7,4 +7,6 @@ package types
 const (
 	QueryRoundFeedData  = "getRoundFeedData"
 	QueryLatestFeedData = "getLatestFeedData"
+	QueryModuleOwner    = "getModuleOwner"
+	QueryFeedInfo       = "getFeedInfo"
 )

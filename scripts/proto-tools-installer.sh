@@ -6,9 +6,7 @@ DESTDIR=${DESTDIR:-}
 PREFIX=${PREFIX:-/usr/local}
 UNAME_S="$(uname -s 2>/dev/null)"
 UNAME_M="$(uname -m 2>/dev/null)"
-BUF_VERSION=0.11.0
 PROTOC_VERSION=3.13.0
-PROTOC_GRPC_GATEWAY_VERSION=2.5.0
 
 f_abort() {
   local l_rc=$1
@@ -21,11 +19,9 @@ f_abort() {
 case "${UNAME_S}" in
 Linux)
   PROTOC_ZIP="protoc-${PROTOC_VERSION}-linux-x86_64.zip"
-  PROTOC_GRPC_GATEWAY_BIN="protoc-gen-grpc-gateway-v${PROTOC_GRPC_GATEWAY_VERSION}-linux-x86_64"
   ;;
 Darwin)
   PROTOC_ZIP="protoc-${PROTOC_VERSION}-osx-x86_64.zip"
-  PROTOC_GRPC_GATEWAY_BIN="protoc-gen-grpc-gateway-v${PROTOC_GRPC_GATEWAY_VERSION}-darwin-x86_64"
   ;;
 *)
   f_abort 1 "Unknown kernel name. Exiting."
@@ -74,15 +70,6 @@ f_install_protoc() {
   f_print_done
 }
 
-f_install_buf() {
-  f_print_installing_with_padding buf
-  f_needs_install "${DESTDIR}/${PREFIX}/bin/buf" || return 0
-
-  curl -sSL "https://github.com/bufbuild/buf/releases/download/v${BUF_VERSION}/buf-${UNAME_S}-${UNAME_M}" -o "${DESTDIR}/${PREFIX}/bin/buf"
-  chmod +x "${DESTDIR}/${PREFIX}/bin/buf"
-  f_print_done
-}
-
 f_install_protoc_gen_gocosmos() {
   f_print_installing_with_padding protoc-gen-gocosmos
 
@@ -124,7 +111,6 @@ f_install_protoc_gen_swagger() {
 f_ensure_tools
 f_ensure_dirs
 f_install_protoc
-f_install_buf
-f_install_protoc_gen_gocosmos
+#f_install_protoc_gen_gocosmos
 f_install_protoc_gen_grpc_gateway
-f_install_protoc_gen_swagger
+#f_install_protoc_gen_swagger
