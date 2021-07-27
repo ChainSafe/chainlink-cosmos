@@ -30,6 +30,10 @@ func NewQuerier(k Keeper, legacyQuerierCdc *codec.LegacyAmino) sdk.Querier {
 			return getRoundFeedData(ctx, path, k, legacyQuerierCdc)
 		case types.QueryLatestFeedData:
 			return latestRoundFeedData(ctx, path, k, legacyQuerierCdc)
+		case types.QueryModuleOwner:
+			return getModuleOwners(ctx, path, k, legacyQuerierCdc)
+		case types.QueryFeedInfo:
+			return getFeedInfo(ctx, path, k, legacyQuerierCdc)
 		default:
 			err = sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "unknown %s query endpoint: %s", types.ModuleName, path[0])
 		}
@@ -39,9 +43,9 @@ func NewQuerier(k Keeper, legacyQuerierCdc *codec.LegacyAmino) sdk.Querier {
 }
 
 func getRoundFeedData(ctx sdk.Context, path []string, keeper Keeper, legacQuerierCdc *codec.LegacyAmino) ([]byte, error) {
-	if len(path) < 2 {
+	if len(path) < 3 {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest,
-			"Insufficient parameters, at least 2 parameters is required")
+			"Insufficient parameters, at least 3 parameters is required")
 	}
 	roundId, err := strconv.ParseUint(path[1], 10, 64)
 	if err != nil {
@@ -83,6 +87,42 @@ func latestRoundFeedData(ctx sdk.Context, path []string, keeper Keeper, legacQue
 	}
 
 	bz, err := codec.MarshalJSONIndent(legacQuerierCdc, msgs)
+	if err != nil {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, err.Error())
+	}
+
+	return bz, nil
+}
+
+func getModuleOwners(ctx sdk.Context, path []string, keeper Keeper, legacQuerierCdc *codec.LegacyAmino) ([]byte, error) {
+	if len(path) < 1 {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest,
+			"Insufficient parameters, at least 1 parameters is required")
+	}
+
+	resp := keeper.GetModuleOwnerList(ctx)
+
+	bz, err := codec.MarshalJSONIndent(legacQuerierCdc, resp)
+	if err != nil {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, err.Error())
+	}
+
+	return bz, nil
+}
+
+func getFeedInfo(ctx sdk.Context, path []string, keeper Keeper, legacQuerierCdc *codec.LegacyAmino) ([]byte, error) {
+	if len(path) < 2 {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest,
+			"Insufficient parameters, at least 2 parameters is required")
+	}
+	feedId := path[1]
+
+	resp := keeper.GetFeed(ctx, feedId)
+	if resp.Feed == nil {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, "No feed found")
+	}
+
+	bz, err := codec.MarshalJSONIndent(legacQuerierCdc, resp)
 	if err != nil {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, err.Error())
 	}

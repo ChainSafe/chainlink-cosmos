@@ -1,0 +1,852 @@
+swagger: '2.0'
+info:
+  title: Chainlink Cosmos
+  description: Chainlink Cosmos Node Application
+  version: 1.3.1
+paths:
+  '/chainlink/feed/data/latest/{feedId}':
+    get:
+      operationId: LatestRoundData
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              roundData:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    feedId:
+                      type: string
+                    feedData:
+                      type: object
+                      properties:
+                        Context:
+                          type: string
+                          format: byte
+                          description: Context should be a 32-byte array struct.
+                        Oracles:
+                          type: string
+                          format: byte
+                          title: >-
+                            Oracles should be a 32-byte record of all
+                            participating oracles. Assuming this is data
+                            provider address?
+                        Observations:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              data:
+                                type: string
+                                format: byte
+                          description: >-
+                            Observations should be an array on int192 containing
+                            the providers' independent observations.
+                      description: >-
+                        this will be the implementation used later will use
+                        pseudo OCR ABI encoded data instead
+
+                        because the structure of how the OCR will be generalized
+                        is still unknown
+
+                        OCRAbiEncoded implments the OCR data that is ABCI
+                        encoded. The use and form will conform to the 
+
+                        Chainlink protocol specification.
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      parameters:
+        - name: feedId
+          in: path
+          required: true
+          type: string
+      tags:
+        - Query
+  '/chainlink/feed/data/round/{roundId}/{feedId}':
+    get:
+      operationId: GetRoundData
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              roundData:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    feedId:
+                      type: string
+                    feedData:
+                      type: object
+                      properties:
+                        Context:
+                          type: string
+                          format: byte
+                          description: Context should be a 32-byte array struct.
+                        Oracles:
+                          type: string
+                          format: byte
+                          title: >-
+                            Oracles should be a 32-byte record of all
+                            participating oracles. Assuming this is data
+                            provider address?
+                        Observations:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              data:
+                                type: string
+                                format: byte
+                          description: >-
+                            Observations should be an array on int192 containing
+                            the providers' independent observations.
+                      description: >-
+                        this will be the implementation used later will use
+                        pseudo OCR ABI encoded data instead
+
+                        because the structure of how the OCR will be generalized
+                        is still unknown
+
+                        OCRAbiEncoded implments the OCR data that is ABCI
+                        encoded. The use and form will conform to the 
+
+                        Chainlink protocol specification.
+              pagination:
+                type: object
+                properties:
+                  next_key:
+                    type: string
+                    format: byte
+                    title: |-
+                      next_key is the key to be passed to PageRequest.key to
+                      query the next page most efficiently
+                  total:
+                    type: string
+                    format: uint64
+                    title: >-
+                      total is total number of results available if
+                      PageRequest.count_total
+
+                      was set, its value is undefined otherwise
+                description: >-
+                  PageResponse is to be embedded in gRPC response messages where
+                  the corresponding
+
+                  request message has used PageRequest.
+
+                   message SomeResponse {
+                           repeated Bar results = 1;
+                           PageResponse page = 2;
+                   }
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      parameters:
+        - name: roundId
+          in: path
+          required: true
+          type: string
+          format: uint64
+        - name: feedId
+          in: path
+          required: true
+          type: string
+        - name: pagination.key
+          description: |-
+            key is a value returned in PageResponse.next_key to begin
+            querying the next page most efficiently. Only one of offset or key
+            should be set.
+          in: query
+          required: false
+          type: string
+          format: byte
+        - name: pagination.offset
+          description: >-
+            offset is a numeric offset that can be used when key is unavailable.
+
+            It is less efficient than using key. Only one of offset or key
+            should
+
+            be set.
+          in: query
+          required: false
+          type: string
+          format: uint64
+        - name: pagination.limit
+          description: >-
+            limit is the total number of results to be returned in the result
+            page.
+
+            If left empty it will default to a value to be set by each app.
+          in: query
+          required: false
+          type: string
+          format: uint64
+        - name: pagination.count_total
+          description: >-
+            count_total is set to true  to indicate that the result set should
+            include
+
+            a count of the total number of items available for pagination in
+            UIs. count_total
+
+            is only respected when offset is used. It is ignored when key is
+            set.
+          in: query
+          required: false
+          type: boolean
+      tags:
+        - Query
+  '/chainlink/module/feed/{feedId}':
+    get:
+      operationId: GetFeedByFeedId
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              feed:
+                type: object
+                properties:
+                  feedId:
+                    type: string
+                    title: FeedId is the unique identifier of the feed
+                  feedOwner:
+                    type: string
+                    format: byte
+                    title: FeedOwner is the owner of the feed
+                  dataProviders:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        address:
+                          type: string
+                          format: byte
+                        pubKey:
+                          type: string
+                          format: byte
+                      title: DataProvider is the type defined for feed data provider
+                    title: >-
+                      DataProviders is the init list of data provider of the
+                      feed
+                  submissionCount:
+                    type: integer
+                    format: int64
+                    title: >-
+                      The number of signatures required for a feedData
+                      submission to be valid
+                  heartbeatTrigger:
+                    type: integer
+                    format: int64
+                    title: >-
+                      The interval between which a new round should
+                      automatically be triggered.
+
+                      The given value in milliseconds will only be approximate
+                      within block intervals
+                  deviationThresholdTrigger:
+                    type: integer
+                    format: int64
+                    description: >-
+                      The fraction of deviation in the feed data required to
+                      trigger a new round.
+
+                      For example if the price of ATOM/USD changes by 1% then a
+                      new round should occur
+
+                      even if the heartbeat interval has not elapsed.
+                  moduleOwnerAddress:
+                    type: string
+                    format: byte
+                    title: Module owner who signs the add feed tx
+                  feedReward:
+                    type: integer
+                    format: int64
+                    title: >-
+                      TODO: RewardConfig: Struct describing how rewards should
+                      be paid
+                title: MsgFeed is the type defined for new feed
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      parameters:
+        - name: feedId
+          in: path
+          required: true
+          type: string
+      tags:
+        - Query
+  /chainlink/module/owner:
+    get:
+      operationId: GetAllModuleOwner
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              moduleOwner:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    address:
+                      type: string
+                      format: byte
+                      title: address defines the address of the module owner
+                    pubKey:
+                      type: string
+                      format: byte
+                      title: pubKey defined the public key of the module owner
+                    assignerAddress:
+                      type: string
+                      format: byte
+                      title: the module owner who assigned this new module owner
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      tags:
+        - Query
+definitions:
+  chainlink.v1beta.DataProvider:
+    type: object
+    properties:
+      address:
+        type: string
+        format: byte
+      pubKey:
+        type: string
+        format: byte
+    title: DataProvider is the type defined for feed data provider
+  chainlink.v1beta.GetFeedByIdResponse:
+    type: object
+    properties:
+      feed:
+        type: object
+        properties:
+          feedId:
+            type: string
+            title: FeedId is the unique identifier of the feed
+          feedOwner:
+            type: string
+            format: byte
+            title: FeedOwner is the owner of the feed
+          dataProviders:
+            type: array
+            items:
+              type: object
+              properties:
+                address:
+                  type: string
+                  format: byte
+                pubKey:
+                  type: string
+                  format: byte
+              title: DataProvider is the type defined for feed data provider
+            title: DataProviders is the init list of data provider of the feed
+          submissionCount:
+            type: integer
+            format: int64
+            title: >-
+              The number of signatures required for a feedData submission to be
+              valid
+          heartbeatTrigger:
+            type: integer
+            format: int64
+            title: >-
+              The interval between which a new round should automatically be
+              triggered.
+
+              The given value in milliseconds will only be approximate within
+              block intervals
+          deviationThresholdTrigger:
+            type: integer
+            format: int64
+            description: >-
+              The fraction of deviation in the feed data required to trigger a
+              new round.
+
+              For example if the price of ATOM/USD changes by 1% then a new
+              round should occur
+
+              even if the heartbeat interval has not elapsed.
+          moduleOwnerAddress:
+            type: string
+            format: byte
+            title: Module owner who signs the add feed tx
+          feedReward:
+            type: integer
+            format: int64
+            title: 'TODO: RewardConfig: Struct describing how rewards should be paid'
+        title: MsgFeed is the type defined for new feed
+  chainlink.v1beta.GetLatestRoundDataResponse:
+    type: object
+    properties:
+      roundData:
+        type: array
+        items:
+          type: object
+          properties:
+            feedId:
+              type: string
+            feedData:
+              type: object
+              properties:
+                Context:
+                  type: string
+                  format: byte
+                  description: Context should be a 32-byte array struct.
+                Oracles:
+                  type: string
+                  format: byte
+                  title: >-
+                    Oracles should be a 32-byte record of all participating
+                    oracles. Assuming this is data provider address?
+                Observations:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      data:
+                        type: string
+                        format: byte
+                  description: >-
+                    Observations should be an array on int192 containing the
+                    providers' independent observations.
+              description: >-
+                this will be the implementation used later will use pseudo OCR
+                ABI encoded data instead
+
+                because the structure of how the OCR will be generalized is
+                still unknown
+
+                OCRAbiEncoded implments the OCR data that is ABCI encoded. The
+                use and form will conform to the 
+
+                Chainlink protocol specification.
+  chainlink.v1beta.GetModuleOwnerResponse:
+    type: object
+    properties:
+      moduleOwner:
+        type: array
+        items:
+          type: object
+          properties:
+            address:
+              type: string
+              format: byte
+              title: address defines the address of the module owner
+            pubKey:
+              type: string
+              format: byte
+              title: pubKey defined the public key of the module owner
+            assignerAddress:
+              type: string
+              format: byte
+              title: the module owner who assigned this new module owner
+  chainlink.v1beta.GetRoundDataResponse:
+    type: object
+    properties:
+      roundData:
+        type: array
+        items:
+          type: object
+          properties:
+            feedId:
+              type: string
+            feedData:
+              type: object
+              properties:
+                Context:
+                  type: string
+                  format: byte
+                  description: Context should be a 32-byte array struct.
+                Oracles:
+                  type: string
+                  format: byte
+                  title: >-
+                    Oracles should be a 32-byte record of all participating
+                    oracles. Assuming this is data provider address?
+                Observations:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      data:
+                        type: string
+                        format: byte
+                  description: >-
+                    Observations should be an array on int192 containing the
+                    providers' independent observations.
+              description: >-
+                this will be the implementation used later will use pseudo OCR
+                ABI encoded data instead
+
+                because the structure of how the OCR will be generalized is
+                still unknown
+
+                OCRAbiEncoded implments the OCR data that is ABCI encoded. The
+                use and form will conform to the 
+
+                Chainlink protocol specification.
+      pagination:
+        type: object
+        properties:
+          next_key:
+            type: string
+            format: byte
+            title: |-
+              next_key is the key to be passed to PageRequest.key to
+              query the next page most efficiently
+          total:
+            type: string
+            format: uint64
+            title: >-
+              total is total number of results available if
+              PageRequest.count_total
+
+              was set, its value is undefined otherwise
+        description: >-
+          PageResponse is to be embedded in gRPC response messages where the
+          corresponding
+
+          request message has used PageRequest.
+
+           message SomeResponse {
+                   repeated Bar results = 1;
+                   PageResponse page = 2;
+           }
+  chainlink.v1beta.MsgFeed:
+    type: object
+    properties:
+      feedId:
+        type: string
+        title: FeedId is the unique identifier of the feed
+      feedOwner:
+        type: string
+        format: byte
+        title: FeedOwner is the owner of the feed
+      dataProviders:
+        type: array
+        items:
+          type: object
+          properties:
+            address:
+              type: string
+              format: byte
+            pubKey:
+              type: string
+              format: byte
+          title: DataProvider is the type defined for feed data provider
+        title: DataProviders is the init list of data provider of the feed
+      submissionCount:
+        type: integer
+        format: int64
+        title: >-
+          The number of signatures required for a feedData submission to be
+          valid
+      heartbeatTrigger:
+        type: integer
+        format: int64
+        title: >-
+          The interval between which a new round should automatically be
+          triggered.
+
+          The given value in milliseconds will only be approximate within block
+          intervals
+      deviationThresholdTrigger:
+        type: integer
+        format: int64
+        description: >-
+          The fraction of deviation in the feed data required to trigger a new
+          round.
+
+          For example if the price of ATOM/USD changes by 1% then a new round
+          should occur
+
+          even if the heartbeat interval has not elapsed.
+      moduleOwnerAddress:
+        type: string
+        format: byte
+        title: Module owner who signs the add feed tx
+      feedReward:
+        type: integer
+        format: int64
+        title: 'TODO: RewardConfig: Struct describing how rewards should be paid'
+    title: MsgFeed is the type defined for new feed
+  chainlink.v1beta.MsgModuleOwner:
+    type: object
+    properties:
+      address:
+        type: string
+        format: byte
+        title: address defines the address of the module owner
+      pubKey:
+        type: string
+        format: byte
+        title: pubKey defined the public key of the module owner
+      assignerAddress:
+        type: string
+        format: byte
+        title: the module owner who assigned this new module owner
+  chainlink.v1beta.OCRAbiEncoded:
+    type: object
+    properties:
+      Context:
+        type: string
+        format: byte
+        description: Context should be a 32-byte array struct.
+      Oracles:
+        type: string
+        format: byte
+        title: >-
+          Oracles should be a 32-byte record of all participating oracles.
+          Assuming this is data provider address?
+      Observations:
+        type: array
+        items:
+          type: object
+          properties:
+            data:
+              type: string
+              format: byte
+        description: >-
+          Observations should be an array on int192 containing the providers'
+          independent observations.
+    description: >-
+      this will be the implementation used later will use pseudo OCR ABI encoded
+      data instead
+
+      because the structure of how the OCR will be generalized is still unknown
+
+      OCRAbiEncoded implments the OCR data that is ABCI encoded. The use and
+      form will conform to the 
+
+      Chainlink protocol specification.
+  chainlink.v1beta.Observation:
+    type: object
+    properties:
+      data:
+        type: string
+        format: byte
+  chainlink.v1beta.RoundData:
+    type: object
+    properties:
+      feedId:
+        type: string
+      feedData:
+        type: object
+        properties:
+          Context:
+            type: string
+            format: byte
+            description: Context should be a 32-byte array struct.
+          Oracles:
+            type: string
+            format: byte
+            title: >-
+              Oracles should be a 32-byte record of all participating oracles.
+              Assuming this is data provider address?
+          Observations:
+            type: array
+            items:
+              type: object
+              properties:
+                data:
+                  type: string
+                  format: byte
+            description: >-
+              Observations should be an array on int192 containing the
+              providers' independent observations.
+        description: >-
+          this will be the implementation used later will use pseudo OCR ABI
+          encoded data instead
+
+          because the structure of how the OCR will be generalized is still
+          unknown
+
+          OCRAbiEncoded implments the OCR data that is ABCI encoded. The use and
+          form will conform to the 
+
+          Chainlink protocol specification.
+  cosmos.base.query.v1beta1.PageRequest:
+    type: object
+    properties:
+      key:
+        type: string
+        format: byte
+        description: |-
+          key is a value returned in PageResponse.next_key to begin
+          querying the next page most efficiently. Only one of offset or key
+          should be set.
+      offset:
+        type: string
+        format: uint64
+        description: |-
+          offset is a numeric offset that can be used when key is unavailable.
+          It is less efficient than using key. Only one of offset or key should
+          be set.
+      limit:
+        type: string
+        format: uint64
+        description: >-
+          limit is the total number of results to be returned in the result
+          page.
+
+          If left empty it will default to a value to be set by each app.
+      count_total:
+        type: boolean
+        description: >-
+          count_total is set to true  to indicate that the result set should
+          include
+
+          a count of the total number of items available for pagination in UIs.
+          count_total
+
+          is only respected when offset is used. It is ignored when key is set.
+    description: |-
+      message SomeRequest {
+               Foo some_parameter = 1;
+               PageRequest pagination = 2;
+       }
+    title: |-
+      PageRequest is to be embedded in gRPC request messages for efficient
+      pagination. Ex:
+  cosmos.base.query.v1beta1.PageResponse:
+    type: object
+    properties:
+      next_key:
+        type: string
+        format: byte
+        title: |-
+          next_key is the key to be passed to PageRequest.key to
+          query the next page most efficiently
+      total:
+        type: string
+        format: uint64
+        title: |-
+          total is total number of results available if PageRequest.count_total
+          was set, its value is undefined otherwise
+    description: >-
+      PageResponse is to be embedded in gRPC response messages where the
+      corresponding
+
+      request message has used PageRequest.
+
+       message SomeResponse {
+               repeated Bar results = 1;
+               PageResponse page = 2;
+       }
+  google.protobuf.Any:
+    type: object
+    properties:
+      type_url:
+        type: string
+      value:
+        type: string
+        format: byte
+  grpc.gateway.runtime.Error:
+    type: object
+    properties:
+      error:
+        type: string
+      code:
+        type: integer
+        format: int32
+      message:
+        type: string
+      details:
+        type: array
+        items:
+          type: object
+          properties:
+            type_url:
+              type: string
+            value:
+              type: string
+              format: byte

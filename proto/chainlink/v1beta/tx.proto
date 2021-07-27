@@ -21,6 +21,7 @@ service Msg {
   rpc SetHeartbeatTriggerTx(MsgSetHeartbeatTrigger) returns (MsgResponse);
   rpc SetDeviationThresholdTriggerTx(MsgSetDeviationThresholdTrigger) returns (MsgResponse);
   rpc SetFeedRewardTx(MsgSetFeedReward) returns (MsgResponse);
+  rpc RequestNewRoundTx(MsgRequestNewRound) returns (MsgResponse);
   rpc FeedOwnershipTransferTx(MsgFeedOwnershipTransfer) returns (MsgResponse);
 }
 
