@@ -11,8 +11,6 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
-var _ types.MsgServer = Keeper{}
-
 const (
 	ErrIncorrectHeightFound = "incorrect height found"
 
@@ -24,10 +22,22 @@ const (
 	FeedParamChangeTypeRewardSchema       = "RewardSchema"
 )
 
+type msgServer struct {
+	Keeper
+}
+
+// NewMsgServerImpl returns an implementation of the MsgServer interface
+// for the provided Keeper.
+func NewMsgServerImpl(keeper Keeper) types.MsgServer {
+	return &msgServer{Keeper: keeper}
+}
+
+var _ types.MsgServer = msgServer{}
+
 // SubmitFeedDataTx implements the tx/SubmitFeedDataTx gRPC method
-func (k Keeper) SubmitFeedDataTx(c context.Context, msg *types.MsgFeedData) (*types.MsgResponse, error) {
+func (s msgServer) SubmitFeedDataTx(c context.Context, msg *types.MsgFeedData) (*types.MsgResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
-	height, txHash, err := k.SetFeedData(ctx, msg)
+	height, txHash, err := s.SetFeedData(ctx, msg)
 	if err != nil {
 		return nil, err
 	}
@@ -36,12 +46,12 @@ func (k Keeper) SubmitFeedDataTx(c context.Context, msg *types.MsgFeedData) (*ty
 	}
 
 	// reward distribution
-	feed := k.GetFeed(ctx, msg.FeedId)
+	feed := s.GetFeed(ctx, msg.FeedId)
 	feedReward := feed.GetFeed().FeedReward
 
 	dataProviders := feed.GetFeed().DataProviders
 
-	err = k.DistributeReward(ctx, msg, dataProviders, feedReward)
+	err = s.DistributeReward(ctx, msg, dataProviders, feedReward)
 	if err != nil {
 		return nil, err
 	}
@@ -53,9 +63,9 @@ func (k Keeper) SubmitFeedDataTx(c context.Context, msg *types.MsgFeedData) (*ty
 }
 
 // AddModuleOwnerTx implements the tx/AddModuleOwnerTx gRPC method
-func (k Keeper) AddModuleOwnerTx(c context.Context, msg *types.MsgModuleOwner) (*types.MsgResponse, error) {
+func (s msgServer) AddModuleOwnerTx(c context.Context, msg *types.MsgModuleOwner) (*types.MsgResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
-	height, txHash := k.SetModuleOwner(ctx, msg)
+	height, txHash := s.SetModuleOwner(ctx, msg)
 
 	if height == 0 {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidHeight, ErrIncorrectHeightFound)
@@ -68,17 +78,17 @@ func (k Keeper) AddModuleOwnerTx(c context.Context, msg *types.MsgModuleOwner) (
 }
 
 // ModuleOwnershipTransferTx implements the tx/ModuleOwnershipTransferTx gRPC method
-func (k Keeper) ModuleOwnershipTransferTx(c context.Context, msg *types.MsgModuleOwnershipTransfer) (*types.MsgResponse, error) {
+func (s msgServer) ModuleOwnershipTransferTx(c context.Context, msg *types.MsgModuleOwnershipTransfer) (*types.MsgResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
 
-	_, _ = k.RemoveModuleOwner(ctx, msg)
+	_, _ = s.RemoveModuleOwner(ctx, msg)
 
 	transferMsg := &types.MsgModuleOwner{
 		Address:         msg.GetNewModuleOwnerAddress(),
 		PubKey:          msg.GetNewModuleOwnerPubKey(),
 		AssignerAddress: msg.GetAssignerAddress(),
 	}
-	height, txHash := k.SetModuleOwner(ctx, transferMsg)
+	height, txHash := s.SetModuleOwner(ctx, transferMsg)
 
 	if height == 0 {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidHeight, ErrIncorrectHeightFound)
@@ -100,10 +110,10 @@ func (k Keeper) ModuleOwnershipTransferTx(c context.Context, msg *types.MsgModul
 }
 
 // AddFeedTx implements the tx/AddFeedTx gRPC method
-func (k Keeper) AddFeedTx(c context.Context, msg *types.MsgFeed) (*types.MsgResponse, error) {
+func (s msgServer) AddFeedTx(c context.Context, msg *types.MsgFeed) (*types.MsgResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
 
-	height, txHash := k.SetFeed(ctx, msg)
+	height, txHash := s.SetFeed(ctx, msg)
 
 	if height == 0 {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidHeight, ErrIncorrectHeightFound)
@@ -126,10 +136,10 @@ func (k Keeper) AddFeedTx(c context.Context, msg *types.MsgFeed) (*types.MsgResp
 }
 
 // AddDataProviderTx implements the tx/AddDataProvider gRPC method
-func (k Keeper) AddDataProviderTx(c context.Context, msg *types.MsgAddDataProvider) (*types.MsgResponse, error) {
+func (s msgServer) AddDataProviderTx(c context.Context, msg *types.MsgAddDataProvider) (*types.MsgResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
 
-	height, txHash, err := k.AddDataProvider(ctx, msg)
+	height, txHash, err := s.AddDataProvider(ctx, msg)
 
 	if err != nil {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, err.Error())
@@ -157,10 +167,10 @@ func (k Keeper) AddDataProviderTx(c context.Context, msg *types.MsgAddDataProvid
 }
 
 // RemoveDataProviderTx implements the tx/RemoveDataProvider gRPC method
-func (k Keeper) RemoveDataProviderTx(c context.Context, msg *types.MsgRemoveDataProvider) (*types.MsgResponse, error) {
+func (s msgServer) RemoveDataProviderTx(c context.Context, msg *types.MsgRemoveDataProvider) (*types.MsgResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
 
-	height, txHash, err := k.RemoveDataProvider(ctx, msg)
+	height, txHash, err := s.RemoveDataProvider(ctx, msg)
 
 	if err != nil {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, err.Error())
@@ -187,10 +197,10 @@ func (k Keeper) RemoveDataProviderTx(c context.Context, msg *types.MsgRemoveData
 	}, nil
 }
 
-func (k Keeper) SetSubmissionCountTx(c context.Context, msg *types.MsgSetSubmissionCount) (*types.MsgResponse, error) {
+func (s msgServer) SetSubmissionCountTx(c context.Context, msg *types.MsgSetSubmissionCount) (*types.MsgResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
 
-	height, txHash, err := k.SetSubmissionCount(ctx, msg)
+	height, txHash, err := s.SetSubmissionCount(ctx, msg)
 
 	if err != nil {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, err.Error())
@@ -217,10 +227,10 @@ func (k Keeper) SetSubmissionCountTx(c context.Context, msg *types.MsgSetSubmiss
 	}, nil
 }
 
-func (k Keeper) SetHeartbeatTriggerTx(c context.Context, msg *types.MsgSetHeartbeatTrigger) (*types.MsgResponse, error) {
+func (s msgServer) SetHeartbeatTriggerTx(c context.Context, msg *types.MsgSetHeartbeatTrigger) (*types.MsgResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
 
-	height, txHash, err := k.SetHeartbeatTrigger(ctx, msg)
+	height, txHash, err := s.SetHeartbeatTrigger(ctx, msg)
 
 	if err != nil {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, err.Error())
@@ -247,10 +257,10 @@ func (k Keeper) SetHeartbeatTriggerTx(c context.Context, msg *types.MsgSetHeartb
 	}, nil
 }
 
-func (k Keeper) SetDeviationThresholdTriggerTx(c context.Context, msg *types.MsgSetDeviationThresholdTrigger) (*types.MsgResponse, error) {
+func (s msgServer) SetDeviationThresholdTriggerTx(c context.Context, msg *types.MsgSetDeviationThresholdTrigger) (*types.MsgResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
 
-	height, txHash, err := k.SetDeviationThresholdTrigger(ctx, msg)
+	height, txHash, err := s.SetDeviationThresholdTrigger(ctx, msg)
 
 	if err != nil {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, err.Error())
@@ -277,10 +287,10 @@ func (k Keeper) SetDeviationThresholdTriggerTx(c context.Context, msg *types.Msg
 	}, nil
 }
 
-func (k Keeper) SetFeedRewardTx(c context.Context, msg *types.MsgSetFeedReward) (*types.MsgResponse, error) {
+func (s msgServer) SetFeedRewardTx(c context.Context, msg *types.MsgSetFeedReward) (*types.MsgResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
 
-	height, txHash, err := k.SetFeedReward(ctx, msg)
+	height, txHash, err := s.SetFeedReward(ctx, msg)
 
 	if err != nil {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, err.Error())
@@ -307,10 +317,10 @@ func (k Keeper) SetFeedRewardTx(c context.Context, msg *types.MsgSetFeedReward) 
 	}, nil
 }
 
-func (k Keeper) FeedOwnershipTransferTx(c context.Context, msg *types.MsgFeedOwnershipTransfer) (*types.MsgResponse, error) {
+func (s msgServer) FeedOwnershipTransferTx(c context.Context, msg *types.MsgFeedOwnershipTransfer) (*types.MsgResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
 
-	height, txHash, err := k.FeedOwnershipTransfer(ctx, msg)
+	height, txHash, err := s.FeedOwnershipTransfer(ctx, msg)
 
 	if err != nil {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, err.Error())
@@ -336,10 +346,10 @@ func (k Keeper) FeedOwnershipTransferTx(c context.Context, msg *types.MsgFeedOwn
 	}, nil
 }
 
-func (k Keeper) RequestNewRoundTx(c context.Context, msg *types.MsgRequestNewRound) (*types.MsgResponse, error) {
+func (s msgServer) RequestNewRoundTx(c context.Context, msg *types.MsgRequestNewRound) (*types.MsgResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
 
-	height, txHash, err := k.RequestNewRound(ctx, msg)
+	height, txHash, err := s.RequestNewRound(ctx, msg)
 
 	if err != nil {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, err.Error())

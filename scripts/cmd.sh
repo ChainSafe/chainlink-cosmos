@@ -34,19 +34,19 @@ chainlinkd tx chainlink addFeed feedid1 "$cerloAddr" 1 2 3 4 "$cerloAddr,$cerloP
 chainlinkd query chainlink getFeedInfo feedid1 --chain-id testchain
 
 # Add feed data provider
-chainlinkd tx chainlink addDataProvider feedid1 "$bobAddr" "$bobPK" --from alice --keyring-backend test --chain-id testchain
+chainlinkd tx chainlink addDataProvider feedid1 "$bobAddr" "$bobPK" --from cerlo --keyring-backend test --chain-id testchain
 
 # Query feed info by feedId
 chainlinkd query chainlink getFeedInfo feedid1 --chain-id testchain
 
 # Remove feed data provider
-chainlinkd tx chainlink removeDataProvider feedid1 "$cerloAddr" --from alice --keyring-backend test --chain-id testchain
+chainlinkd tx chainlink removeDataProvider feedid1 "$cerloAddr" --from cerlo --keyring-backend test --chain-id testchain
 
 # Query feed info by feedId
 chainlinkd query chainlink getFeedInfo feedid1 --chain-id testchain
 
 # Feed ownership transfer by alice to bob
-chainlinkd tx chainlink feedOwnershipTransfer feedid1 "$bobAddr" --from alice --keyring-backend test --chain-id testchain
+chainlinkd tx chainlink feedOwnershipTransfer feedid1 "$bobAddr" --from cerlo --keyring-backend test --chain-id testchain
 
 # Query feed info by feedId
 chainlinkd query chainlink getFeedInfo feedid1 --chain-id testchain
@@ -70,8 +70,8 @@ chainlinkd query chainlink getFeedInfo feedid1 --chain-id testchain
 # Feed Data (Report)
 # ==================
 
-# Submit feed data by alice
-chainlinkd tx chainlink submitFeedData feedid1 "feed 1 test data" "dummy signatures" --from alice --keyring-backend test --chain-id testchain
+# Submit feed data by bob
+chainlinkd tx chainlink submitFeedData feedid1 "feed 1 test data" "dummy signatures" --from bob --keyring-backend test --chain-id testchain
 
 # Query feed data by txHash
 chainlinkd query tx C350CAD4673DB75005C6215262633375ECE318BAEDC794820EE43FA958FB8174 --chain-id testchain -o json
