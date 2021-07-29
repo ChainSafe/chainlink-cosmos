@@ -23,6 +23,7 @@ jobs:
           go-version: ${{ matrix.go-version }}
     
   addFeed:
+    runs-on: ${{ matrix.platform }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -38,6 +39,7 @@ jobs:
           make test-addFeed
 
   editFeed:
+    runs-on: ${{ matrix.platform }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
