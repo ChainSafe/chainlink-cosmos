@@ -6,7 +6,7 @@ function errorAndExit() {
   exit 1
 }
 
-chainlinkCMD="$chainlinkd tx chainlink"
+chainlinkCMD="chainlinkd tx chainlink"
 
 #### according to `start.sh`, ALICE is the Module Owner. #####
 ./scripts/start.sh > "$(pwd)"/chainlinkd.log 2>&1 &
