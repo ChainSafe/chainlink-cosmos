@@ -1,15 +1,16 @@
 // Copyright 2021 ChainSafe Systems
 // SPDX-License-Identifier: MIT
 
-package keeper
+package grpc
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"path/filepath"
 	"testing"
+	"time"
 
+	"github.com/ChainSafe/chainlink-cosmos/app"
 	"github.com/ChainSafe/chainlink-cosmos/x/chainlink/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/config"
@@ -20,6 +21,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/tx"
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
 	xauthsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
+	xauthtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"
 )
@@ -41,13 +43,12 @@ func initClientContext(t testing.TB) context.Context {
 	require.NoError(t, err)
 	home := filepath.Join(userHomeDir, ".chainlinkd")
 
-	//_ = os.Setenv("KEYRING_BACKEND", "test")
-
+	encodingConfig := app.MakeEncodingConfig()
 	clientCtx := client.Context{}.
 		WithHomeDir(home).
-		WithViper("")
-
-	//_ = clientCtx.Viper.BindEnv("KEYRING_BACKEND")
+		WithViper("").
+		WithAccountRetriever(xauthtypes.AccountRetriever{}).
+		WithInterfaceRegistry(encodingConfig.InterfaceRegistry)
 
 	clientCtx, err = config.ReadFromClientConfig(clientCtx)
 	require.NoError(t, err)
@@ -91,12 +92,15 @@ func Sign(t testing.TB, ctx context.Context, name string, txBuilder client.TxBui
 	require.NoError(t, err)
 	pubKey := key.GetPubKey()
 
+	accNum, accSeq, err := clientCtx.AccountRetriever.GetAccountNumberSequence(*clientCtx, key.GetAddress())
+	require.NoError(t, err)
+
 	encCfg := simapp.MakeTestEncodingConfig()
 
 	signerData := xauthsigning.SignerData{
 		ChainID:       "testchain",
-		AccountNumber: 1,
-		Sequence:      1,
+		AccountNumber: accNum,
+		Sequence:      accSeq,
 	}
 
 	signMode := encCfg.TxConfig.SignModeHandler().DefaultMode()
@@ -107,10 +111,8 @@ func Sign(t testing.TB, ctx context.Context, name string, txBuilder client.TxBui
 	sig := signing.SignatureV2{
 		PubKey:   pubKey,
 		Data:     &sigData,
-		Sequence: 1,
+		Sequence: accSeq,
 	}
-
-	var prevSignatures []signing.SignatureV2
 
 	err = txBuilder.SetSignatures(sig)
 	require.NoError(t, err)
@@ -128,11 +130,10 @@ func Sign(t testing.TB, ctx context.Context, name string, txBuilder client.TxBui
 	sig = signing.SignatureV2{
 		PubKey:   pubKey,
 		Data:     &sigData,
-		Sequence: 1,
+		Sequence: accSeq,
 	}
 
-	prevSignatures = append(prevSignatures, sig)
-	return txBuilder.SetSignatures(prevSignatures...)
+	return txBuilder.SetSignatures(sig)
 }
 
 func BroadcastTx(t testing.TB, ctx context.Context, grpcConn *grpc.ClientConn, submitter string, msgs ...sdk.Msg) *tx.BroadcastTxResponse {
@@ -164,62 +165,93 @@ func BroadcastTx(t testing.TB, ctx context.Context, grpcConn *grpc.ClientConn, s
 	return res
 }
 
-func TestEmptyFeedRound(t *testing.T) {
-	ctx := context.Background()
+func TestGRPC(t *testing.T) {
+	ctx := initClientContext(t)
 	grpcConn := setupGRPCConn(t)
 	queryClient := types.NewQueryClient(grpcConn)
 
-	res, err := queryClient.GetRoundData(ctx, &types.GetRoundDataRequest{
-		FeedId:  "non-existing-feed",
-		RoundId: 1,
-	})
-	if err != nil {
-		t.Error(err)
-	}
-
-	require.Equal(t, 0, len(res.GetRoundData()))
-}
-
-func TestFeedRound(t *testing.T) {
-	ctx := initClientContext(t)
-	grpcConn := setupGRPCConn(t)
-
-	submitter := "alice"
-
 	clientCtx := ctx.Value(client.ClientContextKey).(*client.Context)
-	key, err := clientCtx.Keyring.Key(submitter)
+
+	alice, err := clientCtx.Keyring.Key("alice")
+	require.NoError(t, err)
+	aliceCosmosPubKey, err := sdk.Bech32ifyPubKey(sdk.Bech32PubKeyTypeAccPub, alice.GetPubKey())
 	require.NoError(t, err)
 
+	bob, err := clientCtx.Keyring.Key("bob")
+	require.NoError(t, err)
+	bobCosmosPubKey, err := sdk.Bech32ifyPubKey(sdk.Bech32PubKeyTypeAccPub, bob.GetPubKey())
+	require.NoError(t, err)
+
+	cerlo, err := clientCtx.Keyring.Key("cerlo")
+	require.NoError(t, err)
+	cerloCosmosPubKey, err := sdk.Bech32ifyPubKey(sdk.Bech32PubKeyTypeAccPub, cerlo.GetPubKey())
+	require.NoError(t, err)
+
+	// 1 - Check initial module owner
+	getModuleOwnerResponse, err := queryClient.GetAllModuleOwner(ctx, &types.GetModuleOwnerRequest{})
+	require.NoError(t, err)
+	moduleOwner := getModuleOwnerResponse.GetModuleOwner()
+	require.Equal(t, 1, len(moduleOwner))
+	require.Equal(t, alice.GetAddress(), moduleOwner[0].GetAddress())
+	require.Equal(t, aliceCosmosPubKey, string(moduleOwner[0].GetPubKey()))
+
+	// 2 - Add new module owner by alice
+	addModuleOwnerTx := &types.MsgModuleOwner{
+		Address:         bob.GetAddress(),
+		PubKey:          []byte(bobCosmosPubKey),
+		AssignerAddress: alice.GetAddress(),
+	}
+	require.NoError(t, addModuleOwnerTx.ValidateBasic())
+	addModuleOwnerTxResponse := BroadcastTx(t, ctx, grpcConn, alice.GetName(), addModuleOwnerTx)
+	require.EqualValues(t, 0, addModuleOwnerTxResponse.TxResponse.Code)
+
+	time.Sleep(5 * time.Second)
+
+	getModuleOwnerResponse, err = queryClient.GetAllModuleOwner(ctx, &types.GetModuleOwnerRequest{})
+	require.NoError(t, err)
+	moduleOwner = getModuleOwnerResponse.GetModuleOwner()
+	require.Equal(t, 2, len(moduleOwner))
+
+	// 3 - Module ownership transfer by bob to alice
+	moduleOwnershipTransferTx := &types.MsgModuleOwnershipTransfer{
+		NewModuleOwnerAddress: alice.GetAddress(),
+		NewModuleOwnerPubKey:  []byte(aliceCosmosPubKey),
+		AssignerAddress:       bob.GetAddress(),
+	}
+	require.NoError(t, addModuleOwnerTx.ValidateBasic())
+	moduleOwnershipTransferTxResponse := BroadcastTx(t, ctx, grpcConn, bob.GetName(), moduleOwnershipTransferTx)
+	require.EqualValues(t, 0, moduleOwnershipTransferTxResponse.TxResponse.Code)
+
+	// 4 - Add new feed by alice
+	feedId := "testfeed1"
 	addFeedTx := &types.MsgFeed{
-		FeedId:    "testfeed1",
-		FeedOwner: acc2.Addr,
+		FeedId:    feedId,
+		FeedOwner: cerlo.GetAddress(),
 		DataProviders: []*types.DataProvider{
 			{
-				Address: acc3.Addr,
-				PubKey:  []byte(acc3.Cosmos),
+				Address: cerlo.GetAddress(),
+				PubKey:  []byte(cerloCosmosPubKey),
 			},
 		},
 		SubmissionCount:           1,
 		HeartbeatTrigger:          2,
 		DeviationThresholdTrigger: 3,
-		ModuleOwnerAddress:        key.GetAddress(),
 		FeedReward:                4,
+		ModuleOwnerAddress:        alice.GetAddress(),
 	}
 	require.NoError(t, addFeedTx.ValidateBasic())
+	addFeedTxResponse := BroadcastTx(t, ctx, grpcConn, alice.GetName(), addFeedTx)
+	require.EqualValues(t, 0, addFeedTxResponse.TxResponse.Code)
 
-	res := BroadcastTx(t, ctx, grpcConn, submitter, addFeedTx)
+	time.Sleep(5 * time.Second)
 
-	fmt.Printf("%+v\n", res.TxResponse)
+	getFeedByFeedIdResponse, err := queryClient.GetFeedByFeedId(ctx, &types.GetFeedByIdRequest{FeedId: feedId})
+	require.NoError(t, err)
+	feed := getFeedByFeedIdResponse.GetFeed()
 
-	require.Equal(t, 0, res.TxResponse.Code)
-
-	//res, err := queryClient.GetRoundData(ctx, &types.GetRoundDataRequest{
-	//	FeedId:  "feedid1",
-	//	RoundId: 1,
-	//})
-	//if err != nil {
-	//	t.Error(err)
-	//}
-
-	//require.Equal(t, 0, len(res.GetRoundData()))
+	require.Equal(t, feedId, feed.GetFeedId())
+	require.EqualValues(t, 1, feed.GetSubmissionCount())
+	require.EqualValues(t, 2, feed.GetHeartbeatTrigger())
+	require.EqualValues(t, 3, feed.GetDeviationThresholdTrigger())
+	require.EqualValues(t, 4, feed.GetFeedReward())
 }
