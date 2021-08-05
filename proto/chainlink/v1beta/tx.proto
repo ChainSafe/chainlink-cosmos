@@ -4,6 +4,7 @@ package chainlink.v1beta;
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
 import "chainlink/v1beta/genesis.proto";
+import "google/protobuf/timestamp.proto";
 
 option go_package = "github.com/ChainSafe/chainlink-cosmos/x/chainlink/types";
 
@@ -54,6 +55,8 @@ message MsgFeed {
   bytes moduleOwnerAddress = 7 [(gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"];
   // TODO: RewardConfig: Struct describing how rewards should be paid
   uint32 feedReward = 8;
+  // LastUpdate is the time of which the last feedData was submitted.
+  google.protobuf.Timestamp lastUpdate = 9;
 }
 
 // DataProvider is the type defined for feed data provider
