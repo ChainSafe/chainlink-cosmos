@@ -5,14 +5,18 @@ package keeper
 
 import (
 	"context"
+	"time"
 
 	"github.com/ChainSafe/chainlink-cosmos/x/chainlink/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	ts "google.golang.org/protobuf/types/known/timestamppb"
 )
 
 const (
-	ErrIncorrectHeightFound = "incorrect height found"
+	ErrIncorrectHeightFound   = "incorrect height found"
+	ErrInsufficientSignatures = "incorrect number of signatures provided"
+	ErrHeartBeatTrigger       = "heartbeat interval has not passed"
 
 	DataProviderSetChangeTypeAdd          = "Add"
 	DataProviderSetChangeTypeRemove       = "Remove"
@@ -37,7 +41,7 @@ var _ types.MsgServer = msgServer{}
 // SubmitFeedDataTx implements the tx/SubmitFeedDataTx gRPC method
 func (s msgServer) SubmitFeedDataTx(c context.Context, msg *types.MsgFeedData) (*types.MsgResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
-	height, txHash, err := s.SetFeedData(ctx, msg)
+	height, blockTime, txHash, err := s.SetFeedData(ctx, msg)
 	if err != nil {
 		return nil, err
 	}
@@ -45,12 +49,36 @@ func (s msgServer) SubmitFeedDataTx(c context.Context, msg *types.MsgFeedData) (
 		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidHeight, ErrIncorrectHeightFound)
 	}
 
-	// reward distribution
 	feed := s.GetFeed(ctx, msg.FeedId)
+
+	// check if data passes proper checks
+	// submissions count check - should have at least the minimum number of signatures present
+	feedSubmissionCount := feed.GetFeed().SubmissionCount
+	if uint32(len(msg.Signatures)) < feedSubmissionCount {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrLogic, ErrInsufficientSignatures)
+	}
+
+	// hearbeat trigger - the interval set in which has to be passed to be valid
+	feedHeartbeatTrigger := feed.GetFeed().HeartbeatTrigger
+	if blockTime.Before((feed.Feed.LastUpdate.AsTime()).Add(time.Duration(feedHeartbeatTrigger))) {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrLogic, ErrHeartBeatTrigger)
+	}
+
+	// deviation threshold trigger - the fraction of deviation must be met in order to trigger a new round and submit the feed data
+	// TODO the feed data submitted is an arbitrary byte array, which could be deserialized to a OCRABIENCODED struct, but there is no price data that can be compared. this will need to be discussed.
+	// TODO doesnt seem as though there is a PRICE variable sent in the OCRv2
+
+	// update the lastupdate timestamp of the feed
+	msgFeed := feed.Feed
+	msgFeed.LastUpdate = ts.New(blockTime)
+	h, b := s.SetFeed(ctx, msgFeed)
+
+	// distribute rewards
+	// TODO will need to deconstruct each individual signature and make sure that the DP's key are equal.
+	// TODO will need to figure out a scheme to correspond the chainlink signature (pubkey) to the cosmos account.
+	// TODO only pay out the DP who provides their signature.
 	feedReward := feed.GetFeed().FeedReward
-
 	dataProviders := feed.GetFeed().DataProviders
-
 	err = s.DistributeReward(ctx, msg, dataProviders, feedReward)
 	if err != nil {
 		return nil, err

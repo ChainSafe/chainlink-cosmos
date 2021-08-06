@@ -7,10 +7,12 @@ import (
 	"bytes"
 	"errors"
 	"strings"
+	"time"
 
 	githubcosmossdktypes "github.com/cosmos/cosmos-sdk/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	ts "google.golang.org/protobuf/types/known/timestamppb"
 )
 
 const (
@@ -157,7 +159,7 @@ func (m *MsgModuleOwnershipTransfer) GetSigners() []githubcosmossdktypes.AccAddr
 	return []sdk.AccAddress{sdk.AccAddress(m.AssignerAddress)}
 }
 
-func NewMsgFeed(feedId string, feedOwner, moduleOwner sdk.Address, initDataProviders []*DataProvider, submissionCount, heartbeatTrigger, deviationThresholdTrigger, feedReward uint32) *MsgFeed {
+func NewMsgFeed(feedId string, feedOwner, moduleOwner sdk.Address, initDataProviders []*DataProvider, submissionCount, heartbeatTrigger, deviationThresholdTrigger, feedReward uint32, lastUpdate time.Time) *MsgFeed {
 	return &MsgFeed{
 		FeedId:                    feedId,
 		FeedOwner:                 feedOwner.Bytes(),
@@ -167,6 +169,7 @@ func NewMsgFeed(feedId string, feedOwner, moduleOwner sdk.Address, initDataProvi
 		DeviationThresholdTrigger: deviationThresholdTrigger,
 		ModuleOwnerAddress:        moduleOwner.Bytes(),
 		FeedReward:                feedReward,
+		LastUpdate:                ts.New(lastUpdate),
 	}
 }
 

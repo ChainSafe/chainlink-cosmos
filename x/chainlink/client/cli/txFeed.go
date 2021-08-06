@@ -79,7 +79,7 @@ func CmdAddFeed() *cobra.Command {
 				return err
 			}
 
-			msg := types.NewMsgFeed(argsFeedId, feedOwnerAddr, clientCtx.GetFromAddress(), initDataProviderList, uint32(submissionCount), uint32(heartbeatTrigger), uint32(deviationThresholdTrigger), uint32(feedReward))
+			msg := types.NewMsgFeed(argsFeedId, feedOwnerAddr, clientCtx.GetFromAddress(), initDataProviderList, uint32(submissionCount), uint32(heartbeatTrigger), uint32(deviationThresholdTrigger), uint32(feedReward), nil)
 			if err := msg.ValidateBasic(); err != nil {
 				return err
 			}

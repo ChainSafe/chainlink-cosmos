@@ -6,6 +6,7 @@ package keeper
 import (
 	"fmt"
 	"strconv"
+	"time"
 
 	"github.com/cosmos/cosmos-sdk/types/query"
 	"google.golang.org/grpc/codes"
@@ -54,7 +55,7 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", fmt.Sprintf("x/%s", types.ModuleName))
 }
 
-func (k Keeper) SetFeedData(ctx sdk.Context, feedData *types.MsgFeedData) (int64, []byte, error) {
+func (k Keeper) SetFeedData(ctx sdk.Context, feedData *types.MsgFeedData) (int64, time.Time, []byte, error) {
 	roundStore := ctx.KVStore(k.roundStoreKey)
 	currentLatestRoundId := k.GetLatestRoundId(ctx, feedData.FeedId)
 	roundId := currentLatestRoundId + 1
@@ -98,10 +99,10 @@ func (k Keeper) SetFeedData(ctx sdk.Context, feedData *types.MsgFeedData) (int64
 		FeedData: feedData.FeedData,
 	}, ctx.EventManager())
 	if err != nil {
-		return 0, nil, err
+		return 0, time.Time{}, nil, err
 	}
 
-	return ctx.BlockHeight(), ctx.TxBytes(), nil
+	return ctx.BlockHeight(), ctx.BlockTime(), ctx.TxBytes(), nil
 }
 
 func (k Keeper) GetRoundFeedDataByFilter(ctx sdk.Context, req *types.GetRoundDataRequest) (*types.GetRoundDataResponse, error) {
