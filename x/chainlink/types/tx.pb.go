@@ -1712,7 +1712,7 @@ func (m *MsgFeed) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = l
 	if m.LastUpdate != nil {
 		{
-			size, err := m.LastUpdate.MarshalToSizedBuffer(dAtA[:i])
+			size, err := m.MarshalToSizedBuffer(dAtA[:i])
 			if err != nil {
 				return 0, err
 			}
@@ -2449,7 +2449,7 @@ func (m *MsgFeed) Size() (n int) {
 		n += 1 + sovTx(uint64(m.FeedReward))
 	}
 	if m.LastUpdate != nil {
-		l = m.LastUpdate.Size()
+		l = m.Size()
 		n += 1 + l + sovTx(uint64(l))
 	}
 	return n
@@ -3160,7 +3160,7 @@ func (m *MsgFeed) Unmarshal(dAtA []byte) error {
 			if m.LastUpdate == nil {
 				m.LastUpdate = &timestamp.Timestamp{}
 			}
-			if err := m.LastUpdate.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+			if err := m.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
