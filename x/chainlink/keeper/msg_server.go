@@ -17,6 +17,7 @@ const (
 	ErrIncorrectHeightFound   = "incorrect height found"
 	ErrInsufficientSignatures = "incorrect number of signatures provided"
 	ErrHeartBeatTrigger       = "heartbeat interval has not passed"
+	ErrUpdateTimeStamp        = "error when updating feed time stamp"
 
 	DataProviderSetChangeTypeAdd          = "Add"
 	DataProviderSetChangeTypeRemove       = "Remove"
@@ -72,6 +73,12 @@ func (s msgServer) SubmitFeedDataTx(c context.Context, msg *types.MsgFeedData) (
 	msgFeed := feed.Feed
 	msgFeed.LastUpdate = ts.New(blockTime)
 	h, b := s.SetFeed(ctx, msgFeed)
+	if h == 0 {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidHeight, ErrIncorrectHeightFound)
+	}
+	if len(b) == 0 {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrLogic, ErrUpdateTimeStamp)
+	}
 
 	// distribute rewards
 	// TODO will need to deconstruct each individual signature and make sure that the DP's key are equal.
