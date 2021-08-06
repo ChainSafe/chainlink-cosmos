@@ -71,7 +71,7 @@ func TestFeedKeyStructure(t *testing.T) {
 				Submitter: []byte(fmt.Sprintf("%s/%d", tc.feedId, roundId)),
 			}
 
-			_, _, err := k.SetFeedData(ctx, &feedData)
+			_, _, _, err := k.SetFeedData(ctx, &feedData)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -128,7 +128,7 @@ func TestKeeper_SetFeedData(t *testing.T) {
 				FeedId: tc.feedId,
 			}
 
-			_, _, err := k.SetFeedData(ctx, &msgFeedData)
+			_, _, _, err := k.SetFeedData(ctx, &msgFeedData)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -176,7 +176,7 @@ func TestKeeper_GetRoundFeedDataByFilter(t *testing.T) {
 			Submitter: tc.submitter,
 		}
 
-		_, _, err := k.SetFeedData(ctx, &msgFeedData)
+		_, _, _, err := k.SetFeedData(ctx, &msgFeedData)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -246,7 +246,7 @@ func TestKeeper_GetLatestRoundFeedDataByFilter(t *testing.T) {
 					Submitter: tc.submitter,
 				}
 
-				_, _, err := k.SetFeedData(ctx, &msgFeedData)
+				_, _, _, err := k.SetFeedData(ctx, &msgFeedData)
 				if err != nil {
 					t.Fatal(err)
 				}
