@@ -10,7 +10,6 @@ import (
 	"github.com/ChainSafe/chainlink-cosmos/x/chainlink/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	ts "google.golang.org/protobuf/types/known/timestamppb"
 )
 
 const (
@@ -61,8 +60,10 @@ func (s msgServer) SubmitFeedDataTx(c context.Context, msg *types.MsgFeedData) (
 
 	// hearbeat trigger - the interval set in which has to be passed to be valid
 	feedHeartbeatTrigger := feed.GetFeed().HeartbeatTrigger
-	if blockTime.Before((feed.Feed.LastUpdate.AsTime()).Add(time.Duration(feedHeartbeatTrigger))) {
-		return nil, sdkerrors.Wrap(sdkerrors.ErrLogic, ErrHeartBeatTrigger)
+	if (feed.Feed.LastUpdate != &time.Time{}) {
+		if blockTime.Before((feed.Feed.LastUpdate).Add(time.Duration(feedHeartbeatTrigger))) {
+			return nil, sdkerrors.Wrap(sdkerrors.ErrLogic, ErrHeartBeatTrigger)
+		}
 	}
 
 	// deviation threshold trigger - the fraction of deviation must be met in order to trigger a new round and submit the feed data
@@ -71,7 +72,7 @@ func (s msgServer) SubmitFeedDataTx(c context.Context, msg *types.MsgFeedData) (
 
 	// update the lastupdate timestamp of the feed
 	msgFeed := feed.Feed
-	msgFeed.LastUpdate = ts.New(blockTime)
+	msgFeed.LastUpdate = &blockTime
 	h, b := s.SetFeed(ctx, msgFeed)
 	if h == 0 {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidHeight, ErrIncorrectHeightFound)
