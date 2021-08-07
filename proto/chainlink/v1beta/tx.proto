@@ -56,7 +56,7 @@ message MsgFeed {
   // TODO: RewardConfig: Struct describing how rewards should be paid
   uint32 feedReward = 8;
   // LastUpdate is the time of which the last feedData was submitted.
-  google.protobuf.Timestamp lastUpdate = 9;
+  google.protobuf.Timestamp lastUpdate = 9 [(gogoproto.stdtime) = true];
 }
 
 // DataProvider is the type defined for feed data provider
