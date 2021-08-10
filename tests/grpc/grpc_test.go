@@ -11,6 +11,7 @@ import (
 	testnet "github.com/ChainSafe/chainlink-cosmos/testutil/network"
 	"github.com/ChainSafe/chainlink-cosmos/x/chainlink/types"
 	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	"github.com/cosmos/cosmos-sdk/simapp"
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
@@ -25,24 +26,42 @@ import (
 )
 
 type testAccount struct {
+	Name   string
 	Priv   cryptotypes.PrivKey
+	Pub    cryptotypes.PubKey
 	Addr   sdk.AccAddress
 	Cosmos string
 }
 
 var (
-	alice = generateKeyPair()
-	bob   = generateKeyPair()
-	cerlo = generateKeyPair()
+	alice = generateKeyPair("alice")
+	bob   = generateKeyPair("bob")
+	cerlo = generateKeyPair("cerlo")
+	//alice *testAccount
+	//bob   *testAccount
+	//cerlo *testAccount
 )
 
-func generateKeyPair() *testAccount {
+func generateKeyPair(name string) *testAccount {
 	priv, pub, addr := testdata.KeyTestPubAddr()
 	cosmosPubKey, err := sdk.Bech32ifyPubKey(sdk.Bech32PubKeyTypeAccPub, pub)
 	if err != nil {
 		panic(err)
 	}
-	return &testAccount{priv, addr, cosmosPubKey}
+	return &testAccount{name, priv, priv.PubKey(), addr, cosmosPubKey}
+}
+
+func formatKeyPair(info keyring.Info) *testAccount {
+	cosmosPubKey, err := sdk.Bech32ifyPubKey(sdk.Bech32PubKeyTypeAccPub, info.GetPubKey())
+	if err != nil {
+		panic(err)
+	}
+	return &testAccount{
+		Name:   info.GetName(),
+		Pub:    info.GetPubKey(),
+		Addr:   info.GetAddress(),
+		Cosmos: cosmosPubKey,
+	}
 }
 
 func TestGRPCTestSuite(t *testing.T) {
@@ -66,7 +85,7 @@ func (s *GRPCTestSuite) SetupTest() {
 	s.config = testnet.DefaultConfig()
 	s.config.NumValidators = 1
 
-	// configure genesis data for auth module
+	//configure genesis data for auth module
 	var authGenState authtypes.GenesisState
 	s.config.Codec.MustUnmarshalJSON(s.config.GenesisState[authtypes.ModuleName], &authGenState)
 	genAccounts, err := authtypes.UnpackAccounts(authGenState.Accounts)
@@ -118,8 +137,31 @@ func (s *GRPCTestSuite) SetupTest() {
 	s.config.GenesisState[types.ModuleName] = s.config.Codec.MustMarshalJSON(&chainlinkGenState)
 
 	s.network = testnet.New(s.T(), s.config)
-	_, err = s.network.WaitForHeight(1)
-	s.Require().NoError(err)
+	//_, err := s.network.WaitForHeight(1)
+	//s.Require().NoError(err)
+	//
+	//kb := s.network.Validators[0].ClientCtx.Keyring
+	//
+	//_, err = kb.SavePubKey(alice.Name, alice.Pub, hd.Secp256k1.Name())
+	//s.Require().NoError(err)
+	//
+	//_, err = kb.SavePubKey(bob.Name, bob.Pub, hd.Secp256k1.Name())
+	//s.Require().NoError(err)
+	//
+	//_, err = kb.SavePubKey(cerlo.Name, cerlo.Pub, hd.Secp256k1.Name())
+	//s.Require().NoError(err)
+
+	//aliceAcc, _, err := kb.NewMnemonic("alice", keyring.English, sdk.FullFundraiserPath, hd.Secp256k1)
+	//s.Require().NoError(err)
+	//alice = formatKeyPair(aliceAcc)
+	//
+	//bobAcc, _, err := kb.NewMnemonic("bob", keyring.English, sdk.FullFundraiserPath, hd.Secp256k1)
+	//s.Require().NoError(err)
+	//alice = formatKeyPair(bobAcc)
+	//
+	//cerloAcc, _, err := kb.NewMnemonic("cerlo", keyring.English, sdk.FullFundraiserPath, hd.Secp256k1)
+	//s.Require().NoError(err)
+	//alice = formatKeyPair(cerloAcc)
 
 	s.grpcConn, err = grpc.Dial(
 		s.network.Validators[0].AppConfig.GRPC.Address,
@@ -176,7 +218,7 @@ func (s *GRPCTestSuite) Sign(signer *testAccount, txBuilder client.TxBuilder) er
 		Signature: nil,
 	}
 	sig := signing.SignatureV2{
-		PubKey:   signer.Priv.PubKey(),
+		PubKey:   signer.Pub,
 		Data:     &sigData,
 		Sequence: accSeq,
 	}
@@ -196,7 +238,7 @@ func (s *GRPCTestSuite) Sign(signer *testAccount, txBuilder client.TxBuilder) er
 		Signature: nil,
 	}
 	sig = signing.SignatureV2{
-		PubKey:   signer.Priv.PubKey(),
+		PubKey:   signer.Pub,
 		Data:     &sigData,
 		Sequence: accSeq,
 	}
