@@ -157,9 +157,10 @@ func (m *MsgModuleOwnershipTransfer) GetSigners() []githubcosmossdktypes.AccAddr
 	return []sdk.AccAddress{sdk.AccAddress(m.AssignerAddress)}
 }
 
-func NewMsgFeed(feedId string, feedOwner, moduleOwner sdk.Address, initDataProviders []*DataProvider, submissionCount, heartbeatTrigger, deviationThresholdTrigger, feedReward uint32) *MsgFeed {
+func NewMsgFeed(feedId, feedDesc string, feedOwner, moduleOwner sdk.Address, initDataProviders []*DataProvider, submissionCount, heartbeatTrigger, deviationThresholdTrigger, feedReward uint32) *MsgFeed {
 	return &MsgFeed{
 		FeedId:                    feedId,
+		Desc:                      feedDesc,
 		FeedOwner:                 feedOwner.Bytes(),
 		DataProviders:             initDataProviders,
 		SubmissionCount:           submissionCount,
