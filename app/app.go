@@ -426,10 +426,11 @@ func New(
 	// initialize BaseApp
 	app.SetInitChainer(app.InitChainer)
 	app.SetBeginBlocker(app.BeginBlocker)
+
 	// use customized anteHandler
 	app.SetAnteHandler(
 		chainlindkante.NewAnteHandler(app.AccountKeeper, app.BankKeeper, app.ChainLinkKeeper, ante.DefaultSigVerificationGasConsumer,
-			encodingConfig.TxConfig.SignModeHandler()),
+			encodingConfig.TxConfig.SignModeHandler(), nil),
 	)
 	app.SetEndBlocker(app.EndBlocker)
 
