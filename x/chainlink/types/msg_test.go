@@ -6,6 +6,7 @@ package types
 import (
 	"testing"
 
+	"github.com/cosmos/cosmos-sdk/crypto/types"
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/suite"
@@ -20,9 +21,9 @@ type MsgFeedDataTestSuite struct {
 }
 
 // TODO: replace this method and import the one from util_test.go after merged.
-func GenerateAccount() sdk.AccAddress {
-	_, _, addr := testdata.KeyTestPubAddr()
-	return addr
+func GenerateAccount() (types.PrivKey, types.PubKey, sdk.AccAddress) {
+	priv, pub, addr := testdata.KeyTestPubAddr()
+	return priv, pub, addr
 }
 
 func TestMsgFeedDataTestSuite(t *testing.T) {
@@ -30,7 +31,7 @@ func TestMsgFeedDataTestSuite(t *testing.T) {
 }
 
 func (ts *MsgFeedDataTestSuite) SetupTest() {
-	ts.submitter = GenerateAccount()
+	_, _, ts.submitter = GenerateAccount()
 	ts.feedId = "testfeed"
 	ts.feedData = []byte("feedData")
 	ts.signatures = [][]byte{[]byte("signatures")}
@@ -85,4 +86,19 @@ func (ts *MsgFeedDataTestSuite) TestMsgFeedDataValidateBasic() {
 			ts.Require().Error(err, "invalid test %d passed: %s, %v", i, tc.description)
 		}
 	}
+}
+
+type MsgModuleOwnerTestSuite struct {
+	suite.Suite
+	assigner  sdk.AccAddress
+	address   sdk.AccAddress
+	publicKey []byte
+}
+
+func (ts *MsgModuleOwnerTestSuite) SetupTest() {
+	// assigner is a different account than the address + publicKey
+	_, _, ts.assigner = GenerateAccount()
+	_, pubkey, addr := GenerateAccount()
+	ts.publicKey = pubkey.Bytes()
+	ts.address = addr
 }
