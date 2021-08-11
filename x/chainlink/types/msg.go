@@ -38,10 +38,12 @@ var _ Validation = &MsgFeedData{}
 
 func NewMsgFeedData(submitter sdk.Address, feedId string, feedData []byte, signatures [][]byte) *MsgFeedData {
 	return &MsgFeedData{
-		FeedId:     feedId,
-		Submitter:  submitter.Bytes(),
-		FeedData:   feedData,
-		Signatures: signatures,
+		FeedId:          feedId,
+		Submitter:       submitter.Bytes(),
+		FeedData:        feedData,
+		Signatures:      signatures,
+		// IsFeedDataValid will be true by default
+		IsFeedDataValid: true,
 	}
 }
 

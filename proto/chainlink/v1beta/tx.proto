@@ -147,6 +147,8 @@ message MsgFeedData {
   bytes feedData = 3;
   // Signatures is the data provider signature list of the current round
   repeated bytes signatures = 4;
+  // isFeedDataValid is the indicator whether feed data is valid against the external validation func, it's true by default
+  bool isFeedDataValid = 5;
 }
 
 // MsgRequestNewRound is the type defined for requesting new rounds to be triggered for a given feed

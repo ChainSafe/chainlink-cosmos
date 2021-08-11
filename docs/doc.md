@@ -166,3 +166,39 @@ getRoundFeedData [roundId] [feedId]
 ```bash
 getLatestFeedData [feedId]
 ```
+
+## Configurable Transaction Data Validation Interface
+Configurable transaction data validation Interface gives the possibility to the app level devs to implement the customizable logic of 
+the tx data validation of any ChainLink Cosmos Module transactions against any external resources. Currently, this interface is applicable for `Submit Feed Data` transaction only. Other tx support is WIP.  
+
+App devs can implement a func that takes a `sdk.Msg` as input and return a single boolean as the output. This func could be injected in the `app/app.go`.
+One example as below:
+
+Implement your own validation logic in a separate func, lets call it `externalTxDataValidationFuncExample`
+```go
+func externalTxDataValidationFuncExample(msg sdk.Msg) bool {
+	// make sure you do the type assertion for the tx that you want to validate
+	// in our case, it's MsgFeedData 
+	
+	s := msg.(*types.MsgFeedData) 
+	// some validation logic, e.g. feed data accuracy against CoinMarketCap.
+	
+	return true
+}
+```
+
+In the `app/app.go` file, you should see the code below where we set the `AnteHandler`:
+```go
+    app.SetAnteHandler(
+		chainlindkante.NewAnteHandler(app.AccountKeeper, app.BankKeeper, app.ChainLinkKeeper, ante.DefaultSigVerificationGasConsumer, 
+			encodingConfig.TxConfig.SignModeHandler(), externalTxDataValidationFuncExample),
+	)
+```
+`externalTxDataValidationFuncExample` is where the tx data validation func should be injected.
+
+Once the `Feed data submit` tx got broadcasted into the network, module will do the validation using this interface 
+and if the validation failed, module will trigger a transaction level event(MsgFeedDataValidationFailedEvent) 
+including all the feed data and feed info for further actions. 
+
+Please keep in mind that the injection func could also be `nil`, in this case there would be no data validation and the validation
+result would be `true` and there is no `MsgFeedDataValidationFailedEvent` event gets triggerred.

@@ -47,7 +47,7 @@ func NewAnteHandler(
 			NewModuleOwnerDecorator(chainLinkKeeper),
 			NewFeedDecorator(chainLinkKeeper),
 			NewFeedDataDecorator(chainLinkKeeper),
-			NewValidationDecorator(chainLinkKeeper, externalTxDataValidationFunc),
+			NewValidationDecorator(externalTxDataValidationFunc),
 		)
 
 		return anteHandler(ctx, tx, sim)
@@ -258,14 +258,12 @@ func (fd FeedDataDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool
 }
 
 type ValidationDecorator struct {
-	chainLinkKeeper chainlinkkeeper.Keeper
-	validationFn    func(sdk.Msg) bool
+	validationFn func(sdk.Msg) bool
 }
 
-func NewValidationDecorator(chainLinkKeeper chainlinkkeeper.Keeper, validationFunc func(sdk.Msg) bool) ValidationDecorator {
+func NewValidationDecorator(validationFunc func(sdk.Msg) bool) ValidationDecorator {
 	return ValidationDecorator{
-		chainLinkKeeper: chainLinkKeeper,
-		validationFn:    validationFunc,
+		validationFn: validationFunc,
 	}
 }
 
@@ -277,19 +275,7 @@ func (fd ValidationDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bo
 	for _, msg := range tx.GetMsgs() {
 		switch t := msg.(type) {
 		case *types.MsgFeedData:
-			feed := fd.chainLinkKeeper.GetFeed(ctx, t.GetFeedId())
-
-			if !t.Validate(fd.validationFn) {
-				// emit FeedDataValidationFailedEvent event
-				_ = types.EmitEvent(&types.MsgFeedDataValidationFailedEvent{
-					FeedId:        t.GetFeedId(),
-					DataProviders: feed.GetFeed().GetDataProviders(),
-					FeedOwner:     feed.GetFeed().GetFeedOwner(),
-					Submitter:     t.GetSubmitter(),
-					FeedData:      t.GetFeedData(),
-					Signatures:    t.GetSignatures(),
-				}, ctx.EventManager())
-			}
+			t.IsFeedDataValid = t.Validate(fd.validationFn)
 		default:
 			continue
 		}
