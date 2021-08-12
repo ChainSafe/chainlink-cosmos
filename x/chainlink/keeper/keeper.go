@@ -26,6 +26,7 @@ type (
 		roundStoreKey       sdk.StoreKey
 		moduleOwnerStoreKey sdk.StoreKey
 		feedInfoStoreKey    sdk.StoreKey
+		accountStoreKey     sdk.StoreKey
 		memKey              sdk.StoreKey
 	}
 )
@@ -37,6 +38,7 @@ func NewKeeper(
 	roundStoreKey,
 	moduleOwnerStoreKey,
 	feedInfoStoreKey,
+	accountStoreKey,
 	memKey sdk.StoreKey,
 ) *Keeper {
 	return &Keeper{
@@ -46,6 +48,7 @@ func NewKeeper(
 		roundStoreKey:       roundStoreKey,
 		moduleOwnerStoreKey: moduleOwnerStoreKey,
 		feedInfoStoreKey:    feedInfoStoreKey,
+		accountStoreKey:     accountStoreKey,
 		memKey:              memKey,
 	}
 }
@@ -467,4 +470,42 @@ func (k Keeper) RequestNewRound(ctx sdk.Context, requestNewRound *types.MsgReque
 	}
 
 	return ctx.BlockHeight(), ctx.TxBytes(), nil
+}
+
+func (k Keeper) AddAccount(ctx sdk.Context, feed *types.MsgFeed) (int64, []byte) {
+	feedInfoStore := ctx.KVStore(k.feedInfoStoreKey)
+
+	f := k.cdc.MustMarshalBinaryBare(feed)
+
+	feedInfoStore.Set(types.GetFeedInfoKey(feed.GetFeedId()), f)
+
+	return ctx.BlockHeight(), ctx.TxBytes()
+}
+
+func (k Keeper) SetAccount(ctx sdk.Context, feed *types.MsgFeed) (int64, []byte) {
+	feedInfoStore := ctx.KVStore(k.feedInfoStoreKey)
+
+	f := k.cdc.MustMarshalBinaryBare(feed)
+
+	feedInfoStore.Set(types.GetFeedInfoKey(feed.GetFeedId()), f)
+
+	return ctx.BlockHeight(), ctx.TxBytes()
+}
+
+func (k Keeper) GetAccount(ctx sdk.Context, feedId string) *types.GetFeedByIdResponse {
+	feedInfoStore := ctx.KVStore(k.feedInfoStoreKey)
+	feedIdBytes := feedInfoStore.Get(types.GetFeedInfoKey(feedId))
+
+	if feedIdBytes == nil {
+		return &types.GetFeedByIdResponse{
+			Feed: nil,
+		}
+	}
+
+	var feed types.MsgFeed
+	k.cdc.MustUnmarshalBinaryBare(feedIdBytes, &feed)
+
+	return &types.GetFeedByIdResponse{
+		Feed: &feed,
+	}
 }
