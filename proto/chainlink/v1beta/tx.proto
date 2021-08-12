@@ -159,6 +159,18 @@ message MsgRequestNewRound {
   bytes signer = 3 [(gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"];
 }
 
+// MsgAccount is the type defined for account associated with the Chainlink node
+message MsgAccount {
+  // submitter - associated cosmos account address
+  bytes submitter  = 1 [(gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"];
+  // chainlinkPublicKey - public key of the associated Chainlink Oracle account
+  bytes chainlinkPublicKey = 2;
+  // chainlinkSigningKey - signing key of the associated Chainlink Oracle account
+  bytes chainlinkSigningKey = 3;
+  // piggyAddress - cosmos account address receivable for reward and fee distribution
+  bytes piggyAddress  = 4 [(gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"];
+}
+
 message MsgResponse {
   uint64 height = 1;
   string txHash = 2;
