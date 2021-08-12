@@ -5,12 +5,16 @@ package grpc
 
 import (
 	"context"
+	"os"
+	"path/filepath"
 	"testing"
 	"time"
 
+	"github.com/ChainSafe/chainlink-cosmos/app"
 	testnet "github.com/ChainSafe/chainlink-cosmos/testutil/network"
 	"github.com/ChainSafe/chainlink-cosmos/x/chainlink/types"
 	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/client/config"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	"github.com/cosmos/cosmos-sdk/simapp"
@@ -18,6 +22,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/tx"
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
+	signing2 "github.com/cosmos/cosmos-sdk/x/auth/signing"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/stretchr/testify/require"
@@ -34,12 +39,12 @@ type testAccount struct {
 }
 
 var (
-	alice = generateKeyPair("alice")
-	bob   = generateKeyPair("bob")
-	cerlo = generateKeyPair("cerlo")
-	//alice *testAccount
-	//bob   *testAccount
-	//cerlo *testAccount
+	//alice = generateKeyPair("alice")
+	//bob   = generateKeyPair("bob")
+	//cerlo = generateKeyPair("cerlo")
+	alice *testAccount
+	bob   *testAccount
+	cerlo *testAccount
 )
 
 func generateKeyPair(name string) *testAccount {
@@ -64,6 +69,19 @@ func formatKeyPair(info keyring.Info) *testAccount {
 	}
 }
 
+func importKeyPair(t testing.TB, clientCtx client.Context, name string) *testAccount {
+	info, err := clientCtx.Keyring.Key(name)
+	require.NoError(t, err)
+	cosmosPubKey, err := sdk.Bech32ifyPubKey(sdk.Bech32PubKeyTypeAccPub, info.GetPubKey())
+	require.NoError(t, err)
+	return &testAccount{
+		Name:   info.GetName(),
+		Pub:    info.GetPubKey(),
+		Addr:   info.GetAddress(),
+		Cosmos: cosmosPubKey,
+	}
+}
+
 func TestGRPCTestSuite(t *testing.T) {
 	suite.Run(t, new(GRPCTestSuite))
 }
@@ -79,7 +97,45 @@ type GRPCTestSuite struct {
 	grpcConn *grpc.ClientConn
 }
 
+// SetupTest directly connected to daemon on port 9090
+// fresh `scripts/start.sh` need to be run before each execution
 func (s *GRPCTestSuite) SetupTest() {
+	s.T().Log("setup test suite")
+
+	userHomeDir, err := os.UserHomeDir()
+	require.NoError(s.T(), err)
+	home := filepath.Join(userHomeDir, ".chainlinkd")
+
+	encodingConfig := app.MakeEncodingConfig()
+	clientCtx := client.Context{}.
+		WithHomeDir(home).
+		WithViper("").
+		WithAccountRetriever(authtypes.AccountRetriever{}).
+		WithInterfaceRegistry(encodingConfig.InterfaceRegistry)
+
+	clientCtx, err = config.ReadFromClientConfig(clientCtx)
+	require.NoError(s.T(), err)
+
+	backendKeyring, err := client.NewKeyringFromBackend(clientCtx, "test")
+	require.NoError(s.T(), err)
+
+	clientCtx = clientCtx.WithKeyring(backendKeyring)
+
+	alice = importKeyPair(s.T(), clientCtx, "alice")
+	bob = importKeyPair(s.T(), clientCtx, "bob")
+	cerlo = importKeyPair(s.T(), clientCtx, "cerlo")
+
+	s.clientCtx = clientCtx
+
+	s.grpcConn, err = grpc.Dial(
+		"127.0.0.1:9090",
+		grpc.WithInsecure(),
+	)
+	require.NoError(s.T(), err)
+}
+
+// SetupTest using testnet package
+func (s *GRPCTestSuite) SetupTestTMP() {
 	s.T().Log("setup test suite")
 
 	s.config = testnet.DefaultConfig()
@@ -137,31 +193,8 @@ func (s *GRPCTestSuite) SetupTest() {
 	s.config.GenesisState[types.ModuleName] = s.config.Codec.MustMarshalJSON(&chainlinkGenState)
 
 	s.network = testnet.New(s.T(), s.config)
-	//_, err := s.network.WaitForHeight(1)
-	//s.Require().NoError(err)
-	//
-	//kb := s.network.Validators[0].ClientCtx.Keyring
-	//
-	//_, err = kb.SavePubKey(alice.Name, alice.Pub, hd.Secp256k1.Name())
-	//s.Require().NoError(err)
-	//
-	//_, err = kb.SavePubKey(bob.Name, bob.Pub, hd.Secp256k1.Name())
-	//s.Require().NoError(err)
-	//
-	//_, err = kb.SavePubKey(cerlo.Name, cerlo.Pub, hd.Secp256k1.Name())
-	//s.Require().NoError(err)
-
-	//aliceAcc, _, err := kb.NewMnemonic("alice", keyring.English, sdk.FullFundraiserPath, hd.Secp256k1)
-	//s.Require().NoError(err)
-	//alice = formatKeyPair(aliceAcc)
-	//
-	//bobAcc, _, err := kb.NewMnemonic("bob", keyring.English, sdk.FullFundraiserPath, hd.Secp256k1)
-	//s.Require().NoError(err)
-	//alice = formatKeyPair(bobAcc)
-	//
-	//cerloAcc, _, err := kb.NewMnemonic("cerlo", keyring.English, sdk.FullFundraiserPath, hd.Secp256k1)
-	//s.Require().NoError(err)
-	//alice = formatKeyPair(cerloAcc)
+	_, err = s.network.WaitForHeight(1)
+	s.Require().NoError(err)
 
 	s.grpcConn, err = grpc.Dial(
 		s.network.Validators[0].AppConfig.GRPC.Address,
@@ -199,18 +232,18 @@ func (s *GRPCTestSuite) BroadcastTx(ctx context.Context, submitter *testAccount,
 }
 
 func (s *GRPCTestSuite) Sign(signer *testAccount, txBuilder client.TxBuilder) error {
-	//accNum, accSeq, err := s.clientCtx.AccountRetriever.GetAccountNumberSequence(s.clientCtx, signer.Addr)
-	//s.Require().NoError(err)
+	accNum, accSeq, err := s.clientCtx.AccountRetriever.GetAccountNumberSequence(s.clientCtx, signer.Addr)
+	s.Require().NoError(err)
 
-	_, accSeq := uint64(1), uint64(0)
+	//_, accSeq := uint64(1), uint64(0)
 
 	encCfg := simapp.MakeTestEncodingConfig()
 
-	//signerData := xauthsigning.SignerData{
-	//	ChainID:       "testchain",
-	//	AccountNumber: accNum,
-	//	Sequence:      accSeq,
-	//}
+	signerData := signing2.SignerData{
+		ChainID:       "testchain",
+		AccountNumber: accNum,
+		Sequence:      accSeq,
+	}
 
 	signMode := encCfg.TxConfig.SignModeHandler().DefaultMode()
 	sigData := signing.SingleSignatureData{
@@ -223,19 +256,19 @@ func (s *GRPCTestSuite) Sign(signer *testAccount, txBuilder client.TxBuilder) er
 		Sequence: accSeq,
 	}
 
-	err := txBuilder.SetSignatures(sig)
+	err = txBuilder.SetSignatures(sig)
 	s.Require().NoError(err)
 
-	//bytesToSign, err := encCfg.TxConfig.SignModeHandler().GetSignBytes(signMode, signerData, txBuilder.GetTx())
-	//s.Require().NoError(err)
+	bytesToSign, err := encCfg.TxConfig.SignModeHandler().GetSignBytes(signMode, signerData, txBuilder.GetTx())
+	s.Require().NoError(err)
 
-	//sigBytes, _, err := s.clientCtx.Keyring.Sign("alice", bytesToSign) // FIXME
-	//s.Require().NoError(err)
+	sigBytes, _, err := s.clientCtx.Keyring.Sign(signer.Name, bytesToSign) // FIXME
+	s.Require().NoError(err)
 
 	sigData = signing.SingleSignatureData{
-		SignMode: signMode,
-		//Signature: sigBytes,
-		Signature: nil,
+		SignMode:  signMode,
+		Signature: sigBytes,
+		//Signature: nil,
 	}
 	sig = signing.SignatureV2{
 		PubKey:   signer.Pub,
@@ -251,6 +284,7 @@ func (s *GRPCTestSuite) TestIntegration() {
 	queryClient := types.NewQueryClient(s.grpcConn)
 
 	// 1 - Check initial module owner
+
 	getModuleOwnerResponse, err := queryClient.GetAllModuleOwner(ctx, &types.GetModuleOwnerRequest{})
 	s.Require().NoError(err)
 	moduleOwner := getModuleOwnerResponse.GetModuleOwner()
@@ -268,7 +302,7 @@ func (s *GRPCTestSuite) TestIntegration() {
 	addModuleOwnerTxResponse := s.BroadcastTx(ctx, alice, addModuleOwnerTx)
 	s.Require().EqualValues(0, addModuleOwnerTxResponse.TxResponse.Code)
 
-	time.Sleep(5 * time.Second)
+	waitForNewBlock()
 
 	getModuleOwnerResponse, err = queryClient.GetAllModuleOwner(ctx, &types.GetModuleOwnerRequest{})
 	s.Require().NoError(err)
@@ -276,6 +310,7 @@ func (s *GRPCTestSuite) TestIntegration() {
 	s.Require().Equal(2, len(moduleOwner))
 
 	// 3 - Module ownership transfer by bob to alice
+
 	moduleOwnershipTransferTx := &types.MsgModuleOwnershipTransfer{
 		NewModuleOwnerAddress: alice.Addr,
 		NewModuleOwnerPubKey:  []byte(alice.Cosmos),
@@ -286,6 +321,7 @@ func (s *GRPCTestSuite) TestIntegration() {
 	s.Require().EqualValues(0, moduleOwnershipTransferTxResponse.TxResponse.Code)
 
 	// 4 - Add new feed by alice
+
 	feedId := "testfeed1"
 	addFeedTx := &types.MsgFeed{
 		FeedId:    feedId,
@@ -306,15 +342,144 @@ func (s *GRPCTestSuite) TestIntegration() {
 	addFeedTxResponse := s.BroadcastTx(ctx, alice, addFeedTx)
 	s.Require().EqualValues(0, addFeedTxResponse.TxResponse.Code)
 
-	time.Sleep(5 * time.Second)
+	waitForNewBlock()
 
 	getFeedByFeedIdResponse, err := queryClient.GetFeedByFeedId(ctx, &types.GetFeedByIdRequest{FeedId: feedId})
 	s.Require().NoError(err)
 	feed := getFeedByFeedIdResponse.GetFeed()
 
 	s.Require().Equal(feedId, feed.GetFeedId())
+	s.Require().EqualValues(cerlo.Addr, feed.GetFeedOwner())
+	s.Require().EqualValues(1, len(feed.GetDataProviders()))
+	s.Require().Contains(feed.GetDataProviders(), &types.DataProvider{Address: cerlo.Addr, PubKey: []byte(cerlo.Cosmos)})
 	s.Require().EqualValues(1, feed.GetSubmissionCount())
 	s.Require().EqualValues(2, feed.GetHeartbeatTrigger())
 	s.Require().EqualValues(3, feed.GetDeviationThresholdTrigger())
 	s.Require().EqualValues(4, feed.GetFeedReward())
+
+	// 5 - Add data provider by cerlo
+
+	addDataProviderTx := &types.MsgAddDataProvider{
+		FeedId: feedId,
+		DataProvider: &types.DataProvider{
+			Address: bob.Addr,
+			PubKey:  []byte(bob.Cosmos),
+		},
+		Signer: cerlo.Addr,
+	}
+	s.Require().NoError(addDataProviderTx.ValidateBasic())
+	addDataProviderResponse := s.BroadcastTx(ctx, cerlo, addDataProviderTx)
+	s.Require().EqualValues(0, addDataProviderResponse.TxResponse.Code)
+
+	waitForNewBlock()
+
+	getFeedByFeedIdResponse, err = queryClient.GetFeedByFeedId(ctx, &types.GetFeedByIdRequest{FeedId: feedId})
+	s.Require().NoError(err)
+	feed = getFeedByFeedIdResponse.GetFeed()
+	s.Require().EqualValues(2, len(feed.GetDataProviders()))
+	s.Require().Contains(feed.GetDataProviders(), &types.DataProvider{Address: cerlo.Addr, PubKey: []byte(cerlo.Cosmos)})
+	s.Require().Contains(feed.GetDataProviders(), &types.DataProvider{Address: bob.Addr, PubKey: []byte(bob.Cosmos)})
+
+	// 6 - Remove data provider by cerlo
+
+	removeDataProviderTx := &types.MsgRemoveDataProvider{
+		FeedId:  feedId,
+		Address: cerlo.Addr,
+		Signer:  cerlo.Addr,
+	}
+	s.Require().NoError(removeDataProviderTx.ValidateBasic())
+	removeDataProviderResponse := s.BroadcastTx(ctx, cerlo, removeDataProviderTx)
+	s.Require().EqualValues(0, removeDataProviderResponse.TxResponse.Code)
+
+	waitForNewBlock()
+
+	getFeedByFeedIdResponse, err = queryClient.GetFeedByFeedId(ctx, &types.GetFeedByIdRequest{FeedId: feedId})
+	s.Require().NoError(err)
+	feed = getFeedByFeedIdResponse.GetFeed()
+	s.Require().EqualValues(1, len(feed.GetDataProviders()))
+	s.Require().Contains(feed.GetDataProviders(), &types.DataProvider{Address: bob.Addr, PubKey: []byte(bob.Cosmos)})
+
+	// 7 - Feed ownership transfer to bob by cerlo
+
+	feedOwnershipTransferTx := &types.MsgFeedOwnershipTransfer{
+		FeedId:              feedId,
+		NewFeedOwnerAddress: bob.Addr,
+		Signer:              cerlo.Addr,
+	}
+	s.Require().NoError(feedOwnershipTransferTx.ValidateBasic())
+	feedOwnershipTransferResponse := s.BroadcastTx(ctx, cerlo, feedOwnershipTransferTx)
+	s.Require().EqualValues(0, feedOwnershipTransferResponse.TxResponse.Code)
+
+	waitForNewBlock()
+
+	getFeedByFeedIdResponse, err = queryClient.GetFeedByFeedId(ctx, &types.GetFeedByIdRequest{FeedId: feedId})
+	s.Require().NoError(err)
+	feed = getFeedByFeedIdResponse.GetFeed()
+	s.Require().EqualValues(bob.Addr, feed.GetFeedOwner())
+
+	// 8 - Update submission count parameter
+
+	setSubmissionCountTx := &types.MsgSetSubmissionCount{
+		FeedId:          feedId,
+		SubmissionCount: 100,
+		Signer:          bob.Addr,
+	}
+	setHeartbeatTriggerTx := &types.MsgSetHeartbeatTrigger{
+		FeedId:           feedId,
+		HeartbeatTrigger: 200,
+		Signer:           bob.Addr,
+	}
+	setDeviationThresholdTriggerTx := &types.MsgSetDeviationThresholdTrigger{
+		FeedId:                    feedId,
+		DeviationThresholdTrigger: 300,
+		Signer:                    bob.Addr,
+	}
+	setFeedRewardTx := &types.MsgSetFeedReward{
+		FeedId:     feedId,
+		FeedReward: 400,
+		Signer:     bob.Addr,
+	}
+
+	s.Require().NoError(setSubmissionCountTx.ValidateBasic())
+	s.Require().NoError(setHeartbeatTriggerTx.ValidateBasic())
+	s.Require().NoError(setDeviationThresholdTriggerTx.ValidateBasic())
+	s.Require().NoError(setFeedRewardTx.ValidateBasic())
+	setFeedParamsResponse := s.BroadcastTx(ctx, bob, setSubmissionCountTx, setHeartbeatTriggerTx, setDeviationThresholdTriggerTx, setFeedRewardTx)
+	s.Require().EqualValues(0, setFeedParamsResponse.TxResponse.Code)
+
+	waitForNewBlock()
+
+	getFeedByFeedIdResponse, err = queryClient.GetFeedByFeedId(ctx, &types.GetFeedByIdRequest{FeedId: feedId})
+	s.Require().NoError(err)
+	feed = getFeedByFeedIdResponse.GetFeed()
+	s.Require().EqualValues(100, feed.GetSubmissionCount())
+	s.Require().EqualValues(200, feed.GetHeartbeatTrigger())
+	s.Require().EqualValues(300, feed.GetDeviationThresholdTrigger())
+	s.Require().EqualValues(400, feed.GetFeedReward())
+
+	// 9 - Submit feed data by bob
+
+	submitFeedDataTx := &types.MsgFeedData{
+		FeedId:     feedId,
+		FeedData:   []byte("test data"),
+		Signatures: [][]byte{[]byte("dummy signature")},
+		Submitter:  bob.Addr,
+	}
+	s.Require().NoError(submitFeedDataTx.ValidateBasic())
+	submitFeedDataResponse := s.BroadcastTx(ctx, bob, submitFeedDataTx)
+	s.Require().EqualValues(0, submitFeedDataResponse.TxResponse.Code)
+
+	waitForNewBlock()
+
+	getRoundDataResponse, err := queryClient.GetRoundData(ctx, &types.GetRoundDataRequest{FeedId: feedId, RoundId: 1})
+	s.Require().NoError(err)
+	roundData := getRoundDataResponse.GetRoundData()
+	s.Require().EqualValues(1, len(roundData))
+	// TODO check round data (OCR)
+}
+
+// Temporary solution to wait for a new block
+// will use network.WaitForHeight(n) in the future
+func waitForNewBlock() {
+	time.Sleep(5 * time.Second)
 }
