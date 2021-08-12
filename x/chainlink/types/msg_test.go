@@ -4,7 +4,6 @@
 package types
 
 import (
-	fmt "fmt"
 	"testing"
 
 	"github.com/cosmos/cosmos-sdk/crypto/types"
@@ -14,9 +13,13 @@ import (
 )
 
 // TODO: replace this method and import the one from util_test.go after merged.
-func GenerateAccount() (types.PrivKey, types.PubKey, sdk.AccAddress) {
+func GenerateAccount() (types.PrivKey, string, sdk.AccAddress) {
 	priv, pub, addr := testdata.KeyTestPubAddr()
-	return priv, pub, addr
+	cosmosPubKey, err := sdk.Bech32ifyPubKey(sdk.Bech32PubKeyTypeAccPub, pub)
+	if err != nil {
+		panic(err)
+	}
+	return priv, cosmosPubKey, addr
 }
 
 type MsgFeedDataTestSuite struct {
@@ -107,15 +110,15 @@ func (ts *MsgModuleOwnerTestSuite) SetupTest() {
 	// assigner is a different account than the address + publicKey
 	_, pubkey, addr := GenerateAccount()
 	ts.assignerAddress = addr
-	ts.assignerPublicKey = pubkey.Bytes()
+	ts.assignerPublicKey = []byte(pubkey)
 
 	_, pubkey, addr = GenerateAccount()
 	ts.newModOwnerAddress = addr
-	ts.newModOwnerPublicKey = pubkey.Bytes()
+	ts.newModOwnerPublicKey = []byte(pubkey)
 
 	_, pubkey, addr = GenerateAccount()
 	ts.invalidModOwnerAddress = addr
-	ts.invalidModOwnerPublicKey = pubkey.Bytes()
+	ts.invalidModOwnerPublicKey = []byte(pubkey)
 }
 
 func (ts *MsgModuleOwnerTestSuite) TestMsgModuleOwnerConstructor() {
@@ -142,7 +145,7 @@ func (ts *MsgModuleOwnerTestSuite) TestMsgModuleOwnerValidateBasic() {
 		publicKey   []byte
 		expPass     bool
 	}{
-		{description: "MsgModuleOwnerTestSuite: passing case - all valid values", assigner: ts.assignerAddress, address: ts.newModOwnerAddress, publicKey: ts.newModOwnerPublicKey, expPass: true},
+		{description: "MsgModuleOwnerTestSuite: passing case - all valid values", assigner: ts.assignerAddress, address: ts.newModOwnerAddress, publicKey: []byte(ts.newModOwnerPublicKey), expPass: true},
 		{description: "MsgModuleOwnerTestSuite: failing case - address and publicKey does not match", assigner: ts.assignerAddress, address: ts.newModOwnerAddress, publicKey: ts.invalidModOwnerPublicKey, expPass: false},
 	}
 
@@ -152,14 +155,7 @@ func (ts *MsgModuleOwnerTestSuite) TestMsgModuleOwnerValidateBasic() {
 			tc.address,
 			tc.publicKey,
 		)
-		fmt.Println(ts.assignerAddress)
-		fmt.Println((ts.assignerPublicKey))
 
-		fmt.Println(ts.newModOwnerAddress)
-		fmt.Println((ts.newModOwnerPublicKey))
-
-		fmt.Println(ts.invalidModOwnerAddress)
-		fmt.Println((ts.invalidModOwnerPublicKey))
 		err := msg.ValidateBasic()
 
 		if tc.expPass {
