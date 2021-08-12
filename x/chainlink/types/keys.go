@@ -19,6 +19,9 @@ const (
 	// FeedInfoStoreKey defines the store key for feed
 	FeedInfoStoreKey = ModuleName + "feedInfo"
 
+	// AccountInfoStoreKey defines the store key for chainlink accounts
+	AccountStoreKey = ModuleName + "account"
+
 	// RouterKey is the message route for slashing
 	RouterKey = ModuleName
 
