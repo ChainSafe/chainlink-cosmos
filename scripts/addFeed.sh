@@ -24,7 +24,7 @@ cerloPK=$(chainlinkd keys show cerlo -p)
 # aDd NeW fEeD bY aLiCe
 # wIlL aDd AlIcE aDdReSs AnD pUbLiC kEy
 echo "adding new feed by alice"
-addFeedTx=$($chainlinkCMD addFeed feedid1 $aliceAddr 1 2 3 4 $aliceAddr,$alicePK --from alice --keyring-backend test --chain-id testchain <<< 'y\n')
+addFeedTx=$($chainlinkCMD addFeed feedid1 "this is the test feed 1" $aliceAddr 1 2 3 4 $aliceAddr,$alicePK --from alice --keyring-backend test --chain-id testchain <<< 'y\n')
 addFeedTxResp=$(echo "$addFeedTx" | jq '.logs')
 if [ ${#addFeedTxResp} == 2 ] # log: [] if tx failed
 then
