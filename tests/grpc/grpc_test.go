@@ -5,6 +5,7 @@ package grpc
 
 import (
 	"context"
+	"errors"
 	"os"
 	"path/filepath"
 	"testing"
@@ -26,6 +27,7 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
+	rpcclient "github.com/tendermint/tendermint/rpc/client"
 	"google.golang.org/grpc"
 )
 
@@ -93,6 +95,7 @@ type GRPCTestSuite struct {
 	suite.Suite
 
 	clientCtx client.Context
+	rpcClient rpcclient.Client
 	config    testnet.Config
 	network   *testnet.Network
 	grpcConn  *grpc.ClientConn
@@ -127,6 +130,9 @@ func (s *GRPCTestSuite) SetupTest() {
 	cerlo = importKeyPair(s.T(), clientCtx, "cerlo")
 
 	s.clientCtx = clientCtx
+
+	s.rpcClient, err = client.NewClientFromNode("tcp://127.0.0.1:26657")
+	require.NoError(s.T(), err)
 
 	s.grpcConn, err = grpc.Dial(
 		"127.0.0.1:9090",
@@ -224,7 +230,7 @@ func (s *GRPCTestSuite) BroadcastTx(ctx context.Context, submitter *testAccount,
 	s.Require().NoError(err)
 
 	res, err := txClient.BroadcastTx(ctx, &tx.BroadcastTxRequest{
-		Mode:    tx.BroadcastMode_BROADCAST_MODE_SYNC,
+		Mode:    tx.BroadcastMode_BROADCAST_MODE_BLOCK,
 		TxBytes: txBytes,
 	})
 	s.Require().NoError(err)
@@ -284,7 +290,9 @@ func (s *GRPCTestSuite) TestIntegration() {
 	ctx := context.Background()
 	queryClient := types.NewQueryClient(s.grpcConn)
 
-	// 1 - Check initial module owner
+	_, _ = s.waitForBlock(1)
+
+	s.T().Log("1 - Check initial module owner")
 
 	getModuleOwnerResponse, err := queryClient.GetAllModuleOwner(ctx, &types.GetModuleOwnerRequest{})
 	s.Require().NoError(err)
@@ -293,24 +301,23 @@ func (s *GRPCTestSuite) TestIntegration() {
 	s.Require().Equal(alice.Addr, moduleOwner[0].GetAddress())
 	s.Require().Equal(alice.Cosmos, string(moduleOwner[0].GetPubKey()))
 
-	// 2 - Add new module owner by alice
+	s.T().Log("2 - Add new module owner by alice")
+
 	addModuleOwnerTx := &types.MsgModuleOwner{
 		Address:         bob.Addr,
 		PubKey:          []byte(bob.Cosmos),
 		AssignerAddress: alice.Addr,
 	}
 	s.Require().NoError(addModuleOwnerTx.ValidateBasic())
-	addModuleOwnerTxResponse := s.BroadcastTx(ctx, alice, addModuleOwnerTx)
-	s.Require().EqualValues(0, addModuleOwnerTxResponse.TxResponse.Code)
-
-	waitForNewBlock()
+	addModuleOwnerResponse := s.BroadcastTx(ctx, alice, addModuleOwnerTx)
+	s.Require().EqualValues(0, addModuleOwnerResponse.TxResponse.Code)
 
 	getModuleOwnerResponse, err = queryClient.GetAllModuleOwner(ctx, &types.GetModuleOwnerRequest{})
 	s.Require().NoError(err)
 	moduleOwner = getModuleOwnerResponse.GetModuleOwner()
 	s.Require().Equal(2, len(moduleOwner))
 
-	// 3 - Module ownership transfer by bob to alice
+	s.T().Log("3 - Module ownership transfer by bob to alice")
 
 	moduleOwnershipTransferTx := &types.MsgModuleOwnershipTransfer{
 		NewModuleOwnerAddress: alice.Addr,
@@ -318,10 +325,10 @@ func (s *GRPCTestSuite) TestIntegration() {
 		AssignerAddress:       bob.Addr,
 	}
 	s.Require().NoError(addModuleOwnerTx.ValidateBasic())
-	moduleOwnershipTransferTxResponse := s.BroadcastTx(ctx, bob, moduleOwnershipTransferTx)
-	s.Require().EqualValues(0, moduleOwnershipTransferTxResponse.TxResponse.Code)
+	moduleOwnershipTransferResponse := s.BroadcastTx(ctx, bob, moduleOwnershipTransferTx)
+	s.Require().EqualValues(0, moduleOwnershipTransferResponse.TxResponse.Code)
 
-	// 4 - Add new feed by alice
+	s.T().Log("4 - Add new feed by alice")
 
 	feedId := "testfeed1"
 	addFeedTx := &types.MsgFeed{
@@ -340,10 +347,8 @@ func (s *GRPCTestSuite) TestIntegration() {
 		ModuleOwnerAddress:        alice.Addr,
 	}
 	s.Require().NoError(addFeedTx.ValidateBasic())
-	addFeedTxResponse := s.BroadcastTx(ctx, alice, addFeedTx)
-	s.Require().EqualValues(0, addFeedTxResponse.TxResponse.Code)
-
-	waitForNewBlock()
+	addFeedResponse := s.BroadcastTx(ctx, alice, addFeedTx)
+	s.Require().EqualValues(0, addFeedResponse.TxResponse.Code)
 
 	getFeedByFeedIdResponse, err := queryClient.GetFeedByFeedId(ctx, &types.GetFeedByIdRequest{FeedId: feedId})
 	s.Require().NoError(err)
@@ -358,7 +363,7 @@ func (s *GRPCTestSuite) TestIntegration() {
 	s.Require().EqualValues(3, feed.GetDeviationThresholdTrigger())
 	s.Require().EqualValues(4, feed.GetFeedReward())
 
-	// 5 - Add data provider by cerlo
+	s.T().Log("5 - Add data provider by cerlo")
 
 	addDataProviderTx := &types.MsgAddDataProvider{
 		FeedId: feedId,
@@ -372,8 +377,6 @@ func (s *GRPCTestSuite) TestIntegration() {
 	addDataProviderResponse := s.BroadcastTx(ctx, cerlo, addDataProviderTx)
 	s.Require().EqualValues(0, addDataProviderResponse.TxResponse.Code)
 
-	waitForNewBlock()
-
 	getFeedByFeedIdResponse, err = queryClient.GetFeedByFeedId(ctx, &types.GetFeedByIdRequest{FeedId: feedId})
 	s.Require().NoError(err)
 	feed = getFeedByFeedIdResponse.GetFeed()
@@ -381,7 +384,7 @@ func (s *GRPCTestSuite) TestIntegration() {
 	s.Require().Contains(feed.GetDataProviders(), &types.DataProvider{Address: cerlo.Addr, PubKey: []byte(cerlo.Cosmos)})
 	s.Require().Contains(feed.GetDataProviders(), &types.DataProvider{Address: bob.Addr, PubKey: []byte(bob.Cosmos)})
 
-	// 6 - Remove data provider by cerlo
+	s.T().Log("6 - Remove data provider by cerlo")
 
 	removeDataProviderTx := &types.MsgRemoveDataProvider{
 		FeedId:  feedId,
@@ -392,15 +395,13 @@ func (s *GRPCTestSuite) TestIntegration() {
 	removeDataProviderResponse := s.BroadcastTx(ctx, cerlo, removeDataProviderTx)
 	s.Require().EqualValues(0, removeDataProviderResponse.TxResponse.Code)
 
-	waitForNewBlock()
-
 	getFeedByFeedIdResponse, err = queryClient.GetFeedByFeedId(ctx, &types.GetFeedByIdRequest{FeedId: feedId})
 	s.Require().NoError(err)
 	feed = getFeedByFeedIdResponse.GetFeed()
 	s.Require().EqualValues(1, len(feed.GetDataProviders()))
 	s.Require().Contains(feed.GetDataProviders(), &types.DataProvider{Address: bob.Addr, PubKey: []byte(bob.Cosmos)})
 
-	// 7 - Feed ownership transfer to bob by cerlo
+	s.T().Log("7 - Feed ownership transfer to bob by cerlo")
 
 	feedOwnershipTransferTx := &types.MsgFeedOwnershipTransfer{
 		FeedId:              feedId,
@@ -411,14 +412,12 @@ func (s *GRPCTestSuite) TestIntegration() {
 	feedOwnershipTransferResponse := s.BroadcastTx(ctx, cerlo, feedOwnershipTransferTx)
 	s.Require().EqualValues(0, feedOwnershipTransferResponse.TxResponse.Code)
 
-	waitForNewBlock()
-
 	getFeedByFeedIdResponse, err = queryClient.GetFeedByFeedId(ctx, &types.GetFeedByIdRequest{FeedId: feedId})
 	s.Require().NoError(err)
 	feed = getFeedByFeedIdResponse.GetFeed()
 	s.Require().EqualValues(bob.Addr, feed.GetFeedOwner())
 
-	// 8 - Update submission count parameter
+	s.T().Log("8 - Update submission count parameter")
 
 	setSubmissionCountTx := &types.MsgSetSubmissionCount{
 		FeedId:          feedId,
@@ -448,8 +447,6 @@ func (s *GRPCTestSuite) TestIntegration() {
 	setFeedParamsResponse := s.BroadcastTx(ctx, bob, setSubmissionCountTx, setHeartbeatTriggerTx, setDeviationThresholdTriggerTx, setFeedRewardTx)
 	s.Require().EqualValues(0, setFeedParamsResponse.TxResponse.Code)
 
-	waitForNewBlock()
-
 	getFeedByFeedIdResponse, err = queryClient.GetFeedByFeedId(ctx, &types.GetFeedByIdRequest{FeedId: feedId})
 	s.Require().NoError(err)
 	feed = getFeedByFeedIdResponse.GetFeed()
@@ -458,7 +455,7 @@ func (s *GRPCTestSuite) TestIntegration() {
 	s.Require().EqualValues(300, feed.GetDeviationThresholdTrigger())
 	s.Require().EqualValues(400, feed.GetFeedReward())
 
-	// 9 - Submit feed data by bob
+	s.T().Log("9 - Submit feed data by bob")
 
 	submitFeedDataTx := &types.MsgFeedData{
 		FeedId:     feedId,
@@ -470,17 +467,33 @@ func (s *GRPCTestSuite) TestIntegration() {
 	submitFeedDataResponse := s.BroadcastTx(ctx, bob, submitFeedDataTx)
 	s.Require().EqualValues(0, submitFeedDataResponse.TxResponse.Code)
 
-	waitForNewBlock()
-
 	getRoundDataResponse, err := queryClient.GetRoundData(ctx, &types.GetRoundDataRequest{FeedId: feedId, RoundId: 1})
 	s.Require().NoError(err)
 	roundData := getRoundDataResponse.GetRoundData()
 	s.Require().EqualValues(1, len(roundData))
-	// TODO check round data (OCR)
+
+	// TODO check round data when OCR ready
 }
 
-// Temporary solution to wait for a new block
-// will use network.WaitForHeight(n) in the future
-func waitForNewBlock() {
-	time.Sleep(5 * time.Second)
+func (s *GRPCTestSuite) waitForBlock(h int64) (int64, error) {
+	ticker := time.NewTicker(time.Second)
+	timeout := time.After(10 * time.Second)
+
+	var latestHeight int64
+
+	for {
+		select {
+		case <-timeout:
+			ticker.Stop()
+			return latestHeight, errors.New("timeout exceeded waiting for block")
+		case <-ticker.C:
+			status, err := s.rpcClient.Status(context.Background())
+			if err == nil && status != nil {
+				latestHeight = status.SyncInfo.LatestBlockHeight
+				if latestHeight >= h {
+					return latestHeight, nil
+				}
+			}
+		}
+	}
 }
