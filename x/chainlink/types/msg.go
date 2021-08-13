@@ -28,15 +28,22 @@ const (
 	RequestNewRound              = "RequestNewRound"
 )
 
-var _, _, _, _, _, _, _, _, _, _, _ sdk.Msg = &MsgFeedData{}, &MsgModuleOwnershipTransfer{}, &MsgModuleOwner{}, &MsgFeed{}, &MsgAddDataProvider{}, &MsgRemoveDataProvider{}, &MsgSetSubmissionCount{}, &MsgSetHeartbeatTrigger{}, &MsgSetDeviationThresholdTrigger{}, &MsgFeedOwnershipTransfer{}, &MsgRequestNewRound{}
+var _, _, _, _, _, _, _, _, _, _, _ sdk.Msg = &MsgFeedData{}, &MsgModuleOwnershipTransfer{}, &MsgModuleOwner{},
+	&MsgFeed{}, &MsgAddDataProvider{}, &MsgRemoveDataProvider{}, &MsgSetSubmissionCount{}, &MsgSetHeartbeatTrigger{},
+	&MsgSetDeviationThresholdTrigger{}, &MsgFeedOwnershipTransfer{}, &MsgRequestNewRound{}
+
 var _ sdk.Tx = &MsgModuleOwner{}
+
+var _ Validation = &MsgFeedData{}
 
 func NewMsgFeedData(submitter sdk.Address, feedId string, feedData []byte, signatures [][]byte) *MsgFeedData {
 	return &MsgFeedData{
-		FeedId:     feedId,
-		Submitter:  submitter.Bytes(),
-		FeedData:   feedData,
-		Signatures: signatures,
+		FeedId:          feedId,
+		Submitter:       submitter.Bytes(),
+		FeedData:        feedData,
+		Signatures:      signatures,
+		// IsFeedDataValid will be true by default
+		IsFeedDataValid: true,
 	}
 }
 
@@ -58,8 +65,6 @@ func (m *MsgFeedData) GetSignBytes() []byte {
 }
 
 func (m *MsgFeedData) ValidateBasic() error {
-	// TODO: add any basic input checking here
-
 	if m.GetSubmitter().Empty() {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, "submitter can not be empty")
 	}
@@ -72,12 +77,17 @@ func (m *MsgFeedData) ValidateBasic() error {
 	if len(m.GetFeedData()) == 0 {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "feedData can not be empty")
 	}
-
-	// TODO: verify the number of required signatures here
 	if len(m.GetSignatures()) == 0 {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "number of oracle signatures does not meet the required number")
 	}
 	return nil
+}
+
+func (m *MsgFeedData) Validate(fn func(msg sdk.Msg) bool) bool {
+	if fn == nil {
+		return true
+	}
+	return fn(m)
 }
 
 func NewMsgModuleOwner(assigner, address sdk.Address, pubKey []byte) *MsgModuleOwner {
@@ -157,9 +167,10 @@ func (m *MsgModuleOwnershipTransfer) GetSigners() []githubcosmossdktypes.AccAddr
 	return []sdk.AccAddress{sdk.AccAddress(m.AssignerAddress)}
 }
 
-func NewMsgFeed(feedId string, feedOwner, moduleOwner sdk.Address, initDataProviders []*DataProvider, submissionCount, heartbeatTrigger, deviationThresholdTrigger, feedReward uint32) *MsgFeed {
+func NewMsgFeed(feedId, feedDesc string, feedOwner, moduleOwner sdk.Address, initDataProviders []*DataProvider, submissionCount, heartbeatTrigger, deviationThresholdTrigger, feedReward uint32) *MsgFeed {
 	return &MsgFeed{
 		FeedId:                    feedId,
+		Desc:                      feedDesc,
 		FeedOwner:                 feedOwner.Bytes(),
 		DataProviders:             initDataProviders,
 		SubmissionCount:           submissionCount,

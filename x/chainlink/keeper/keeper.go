@@ -55,6 +55,23 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 }
 
 func (k Keeper) SetFeedData(ctx sdk.Context, feedData *types.MsgFeedData) (int64, []byte, error) {
+	// emit FeedDataValidationFailedEvent event if feedData validation is false
+	if !feedData.IsFeedDataValid {
+		feed := k.GetFeed(ctx, feedData.GetFeedId())
+		err := types.EmitEvent(&types.MsgFeedDataValidationFailedEvent{
+			FeedId:        feedData.GetFeedId(),
+			DataProviders: feed.GetFeed().GetDataProviders(),
+			FeedOwner:     feed.GetFeed().GetFeedOwner(),
+			Submitter:     feedData.GetSubmitter(),
+			FeedData:      feedData.GetFeedData(),
+			Signatures:    feedData.GetSignatures(),
+		}, ctx.EventManager())
+		if err != nil {
+			// only trigger error message here cuz this will not affect the whole flow
+			k.Logger(ctx).Error("failed to emit FeedDataValidationFailedEvent: ", err.Error())
+		}
+	}
+
 	roundStore := ctx.KVStore(k.roundStoreKey)
 	currentLatestRoundId := k.GetLatestRoundId(ctx, feedData.FeedId)
 	roundId := currentLatestRoundId + 1

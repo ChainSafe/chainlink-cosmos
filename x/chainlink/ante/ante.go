@@ -23,7 +23,7 @@ const (
 func NewAnteHandler(
 	ak authkeeper.AccountKeeper, bankKeeper bankkeeper.Keeper, chainLinkKeeper chainlinkkeeper.Keeper,
 	sigGasConsumer authante.SignatureVerificationGasConsumer,
-	signModeHandler signing.SignModeHandler,
+	signModeHandler signing.SignModeHandler, externalTxDataValidationFunc func(sdk.Msg) bool,
 ) sdk.AnteHandler {
 	return func(
 		ctx sdk.Context, tx sdk.Tx, sim bool,
@@ -47,6 +47,7 @@ func NewAnteHandler(
 			NewModuleOwnerDecorator(chainLinkKeeper),
 			NewFeedDecorator(chainLinkKeeper),
 			NewFeedDataDecorator(chainLinkKeeper),
+			NewValidationDecorator(externalTxDataValidationFunc),
 		)
 
 		return anteHandler(ctx, tx, sim)
@@ -245,6 +246,36 @@ func (fd FeedDataDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool
 			if !(types.DataProviders)(feed.GetFeed().GetDataProviders()).Contains(t.GetSubmitter()) {
 				return ctx, sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "invalid data provider")
 			}
+			if uint32(len(t.GetSignatures())) < feed.GetFeed().GetSubmissionCount() {
+				return ctx, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "not enough signatures")
+			}
+		default:
+			continue
+		}
+	}
+
+	return next(ctx, tx, simulate)
+}
+
+type ValidationDecorator struct {
+	validationFn func(sdk.Msg) bool
+}
+
+func NewValidationDecorator(validationFunc func(sdk.Msg) bool) ValidationDecorator {
+	return ValidationDecorator{
+		validationFn: validationFunc,
+	}
+}
+
+func (fd ValidationDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (newCtx sdk.Context, err error) {
+	if len(tx.GetMsgs()) == 0 {
+		return ctx, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "invalid Msg: empty Msg: %T", tx)
+	}
+
+	for _, msg := range tx.GetMsgs() {
+		switch t := msg.(type) {
+		case *types.MsgFeedData:
+			t.IsFeedDataValid = t.Validate(fd.validationFn)
 		default:
 			continue
 		}

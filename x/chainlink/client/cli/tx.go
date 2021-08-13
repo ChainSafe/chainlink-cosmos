@@ -34,6 +34,7 @@ func GetTxCmd() *cobra.Command {
 	cmd.AddCommand(CmdSetDeviationThreshold())
 	cmd.AddCommand(CmdSetFeedReward())
 	cmd.AddCommand(CmdTransferFeedOwnership())
+	cmd.AddCommand(CmdRequestNewRound())
 
 	return cmd
 }
