@@ -15,7 +15,6 @@ import (
 	"github.com/ChainSafe/chainlink-cosmos/x/chainlink/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/config"
-	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	"github.com/cosmos/cosmos-sdk/simapp"
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
@@ -47,27 +46,27 @@ var (
 	cerlo *testAccount
 )
 
-func generateKeyPair(name string) *testAccount {
-	priv, pub, addr := testdata.KeyTestPubAddr()
-	cosmosPubKey, err := sdk.Bech32ifyPubKey(sdk.Bech32PubKeyTypeAccPub, pub)
-	if err != nil {
-		panic(err)
-	}
-	return &testAccount{name, priv, priv.PubKey(), addr, cosmosPubKey}
-}
+//func generateKeyPair(name string) *testAccount {
+//	priv, pub, addr := testdata.KeyTestPubAddr()
+//	cosmosPubKey, err := sdk.Bech32ifyPubKey(sdk.Bech32PubKeyTypeAccPub, pub)
+//	if err != nil {
+//		panic(err)
+//	}
+//	return &testAccount{name, priv, priv.PubKey(), addr, cosmosPubKey}
+//}
 
-func formatKeyPair(info keyring.Info) *testAccount {
-	cosmosPubKey, err := sdk.Bech32ifyPubKey(sdk.Bech32PubKeyTypeAccPub, info.GetPubKey())
-	if err != nil {
-		panic(err)
-	}
-	return &testAccount{
-		Name:   info.GetName(),
-		Pub:    info.GetPubKey(),
-		Addr:   info.GetAddress(),
-		Cosmos: cosmosPubKey,
-	}
-}
+//func formatKeyPair(info keyring.Info) *testAccount {
+//	cosmosPubKey, err := sdk.Bech32ifyPubKey(sdk.Bech32PubKeyTypeAccPub, info.GetPubKey())
+//	if err != nil {
+//		panic(err)
+//	}
+//	return &testAccount{
+//		Name:   info.GetName(),
+//		Pub:    info.GetPubKey(),
+//		Addr:   info.GetAddress(),
+//		Cosmos: cosmosPubKey,
+//	}
+//}
 
 func importKeyPair(t testing.TB, clientCtx client.Context, name string) *testAccount {
 	info, err := clientCtx.Keyring.Key(name)
@@ -83,18 +82,20 @@ func importKeyPair(t testing.TB, clientCtx client.Context, name string) *testAcc
 }
 
 func TestGRPCTestSuite(t *testing.T) {
+	running := os.Getenv("GRPC_INTEGRATION_TEST")
+	if running != "true" {
+		t.SkipNow()
+	}
 	suite.Run(t, new(GRPCTestSuite))
 }
 
 type GRPCTestSuite struct {
 	suite.Suite
 
-	ctx       sdk.Context
 	clientCtx client.Context
-
-	config   testnet.Config
-	network  *testnet.Network
-	grpcConn *grpc.ClientConn
+	config    testnet.Config
+	network   *testnet.Network
+	grpcConn  *grpc.ClientConn
 }
 
 // SetupTest directly connected to daemon on port 9090
