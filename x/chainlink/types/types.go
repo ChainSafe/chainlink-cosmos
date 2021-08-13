@@ -50,4 +50,3 @@ func (dp DataProviders) Remove(addr sdk.Address) DataProviders {
 	}
 	return s
 }
-

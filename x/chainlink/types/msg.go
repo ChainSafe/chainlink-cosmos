@@ -38,10 +38,10 @@ var _ Validation = &MsgFeedData{}
 
 func NewMsgFeedData(submitter sdk.Address, feedId string, feedData []byte, signatures [][]byte) *MsgFeedData {
 	return &MsgFeedData{
-		FeedId:          feedId,
-		Submitter:       submitter.Bytes(),
-		FeedData:        feedData,
-		Signatures:      signatures,
+		FeedId:     feedId,
+		Submitter:  submitter.Bytes(),
+		FeedData:   feedData,
+		Signatures: signatures,
 		// IsFeedDataValid will be true by default
 		IsFeedDataValid: true,
 	}
@@ -88,6 +88,40 @@ func (m *MsgFeedData) Validate(fn func(msg sdk.Msg) bool) bool {
 		return true
 	}
 	return fn(m)
+}
+
+func (m *MsgFeedData) RewardCalculator(feed *MsgFeed, feedData *MsgFeedData) ([]RewardPayout, uint32) {
+	// no strategy configured when chain launching
+	// or the owner of the current feed does not set a strategy
+	// so every one gets base amount
+	if len(feedRewardStrategyConvertor) == 0 || feed.GetFeedReward().GetStrategy() == "" {
+		rewardPayout := make([]RewardPayout, len(feedData.GetSignatures()))
+		for i := 0; i < len(feedData.GetSigners()); i++ {
+			rp := RewardPayout{
+				DataProvider: &DataProvider{
+					Address: feedData.GetSigners()[i],
+				},
+				Amount: feed.GetFeedReward().GetAmount(),
+			}
+			rewardPayout = append(rewardPayout, rp)
+		}
+		return rewardPayout, feed.GetFeedReward().GetAmount() * uint32(len(feedData.GetSignatures()))
+	}
+
+	// TODO: strategy checking should be in antehandler, it checks if strategy configured in feed has an associated func
+	strategyFn, ok := feedRewardStrategyConvertor[feed.GetFeedReward().GetStrategy()]
+	if !ok {
+		// this should never happen
+	}
+
+	RewardPayoutList := strategyFn(feed, feedData)
+
+	totalRewardAmount := uint32(0)
+	for _, payout := range RewardPayoutList {
+		totalRewardAmount += payout.Amount
+	}
+
+	return RewardPayoutList, totalRewardAmount
 }
 
 func NewMsgModuleOwner(assigner, address sdk.Address, pubKey []byte) *MsgModuleOwner {
@@ -167,7 +201,8 @@ func (m *MsgModuleOwnershipTransfer) GetSigners() []githubcosmossdktypes.AccAddr
 	return []sdk.AccAddress{sdk.AccAddress(m.AssignerAddress)}
 }
 
-func NewMsgFeed(feedId, feedDesc string, feedOwner, moduleOwner sdk.Address, initDataProviders []*DataProvider, submissionCount, heartbeatTrigger, deviationThresholdTrigger, feedReward uint32) *MsgFeed {
+func NewMsgFeed(feedId, feedDesc string, feedOwner, moduleOwner sdk.Address, initDataProviders []*DataProvider,
+	submissionCount, heartbeatTrigger, deviationThresholdTrigger, baseFeedRewardAmount uint32, feedRewardStrategy string) *MsgFeed {
 	return &MsgFeed{
 		FeedId:                    feedId,
 		Desc:                      feedDesc,
@@ -177,7 +212,10 @@ func NewMsgFeed(feedId, feedDesc string, feedOwner, moduleOwner sdk.Address, ini
 		HeartbeatTrigger:          heartbeatTrigger,
 		DeviationThresholdTrigger: deviationThresholdTrigger,
 		ModuleOwnerAddress:        moduleOwner.Bytes(),
-		FeedReward:                feedReward,
+		FeedReward: &FeedRewardSchema{
+			Amount:   baseFeedRewardAmount,
+			Strategy: feedRewardStrategy,
+		},
 	}
 }
 
@@ -208,8 +246,8 @@ func (m *MsgFeed) ValidateBasic() error {
 	if m.GetDeviationThresholdTrigger() == 0 {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "deviationThresholdTrigger must not be 0")
 	}
-	if m.GetFeedReward() == 0 {
-		return errors.New("FeedReward must not be 0")
+	if m.GetFeedReward().GetAmount() == 0 {
+		return errors.New("baseFeedRewardAmount must not be 0")
 	}
 
 	if len(m.GetDataProviders()) == 0 {
@@ -426,11 +464,14 @@ func (m *MsgSetDeviationThresholdTrigger) GetSigners() []githubcosmossdktypes.Ac
 	return []sdk.AccAddress{m.Signer}
 }
 
-func NewMsgSetFeedReward(signer githubcosmossdktypes.AccAddress, feedId string, feedReward uint32) *MsgSetFeedReward {
+func NewMsgSetFeedReward(signer githubcosmossdktypes.AccAddress, feedId string, baseFeedRewardAmount uint32, feedRewardStrategy string) *MsgSetFeedReward {
 	return &MsgSetFeedReward{
-		FeedId:     feedId,
-		FeedReward: feedReward,
-		Signer:     signer,
+		FeedId: feedId,
+		FeedReward: &FeedRewardSchema{
+			Amount:   baseFeedRewardAmount,
+			Strategy: feedRewardStrategy,
+		},
+		Signer: signer,
 	}
 }
 
@@ -449,8 +490,8 @@ func (m *MsgSetFeedReward) ValidateBasic() error {
 	if len(m.GetFeedId()) == 0 {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "feedId can not be empty")
 	}
-	if m.GetFeedReward() == 0 {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "feedReward must not be 0")
+	if m.GetFeedReward().GetAmount() == 0 {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "baseFeedRewardAmount must not be 0")
 	}
 	return nil
 }
