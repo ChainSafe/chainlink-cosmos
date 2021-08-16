@@ -9,4 +9,5 @@ const (
 	QueryLatestFeedData = "getLatestFeedData"
 	QueryModuleOwner    = "getModuleOwner"
 	QueryFeedInfo       = "getFeedInfo"
+	QueryAccountInfo    = "getAccountInfo"
 )

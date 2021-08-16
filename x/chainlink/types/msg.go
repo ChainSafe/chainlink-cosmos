@@ -534,7 +534,7 @@ func (m *MsgRequestNewRound) GetSigners() []githubcosmossdktypes.AccAddress {
 	return []sdk.AccAddress{m.Signer}
 }
 
-func NewMsgAccount(submitter githubcosmossdktypes.AccAddress, chainlinkPublicKey, chainlinkSigningKey []byte, piggyAddress githubcosmossdktypes.AccAddress) *MsgAccount {
+func NewMsgAddAccount(submitter githubcosmossdktypes.AccAddress, chainlinkPublicKey, chainlinkSigningKey []byte, piggyAddress githubcosmossdktypes.AccAddress) *MsgAccount {
 	return &MsgAccount{
 		Submitter:           submitter,
 		ChainlinkPublicKey:  chainlinkPublicKey,
@@ -574,5 +574,40 @@ func (m *MsgAccount) GetSignBytes() []byte {
 }
 
 func (m *MsgAccount) GetSigners() []githubcosmossdktypes.AccAddress {
+	return []sdk.AccAddress{m.Submitter}
+}
+
+func NewMsgEditAccount(submitter githubcosmossdktypes.AccAddress, piggyAddress githubcosmossdktypes.AccAddress) *MsgEditAccount {
+	return &MsgEditAccount{
+		Submitter:    submitter,
+		PiggyAddress: piggyAddress,
+	}
+}
+
+func (m *MsgEditAccount) Route() string {
+	return RouterKey
+}
+
+func (m *MsgEditAccount) Type() string {
+	return RequestNewRound
+}
+
+func (m *MsgEditAccount) ValidateBasic() error {
+	if m.GetSubmitter().Empty() {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, "signer can not be empty")
+	}
+	if m.GetPiggyAddress().Empty() {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, "signer can not be empty")
+	}
+
+	return nil
+}
+
+func (m *MsgEditAccount) GetSignBytes() []byte {
+	bz := ModuleCdc.MustMarshalJSON(m)
+	return sdk.MustSortJSON(bz)
+}
+
+func (m *MsgEditAccount) GetSigners() []githubcosmossdktypes.AccAddress {
 	return []sdk.AccAddress{m.Submitter}
 }

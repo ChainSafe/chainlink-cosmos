@@ -48,6 +48,9 @@ const (
 
 	// FeedInfoKey FeedInfoStore key pattern: types.FeedInfoKey/feedId
 	FeedInfoKey = "feed"
+
+	// AccountKey AccountStore key pattern: types.AccountKey/accAddr
+	AccountKey = "account"
 )
 
 func GetFeedDataKey(feedId, roundId string) []byte {
@@ -81,6 +84,14 @@ func GetFeedInfoKey(feedId string) []byte {
 	key := FeedInfoKey + "/"
 	if len(feedId) > 0 {
 		key += feedId
+	}
+	return KeyPrefix(key)
+}
+
+func GetAccountKey(account string) []byte {
+	key := AccountKey + "/"
+	if len(account) > 0 {
+		key += account
 	}
 	return KeyPrefix(key)
 }
