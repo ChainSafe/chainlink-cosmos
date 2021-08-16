@@ -5,6 +5,7 @@ package cli
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/ChainSafe/chainlink-cosmos/x/chainlink/types"
 	"github.com/spf13/cobra"
@@ -51,6 +52,7 @@ func CmdAddChainlinkAccount() *cobra.Command {
 `,
 		Args: cobra.MinimumNArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
+			fmt.Println(args)
 			argsChainlinkPublicKey := args[0]
 			argsChainlinkSigningKey := args[1]
 			var piggyAddress sdk.AccAddress
@@ -60,7 +62,7 @@ func CmdAddChainlinkAccount() *cobra.Command {
 				return err
 			}
 
-			if len(args[2]) > 0 {
+			if len(args) > 2 {
 				argsPiggyAddress := args[2]
 				piggyAddress, err = sdk.AccAddressFromBech32(argsPiggyAddress)
 				if err != nil {
