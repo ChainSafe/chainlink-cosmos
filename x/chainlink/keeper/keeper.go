@@ -472,40 +472,36 @@ func (k Keeper) RequestNewRound(ctx sdk.Context, requestNewRound *types.MsgReque
 	return ctx.BlockHeight(), ctx.TxBytes(), nil
 }
 
-func (k Keeper) AddAccount(ctx sdk.Context, feed *types.MsgFeed) (int64, []byte) {
-	feedInfoStore := ctx.KVStore(k.feedInfoStoreKey)
+func (k Keeper) AddAccount(ctx sdk.Context, acc *types.MsgAccount) (int64, []byte) {
+	accStore := ctx.KVStore(k.accountStoreKey)
 
-	f := k.cdc.MustMarshalBinaryBare(feed)
+	a := k.cdc.MustMarshalBinaryBare(acc)
 
-	feedInfoStore.Set(types.GetFeedInfoKey(feed.GetFeedId()), f)
-
-	return ctx.BlockHeight(), ctx.TxBytes()
-}
-
-func (k Keeper) SetAccount(ctx sdk.Context, feed *types.MsgFeed) (int64, []byte) {
-	feedInfoStore := ctx.KVStore(k.feedInfoStoreKey)
-
-	f := k.cdc.MustMarshalBinaryBare(feed)
-
-	feedInfoStore.Set(types.GetFeedInfoKey(feed.GetFeedId()), f)
+	accStore.Set(types.GetAccountKey(acc.GetSubmitter().String()), a)
 
 	return ctx.BlockHeight(), ctx.TxBytes()
 }
 
-func (k Keeper) GetAccount(ctx sdk.Context, feedId string) *types.GetFeedByIdResponse {
-	feedInfoStore := ctx.KVStore(k.feedInfoStoreKey)
-	feedIdBytes := feedInfoStore.Get(types.GetFeedInfoKey(feedId))
+func (k Keeper) EditAccount(ctx sdk.Context, acc *types.MsgEditAccount) (int64, []byte, error) {
+	accStore := ctx.KVStore(k.accountStoreKey)
 
-	if feedIdBytes == nil {
-		return &types.GetFeedByIdResponse{
-			Feed: nil,
-		}
-	}
+	a := k.cdc.MustMarshalBinaryBare(acc)
 
-	var feed types.MsgFeed
-	k.cdc.MustUnmarshalBinaryBare(feedIdBytes, &feed)
+	accStore.Set(types.GetAccountKey(acc.GetSubmitter().String()), a)
 
-	return &types.GetFeedByIdResponse{
-		Feed: &feed,
+	return ctx.BlockHeight(), ctx.TxBytes(), nil
+}
+
+func (k Keeper) GetAccount(ctx sdk.Context, accAddr sdk.AccAddress) *types.GetAccountResponse {
+
+	acc := accAddr.String()
+	accountStore := ctx.KVStore(k.accountStoreKey)
+	accountBytes := accountStore.Get(types.GetAccountKey(acc))
+
+	var account types.MsgAccount
+	k.cdc.MustUnmarshalBinaryBare(accountBytes, &account)
+
+	return &types.GetAccountResponse{
+		Account: &account,
 	}
 }

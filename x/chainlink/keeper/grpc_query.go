@@ -34,3 +34,8 @@ func (k Keeper) GetFeedByFeedId(c context.Context, req *types.GetFeedByIdRequest
 	ctx := sdk.UnwrapSDKContext(c)
 	return k.GetFeed(ctx, req.FeedId), nil
 }
+
+func (k Keeper) GetAccountInfo(c context.Context, req *types.GetAccountRequest) (*types.GetAccountResponse, error) {
+	ctx := sdk.UnwrapSDKContext(c)
+	return k.GetAccount(ctx, req.AccountAddress), nil
+}

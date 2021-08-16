@@ -363,3 +363,41 @@ func (s msgServer) RequestNewRoundTx(c context.Context, msg *types.MsgRequestNew
 		TxHash: string(txHash),
 	}, nil
 }
+
+func (s msgServer) AddAccountTx(c context.Context, msg *types.MsgAccount) (*types.MsgResponse, error) {
+	ctx := sdk.UnwrapSDKContext(c)
+
+	height, txHash := s.AddAccount(ctx, msg)
+
+	if height == 0 {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidHeight, ErrIncorrectHeightFound)
+	}
+
+	// TODO? emit event (and create new event type) for account creation?
+
+	return &types.MsgResponse{
+		Height: uint64(height),
+		TxHash: string(txHash),
+	}, nil
+}
+
+func (s msgServer) EditAccountTx(c context.Context, msg *types.MsgEditAccount) (*types.MsgResponse, error) {
+	// TODO: edit the account piggy address and re add to store
+	ctx := sdk.UnwrapSDKContext(c)
+
+	height, txHash, err := s.EditAccount(ctx, msg)
+	if err != nil {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, err.Error())
+	}
+
+	if height == 0 {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidHeight, ErrIncorrectHeightFound)
+	}
+
+	// TODO? emit event (and create new event type) for account creation
+
+	return &types.MsgResponse{
+		Height: uint64(height),
+		TxHash: string(txHash),
+	}, nil
+}
