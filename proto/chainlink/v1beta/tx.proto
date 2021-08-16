@@ -23,6 +23,8 @@ service Msg {
   rpc SetFeedRewardTx(MsgSetFeedReward) returns (MsgResponse);
   rpc RequestNewRoundTx(MsgRequestNewRound) returns (MsgResponse);
   rpc FeedOwnershipTransferTx(MsgFeedOwnershipTransfer) returns (MsgResponse);
+  rpc AddAccountTx(MsgAccount) returns (MsgResponse);
+  rpc EditAccountTx(MsgEditAccount) returns (MsgResponse);
 }
 
 // MsgModuleOwnershipTransfer is the type defined for module ownership transfer
@@ -169,6 +171,14 @@ message MsgAccount {
   bytes chainlinkSigningKey = 3;
   // piggyAddress - cosmos account address receivable for reward and fee distribution
   bytes piggyAddress  = 4 [(gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"];
+}
+
+// MsgEditAccount is the type defined to edit a Chainlink account
+message MsgEditAccount {
+  // submitter - associated cosmos account address
+  bytes submitter  = 1 [(gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"];
+  // piggyAddress - cosmos account address receivable for reward and fee distribution
+  bytes piggyAddress  = 2 [(gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"];
 }
 
 message MsgResponse {
