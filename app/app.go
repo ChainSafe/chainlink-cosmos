@@ -202,11 +202,22 @@ func New(
 	bApp.SetInterfaceRegistry(interfaceRegistry)
 
 	keys := sdk.NewKVStoreKeys(
-		authtypes.StoreKey, banktypes.StoreKey, stakingtypes.StoreKey,
-		minttypes.StoreKey, distrtypes.StoreKey, slashingtypes.StoreKey,
-		govtypes.StoreKey, paramstypes.StoreKey, upgradetypes.StoreKey,
-		evidencetypes.StoreKey, capabilitytypes.StoreKey, chainlinktypes.FeedDataStoreKey,
-		chainlinktypes.RoundStoreKey, chainlinktypes.ModuleOwnerStoreKey, chainlinktypes.FeedInfoStoreKey,
+		authtypes.StoreKey,
+		banktypes.StoreKey,
+		stakingtypes.StoreKey,
+		minttypes.StoreKey,
+		distrtypes.StoreKey,
+		slashingtypes.StoreKey,
+		govtypes.StoreKey,
+		paramstypes.StoreKey,
+		upgradetypes.StoreKey,
+		evidencetypes.StoreKey,
+		capabilitytypes.StoreKey,
+		chainlinktypes.FeedDataStoreKey,
+		chainlinktypes.RoundStoreKey,
+		chainlinktypes.ModuleOwnerStoreKey,
+		chainlinktypes.FeedInfoStoreKey,
+		chainlinktypes.AccountStoreKey,
 	)
 	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey)
 	memKeys := sdk.NewMemoryStoreKeys(capabilitytypes.MemStoreKey, chainlinktypes.MemStoreKey)
@@ -334,6 +345,7 @@ func New(
 		keys[chainlinktypes.ModuleOwnerStoreKey],
 		keys[chainlinktypes.FeedInfoStoreKey],
 		keys[chainlinktypes.MemStoreKey],
+		keys[chainlinktypes.AccountStoreKey],
 	)
 
 	/****  Module Options ****/
