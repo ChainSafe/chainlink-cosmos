@@ -4,6 +4,8 @@
 package cli
 
 import (
+	"context"
+
 	"github.com/ChainSafe/chainlink-cosmos/x/chainlink/types"
 	"github.com/spf13/cobra"
 
@@ -13,8 +15,34 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-// AddGenesisAccountCmd returns add-genesis-account cobra Command.
-func AddChainlinkAccountCmd(defaultNodeHome string) *cobra.Command {
+func CmdGetAccountInfo() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "get-chainlink-account",
+		Short: "Gets the chainlink account information associated to the submitter",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx := client.GetClientContextFromCmd(cmd)
+			clientCtx, err := client.ReadPersistentCommandFlags(clientCtx, cmd.Flags())
+			if err != nil {
+				return err
+			}
+
+			queryClient := types.NewQueryClient(clientCtx)
+			params := &types.GetModuleOwnerRequest{}
+
+			res, err := queryClient.GetAllModuleOwner(context.Background(), params)
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintProto(res)
+		},
+	}
+
+	flags.AddQueryFlagsToCmd(cmd)
+	return cmd
+}
+
+func CmdAddChainlinkAccount() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "add-chainlink-account <chainlink_oracle_public_key> <chainlink_oracle_signing_key> [piggy_cosmos_address]",
 		Short: "Add a chainlink account to the store.",
@@ -42,10 +70,45 @@ func AddChainlinkAccountCmd(defaultNodeHome string) *cobra.Command {
 				piggyAddress = clientCtx.GetFromAddress()
 			}
 
-			msg := types.NewMsgAccount(
+			msg := types.NewMsgAddAccount(
 				clientCtx.GetFromAddress(),
 				[]byte(argsChainlinkPublicKey),
 				[]byte(argsChainlinkSigningKey),
+				piggyAddress,
+			)
+			if err := msg.ValidateBasic(); err != nil {
+				return err
+			}
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
+
+		},
+	}
+	flags.AddTxFlagsToCmd(cmd)
+
+	return cmd
+}
+
+func CmdEditPiggyAddress() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "edit-piggy-address <piggy_cosmos_address>",
+		Short: "Edit the Piggy Address of a Chainlink account.",
+		Long: `Update the Piggy Address associated to a Chainlink account. The Piggy Address is the cosmos address that will be used to issue reward distributions in the native token.
+		`,
+		Args: cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			argsPiggyAddress := args[0]
+			piggyAddress, err := sdk.AccAddressFromBech32(argsPiggyAddress)
+			if err != nil {
+				return err
+			}
+
+			msg := types.NewMsgEditAccount(
+				clientCtx.GetFromAddress(),
 				piggyAddress,
 			)
 			if err := msg.ValidateBasic(); err != nil {

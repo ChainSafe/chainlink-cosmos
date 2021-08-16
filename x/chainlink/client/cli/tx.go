@@ -36,6 +36,6 @@ func GetTxCmd() *cobra.Command {
 	cmd.AddCommand(CmdTransferFeedOwnership())
 	cmd.AddCommand(CmdRequestNewRound())
 	cmd.AddCommand(CmdAddChainlinkAccount())
-
+	cmd.AddCommand(CmdEditPiggyAddress())
 	return cmd
 }
