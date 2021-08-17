@@ -344,8 +344,8 @@ func New(
 		keys[chainlinktypes.RoundStoreKey],
 		keys[chainlinktypes.ModuleOwnerStoreKey],
 		keys[chainlinktypes.FeedInfoStoreKey],
-		keys[chainlinktypes.MemStoreKey],
 		keys[chainlinktypes.AccountStoreKey],
+		keys[chainlinktypes.MemStoreKey],
 	)
 
 	/****  Module Options ****/
