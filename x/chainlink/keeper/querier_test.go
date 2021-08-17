@@ -7,6 +7,8 @@ import (
 
 	"github.com/ChainSafe/chainlink-cosmos/x/chainlink/types"
 	"github.com/cosmos/cosmos-sdk/codec"
+	"github.com/cosmos/cosmos-sdk/testutil/testdata"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
 )
@@ -202,5 +204,61 @@ func TestQuerier_GetFeedInfo(t *testing.T) {
 			require.Equal(t, tc.FeedReward, feedInfo.GetFeed().GetFeedReward())
 			require.Equal(t, tc.Desc, feedInfo.GetFeed().GetDesc())
 		})
+	}
+}
+
+func TestQuerier_GetModuleOwners(t *testing.T) {
+	keeper, ctx := setupKeeper(t)
+	amino := codec.NewLegacyAmino()
+	querier := NewQuerier(*keeper, amino)
+
+	_, pubKey1, acc1 := testdata.KeyTestPubAddr()
+	cosmosPubKey1, err := sdk.Bech32ifyPubKey(sdk.Bech32PubKeyTypeAccPub, pubKey1)
+	require.NoError(t, err)
+	owner1 := &types.MsgModuleOwner{
+		Address: acc1,
+		PubKey:  []byte(cosmosPubKey1),
+	}
+
+	_, pubKey2, acc2 := testdata.KeyTestPubAddr()
+	cosmosPubKey2, err := sdk.Bech32ifyPubKey(sdk.Bech32PubKeyTypeAccPub, pubKey2)
+	require.NoError(t, err)
+	owner2 := &types.MsgModuleOwner{
+		Address: acc2,
+		PubKey:  []byte(cosmosPubKey2),
+	}
+
+	testCases := []struct {
+		test        string
+		moduleOwner *types.MsgModuleOwner
+		expected    []*types.MsgModuleOwner
+	}{
+		{
+			test:        "owner 1",
+			moduleOwner: owner1,
+			expected:    []*types.MsgModuleOwner{owner1},
+		},
+		{
+			test:        "owner 2 and previous one",
+			moduleOwner: owner2,
+			expected:    []*types.MsgModuleOwner{owner1, owner2},
+		},
+	}
+
+	// Set module owner and try retrieve it
+	for _, tc := range testCases {
+		t.Run(tc.test, func(t *testing.T) {
+			keeper.SetModuleOwner(ctx, tc.moduleOwner)
+
+			result, err := querier(ctx, []string{types.QueryModuleOwner}, abci.RequestQuery{})
+			require.NoError(t, err)
+
+			var moduleOwner types.GetModuleOwnerResponse
+			err = amino.UnmarshalJSON(result, &moduleOwner)
+			require.NoError(t, err)
+
+			require.Equal(t, len(tc.expected), len(moduleOwner.GetModuleOwner()))
+		})
+
 	}
 }
