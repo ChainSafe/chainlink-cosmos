@@ -16,33 +16,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-func CmdGetAccountInfo() *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "get-chainlink-account",
-		Short: "Gets the chainlink account information associated to the submitter",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			clientCtx := client.GetClientContextFromCmd(cmd)
-			clientCtx, err := client.ReadPersistentCommandFlags(clientCtx, cmd.Flags())
-			if err != nil {
-				return err
-			}
-
-			queryClient := types.NewQueryClient(clientCtx)
-			params := &types.GetModuleOwnerRequest{}
-
-			res, err := queryClient.GetAllModuleOwner(context.Background(), params)
-			if err != nil {
-				return err
-			}
-
-			return clientCtx.PrintProto(res)
-		},
-	}
-
-	flags.AddQueryFlagsToCmd(cmd)
-	return cmd
-}
-
 func CmdAddChainlinkAccount() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "add-chainlink-account <chainlink_oracle_public_key> <chainlink_oracle_signing_key> [piggy_cosmos_address]",
@@ -118,6 +91,42 @@ func CmdEditPiggyAddress() *cobra.Command {
 			}
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 
+		},
+	}
+	flags.AddTxFlagsToCmd(cmd)
+
+	return cmd
+}
+
+func CmdGetAccountInfo() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "getAccountInfo <cosmos address>",
+		Short: "Gets the Chainlink account information.",
+		Long: `Retreives the Chainlink account information associated with the sender's Cosmos account address. Optional cosmos address can be provided as an argument to look up. Default will retrieve the account associated with the FromAddress.
+		`,
+		Args: cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx := client.GetClientContextFromCmd(cmd)
+			clientCtx, err := client.ReadPersistentCommandFlags(clientCtx, cmd.Flags())
+			if err != nil {
+				return err
+			}
+
+			accountString := args[0]
+			account, err := sdk.AccAddressFromBech32(accountString)
+			if err != nil {
+				return err
+			}
+
+			req := &types.GetAccountRequest{AccountAddress: account}
+
+			queryClient := types.NewQueryClient(clientCtx)
+			res, err := queryClient.GetAccountInfo(context.Background(), req)
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintProto(res)
 		},
 	}
 	flags.AddTxFlagsToCmd(cmd)
