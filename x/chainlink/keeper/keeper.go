@@ -492,11 +492,10 @@ func (k Keeper) EditAccount(ctx sdk.Context, acc *types.MsgEditAccount) (int64, 
 	return ctx.BlockHeight(), ctx.TxBytes(), nil
 }
 
-func (k Keeper) GetAccount(ctx sdk.Context, accAddr sdk.AccAddress) *types.GetAccountResponse {
-
-	acc := accAddr.String()
-	accountStore := ctx.KVStore(k.accountStoreKey)
-	accountBytes := accountStore.Get(types.GetAccountKey(acc))
+func (k Keeper) GetAccount(ctx sdk.Context, accReq *types.GetAccountRequest) *types.GetAccountResponse {
+	acc := accReq.AccountAddress.String()
+	accStore := ctx.KVStore(k.accountStoreKey)
+	accountBytes := accStore.Get(types.GetAccountKey(acc))
 
 	var account types.MsgAccount
 	k.cdc.MustUnmarshalBinaryBare(accountBytes, &account)
