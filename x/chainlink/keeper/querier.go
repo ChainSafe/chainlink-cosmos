@@ -134,9 +134,9 @@ func getFeedInfo(ctx sdk.Context, path []string, keeper Keeper, legacQuerierCdc 
 }
 
 func getAccountInfo(ctx sdk.Context, path []string, keeper Keeper, legacQuerierCdc *codec.LegacyAmino) ([]byte, error) {
-	if len(path) < 1 {
+	if len(path) != 1 {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest,
-			"Insufficient parameters, at least 1 parameters is required")
+			"Incorrect parameters, only 1 parameter is required")
 	}
 
 	accAddrString := path[1]
