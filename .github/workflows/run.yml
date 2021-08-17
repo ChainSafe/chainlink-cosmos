@@ -34,7 +34,7 @@ jobs:
           make install
           make test-feed
 
-  editFeed:
+  Accounts:
     name: "Run Chainlink Accounts CI test"
     strategy:
       matrix:
