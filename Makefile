@@ -56,10 +56,10 @@ test:
 	go test --race ./...
 
 test-addFeed:
-	./scripts/addFeed.sh
+	./scripts/testFeed.sh
 
 test-editFeed:
-	./scripts/editFeed.sh
+	./scripts/testAccount.sh
 
 ###############################################################################
 ###                                   Protobuf                              ###
