@@ -55,10 +55,10 @@ check:
 test:
 	go test --race ./...
 
-test-addFeed:
+test-feed:
 	./scripts/testFeed.sh
 
-test-editFeed:
+test-account:
 	./scripts/testAccount.sh
 
 ###############################################################################

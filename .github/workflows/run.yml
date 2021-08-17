@@ -9,8 +9,8 @@ on:
       - "*"
 
 jobs:
-  addFeed:    
-    name: "Add feed CI test"
+  Feed:    
+    name: "Add and edit feed CI test"
     strategy:
       matrix:
         go-version: [ 1.16.x ]
@@ -32,7 +32,7 @@ jobs:
       - name: Run addFeed test
         run: |
           make install
-          make test-addFeed
+          make test-feed
 
   editFeed:
     name: "Edit feed CI test"
@@ -57,5 +57,5 @@ jobs:
       - name: Run editFeed test
         run: |
           make install
-          make test-editFeed
+          make test-account
 
