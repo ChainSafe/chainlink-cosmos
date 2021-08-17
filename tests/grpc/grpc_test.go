@@ -142,6 +142,8 @@ func (s *GRPCTestSuite) SetupTest() {
 }
 
 // SetupTest using testnet package
+// TODO find a way to have the auth and bank genesis state not overwritten by testnet
+// generateKeyPair and formatKeyPair can be used to generate or format existing key
 func (s *GRPCTestSuite) SetupTestTMP() {
 	s.T().Log("setup test suite")
 
@@ -210,6 +212,7 @@ func (s *GRPCTestSuite) SetupTestTMP() {
 	require.NoError(s.T(), err)
 }
 
+// TODO can use BuildTX from TxFactory
 func (s *GRPCTestSuite) BroadcastTx(ctx context.Context, submitter *testAccount, msgs ...sdk.Msg) *tx.BroadcastTxResponse {
 	txClient := tx.NewServiceClient(s.grpcConn)
 
@@ -238,6 +241,7 @@ func (s *GRPCTestSuite) BroadcastTx(ctx context.Context, submitter *testAccount,
 	return res
 }
 
+// TODO can use BuildTX from TxFactory
 func (s *GRPCTestSuite) Sign(signer *testAccount, txBuilder client.TxBuilder) error {
 	accNum, accSeq, err := s.clientCtx.AccountRetriever.GetAccountNumberSequence(s.clientCtx, signer.Addr)
 	s.Require().NoError(err)
