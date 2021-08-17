@@ -18,6 +18,7 @@ import (
 const (
 	ErrFeedDoesNotExist     = "feed does not exist"
 	ErrSignerIsNotFeedOwner = "account %s (%s) is not a feed owner"
+	ErrDoesNotExist         = "no chainlink account associated with this cosmos address"
 )
 
 func NewAnteHandler(
@@ -48,6 +49,7 @@ func NewAnteHandler(
 			NewFeedDecorator(chainLinkKeeper),
 			NewFeedDataDecorator(chainLinkKeeper),
 			NewValidationDecorator(externalTxDataValidationFunc),
+			NewAccountDecorator(chainLinkKeeper),
 		)
 
 		return anteHandler(ctx, tx, sim)
@@ -276,6 +278,45 @@ func (fd ValidationDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bo
 		switch t := msg.(type) {
 		case *types.MsgFeedData:
 			t.IsFeedDataValid = t.Validate(fd.validationFn)
+		default:
+			continue
+		}
+	}
+
+	return next(ctx, tx, simulate)
+}
+
+type AccountDecorator struct {
+	chainLinkKeeper chainlinkkeeper.Keeper
+}
+
+func NewAccountDecorator(chainLinkKeeper chainlinkkeeper.Keeper) AccountDecorator {
+	return AccountDecorator{
+		chainLinkKeeper: chainLinkKeeper,
+	}
+}
+
+func (fd AccountDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (newCtx sdk.Context, err error) {
+	if len(tx.GetMsgs()) == 0 {
+		return ctx, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "invalid Msg: empty Msg: %T", tx)
+	}
+
+	for _, msg := range tx.GetMsgs() {
+		switch t := msg.(type) {
+		case *types.MsgAccount:
+			println(t)
+			// resp := fd.chainLinkKeeper.GetAccount(ctx, t.Submitter)
+			// println(resp)
+			// if resp.Account == nil {
+			// 	return ctx, sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, ErrDoesNotExist)
+			// }
+		case *types.MsgEditAccount:
+			println(t)
+			// resp := fd.chainLinkKeeper.GetAccount(ctx, t.Submitter)
+			// println(resp)
+			// if resp.Account == nil {
+			// 	return ctx, sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, ErrDoesNotExist)
+			// }
 		default:
 			continue
 		}
