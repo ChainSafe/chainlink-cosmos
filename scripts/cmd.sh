@@ -45,7 +45,7 @@ chainlinkd tx chainlink removeDataProvider feedid1 "$cerloAddr" --from cerlo --k
 # Query feed info by feedId
 chainlinkd query chainlink getFeedInfo feedid1 --chain-id testchain
 
-# Feed ownership transfer by alice to bob
+# Feed ownership transfer by cerlo to bob
 chainlinkd tx chainlink feedOwnershipTransfer feedid1 "$bobAddr" --from cerlo --keyring-backend test --chain-id testchain
 
 # Query feed info by feedId
