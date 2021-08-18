@@ -64,8 +64,8 @@ fi
 # mAkE sUrE bOb AcCoUnT dOeS nOt ExIsT
 echo "getting bob chainlink account information"
 getBobAccountInfo=$(chainlinkd query chainlink getAccountInfo $(chainlinkd keys show bob -a) --from bob --keyring-backend test --chain-id testchain)
-getBobAccountInfoResp=$(echo ${getBobAccountInfo#*\]} | jq '.account.piggyAddress')
-if [ "$getBobAccountInfoResp" != "" ]
+getBobAccountInfoResp=$(echo ${getBobAccountInfo#*\]} | jq '.account.submitter')
+if [ "$getBobAccountInfoResp" != "\"\"" ]
 then
   errorAndExit "Error getting bob's chainlink account: $getBobAccountInfo"
 fi
