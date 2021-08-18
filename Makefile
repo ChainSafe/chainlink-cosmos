@@ -61,6 +61,9 @@ test-addFeed:
 test-editFeed:
 	./scripts/editFeed.sh
 
+test-grpc:
+	./scripts/grpc-integration-tests.sh
+
 ###############################################################################
 ###                                   Protobuf                              ###
 ###############################################################################
