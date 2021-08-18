@@ -13,14 +13,15 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
-	"github.com/grpc-ecosystem/grpc-gateway/v2/utilities"
+	"github.com/golang/protobuf/descriptor"
+	"github.com/golang/protobuf/proto"
+	"github.com/grpc-ecosystem/grpc-gateway/runtime"
+	"github.com/grpc-ecosystem/grpc-gateway/utilities"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/grpclog"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
-	"google.golang.org/protobuf/proto"
 )
 
 // Suppress "imported and not used" errors
@@ -29,6 +30,7 @@ var _ io.Reader
 var _ status.Status
 var _ = runtime.String
 var _ = utilities.NewDoubleArray
+var _ = descriptor.ForMessage
 var _ = metadata.Join
 
 var (
@@ -52,6 +54,7 @@ func request_Query_GetRoundData_0(ctx context.Context, marshaler runtime.Marshal
 	}
 
 	protoReq.RoundId, err = runtime.Uint64(val)
+
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "roundId", err)
 	}
@@ -62,6 +65,7 @@ func request_Query_GetRoundData_0(ctx context.Context, marshaler runtime.Marshal
 	}
 
 	protoReq.FeedId, err = runtime.String(val)
+
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "feedId", err)
 	}
@@ -95,6 +99,7 @@ func local_request_Query_GetRoundData_0(ctx context.Context, marshaler runtime.M
 	}
 
 	protoReq.RoundId, err = runtime.Uint64(val)
+
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "roundId", err)
 	}
@@ -105,6 +110,7 @@ func local_request_Query_GetRoundData_0(ctx context.Context, marshaler runtime.M
 	}
 
 	protoReq.FeedId, err = runtime.String(val)
+
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "feedId", err)
 	}
@@ -138,6 +144,7 @@ func request_Query_LatestRoundData_0(ctx context.Context, marshaler runtime.Mars
 	}
 
 	protoReq.FeedId, err = runtime.String(val)
+
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "feedId", err)
 	}
@@ -164,6 +171,7 @@ func local_request_Query_LatestRoundData_0(ctx context.Context, marshaler runtim
 	}
 
 	protoReq.FeedId, err = runtime.String(val)
+
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "feedId", err)
 	}
@@ -208,6 +216,7 @@ func request_Query_GetFeedByFeedId_0(ctx context.Context, marshaler runtime.Mars
 	}
 
 	protoReq.FeedId, err = runtime.String(val)
+
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "feedId", err)
 	}
@@ -234,6 +243,7 @@ func local_request_Query_GetFeedByFeedId_0(ctx context.Context, marshaler runtim
 	}
 
 	protoReq.FeedId, err = runtime.String(val)
+
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "feedId", err)
 	}
@@ -273,7 +283,7 @@ func RegisterQueryHandlerServer(ctx context.Context, mux *runtime.ServeMux, serv
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainlink.v1beta.Query/GetRoundData")
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -296,7 +306,7 @@ func RegisterQueryHandlerServer(ctx context.Context, mux *runtime.ServeMux, serv
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainlink.v1beta.Query/LatestRoundData")
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -319,7 +329,7 @@ func RegisterQueryHandlerServer(ctx context.Context, mux *runtime.ServeMux, serv
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainlink.v1beta.Query/GetAllModuleOwner")
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -342,7 +352,7 @@ func RegisterQueryHandlerServer(ctx context.Context, mux *runtime.ServeMux, serv
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainlink.v1beta.Query/GetFeedByFeedId")
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -365,7 +375,7 @@ func RegisterQueryHandlerServer(ctx context.Context, mux *runtime.ServeMux, serv
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/chainlink.v1beta.Query/GetFeedRewardAvailStrategy")
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -427,7 +437,7 @@ func RegisterQueryHandlerClient(ctx context.Context, mux *runtime.ServeMux, clie
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/chainlink.v1beta.Query/GetRoundData")
+		rctx, err := runtime.AnnotateContext(ctx, mux, req)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -447,7 +457,7 @@ func RegisterQueryHandlerClient(ctx context.Context, mux *runtime.ServeMux, clie
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/chainlink.v1beta.Query/LatestRoundData")
+		rctx, err := runtime.AnnotateContext(ctx, mux, req)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -467,7 +477,7 @@ func RegisterQueryHandlerClient(ctx context.Context, mux *runtime.ServeMux, clie
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/chainlink.v1beta.Query/GetAllModuleOwner")
+		rctx, err := runtime.AnnotateContext(ctx, mux, req)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -487,7 +497,7 @@ func RegisterQueryHandlerClient(ctx context.Context, mux *runtime.ServeMux, clie
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/chainlink.v1beta.Query/GetFeedByFeedId")
+		rctx, err := runtime.AnnotateContext(ctx, mux, req)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -507,7 +517,7 @@ func RegisterQueryHandlerClient(ctx context.Context, mux *runtime.ServeMux, clie
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/chainlink.v1beta.Query/GetFeedRewardAvailStrategy")
+		rctx, err := runtime.AnnotateContext(ctx, mux, req)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -527,15 +537,15 @@ func RegisterQueryHandlerClient(ctx context.Context, mux *runtime.ServeMux, clie
 }
 
 var (
-	pattern_Query_GetRoundData_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4, 1, 0, 4, 1, 5, 5}, []string{"chainlink", "feed", "data", "round", "roundId", "feedId"}, ""))
+	pattern_Query_GetRoundData_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4, 1, 0, 4, 1, 5, 5}, []string{"chainlink", "feed", "data", "round", "roundId", "feedId"}, "", runtime.AssumeColonVerbOpt(false)))
 
-	pattern_Query_LatestRoundData_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"chainlink", "feed", "data", "latest", "feedId"}, ""))
+	pattern_Query_LatestRoundData_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"chainlink", "feed", "data", "latest", "feedId"}, "", runtime.AssumeColonVerbOpt(false)))
 
-	pattern_Query_GetAllModuleOwner_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"chainlink", "module", "owner"}, ""))
+	pattern_Query_GetAllModuleOwner_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"chainlink", "module", "owner"}, "", runtime.AssumeColonVerbOpt(false)))
 
-	pattern_Query_GetFeedByFeedId_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"chainlink", "module", "feed", "feedId"}, ""))
+	pattern_Query_GetFeedByFeedId_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"chainlink", "module", "feed", "feedId"}, "", runtime.AssumeColonVerbOpt(false)))
 
-	pattern_Query_GetFeedRewardAvailStrategy_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"chainlink", "module", "feed", "reward", "strategy"}, ""))
+	pattern_Query_GetFeedRewardAvailStrategy_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"chainlink", "module", "feed", "reward", "strategy"}, "", runtime.AssumeColonVerbOpt(false)))
 )
 
 var (

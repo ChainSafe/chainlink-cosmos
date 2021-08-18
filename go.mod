@@ -6,9 +6,10 @@ require (
 	github.com/cosmos/cosmos-sdk v0.42.5
 	github.com/ethereum/go-ethereum v1.10.6
 	github.com/gogo/protobuf v1.3.3
+	github.com/golang/protobuf v1.5.2
+	github.com/google/go-cmp v0.5.6 // indirect
 	github.com/gorilla/mux v1.8.0
 	github.com/grpc-ecosystem/grpc-gateway v1.16.0
-	github.com/grpc-ecosystem/grpc-gateway/v2 v2.5.0
 	github.com/onsi/ginkgo v1.16.1 // indirect
 	github.com/onsi/gomega v1.11.0 // indirect
 	github.com/spf13/cast v1.4.0
@@ -21,7 +22,6 @@ require (
 	golang.org/x/sys v0.0.0-20210608053332-aa57babbf139 // indirect
 	google.golang.org/genproto v0.0.0-20210617175327-b9e0b3197ced
 	google.golang.org/grpc v1.39.1
-	google.golang.org/protobuf v1.26.0
 )
 
 replace google.golang.org/grpc => google.golang.org/grpc v1.33.2
