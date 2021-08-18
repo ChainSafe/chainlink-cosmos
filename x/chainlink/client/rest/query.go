@@ -92,7 +92,8 @@ func getFeedInfo(clientCtx client.Context) http.HandlerFunc {
 
 func getFeedRewardAvailStrategy(clientCtx client.Context) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		availStrategies := make([]string, len(types.FeedRewardStrategyConvertor))
+		availStrategies := make([]string, 0, len(types.FeedRewardStrategyConvertor))
+		fmt.Println("AAAA:", len(types.FeedRewardStrategyConvertor))
 		for name := range types.FeedRewardStrategyConvertor {
 			availStrategies = append(availStrategies, name)
 		}

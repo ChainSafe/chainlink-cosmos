@@ -66,7 +66,7 @@ moduleOwnershipTransfer [address] [pubKey]
    For example:`address1,keyKey1,address2,pubKey2`
 
 ```bash
-addFeed [feedId] [feedOwnerAddress] [submissionCount] [heartbeatTrigger] [deviationThresholdTrigger] [initDataProviderList]
+addFeed [feedId] [feedOwnerAddress] [submissionCount] [heartbeatTrigger] [deviationThresholdTrigger] [baseFeedRewardAmount] [feedRewardStrategy] [initDataProviderList]
 ```
 
 #### Query
@@ -130,10 +130,11 @@ setDeviationThresholdTrigger [feedId] [deviationThresholdTrigger]
 6. Set a new data provider reward schema of a feed  
    Can be signed by feed owner only.  
    Currently, the feedReward is a number, the complex reward schema will be enabled later.  
-   `feedReward` is the amount of app native token given to the valid data provider for each round as reward.
+   `baseFeedRewardAmount` is the base amount of app native token given to the valid data provider for each round as reward.
+   `feedRewardStrategy` is the strategy name in effect.
 
 ```bash
-setFeedReward [feedId] [feedReward]
+setFeedReward [feedId] [baseFeedRewardAmount] [feedRewardStrategy]
 ```
 
 7. Feed ownership transfer  
@@ -151,6 +152,12 @@ feedOwnershipTransfer [feedId] [newFeedOwnerAddress]
 getFeedInfo [feedId]
 ```
 
+2. Get available feed reward payout strategy list
+
+```bash
+getFeedRewardAvailStrategy
+```
+
 ### Feed Data Provider
 
 #### Transaction
@@ -159,7 +166,7 @@ getFeedInfo [feedId]
    Only valid data provider(signer of this transaction) is able to submit feed data to particular feed base on feedId.
 
 ```bash
-submitFeedData [feedId] [feedData] [signatures]
+submitFeedData [feedId] [feedData] [signatures] [cosmosPubKeys]
 ```
 
 #### Query
@@ -222,8 +229,8 @@ validation result would be `true` and there is no `MsgFeedDataValidationFailedEv
 ## Register feed reward payout strategy function
 
 Cosmos Chainlink module provides the ability that allows app developers to implement and register the feed reward payout
-strategy functions in `app.go`. This will give the feed owner options to set
-the `feedRewardSchema` when creating a new feed, or changing the `feedReward` parameter during the run time.
+strategy functions in `app.go`. This will give the feed owner options to set the `feedRewardSchema` when creating a new
+feed, or changing the `feedReward` parameter during the run time.
 
 Each strategy function must have a name and the implementation associated when registering. Feed owner gets to pick
 which strategy should be used to calculate the reward for the valid data providers.
@@ -232,26 +239,29 @@ example of registering strategies in `app.go`:
 
 ```go
     rewardStrategies := make(map[string]chainlinktypes.FeedRewardStrategyFunc)
-    rewardStrategies["accuracy"] = calculateByAccuracy
-    rewardStrategies["frequency"] = calculateByFrequency
+rewardStrategies["accuracy"] = calculateByAccuracy
+rewardStrategies["frequency"] = calculateByFrequency
 
-    chainlinktypes.NewFeedRewardStrategyRegister(rewardStrategies)
+chainlinktypes.NewFeedRewardStrategyRegister(rewardStrategies)
 ```
 
 `NewFeedRewardStrategyRegister` takes a `map[string]chainlinktypes.FeedRewardStrategyFunc` as the argument,
 `FeedRewardStrategyFunc` signature as below, it is defined in `x/types/feedRewardStrategy.go`
 
 ```go
-    func(*MsgFeed, *MsgFeedData) []RewardPayout
+    func(*MsgFeed, *MsgFeedData) ([]RewardPayout, error)
 ```
 
-If `nil` is given when registering, no strategy will be available after chain launching, feed owner will not be able to set any strategy in
-effect by issuing tx later. In which case, all the valid data providers will be rewarded by the base amount.   
+If `nil` is given when registering, no strategy will be available after chain launching, feed owner will not be able to
+set any strategy in effect by issuing tx later. In which case, all the valid data providers will be rewarded by the base
+amount.
 
-Feed owner is also able to set the `feedRewardStrategy` of `feedReward` to `nil` by issuing a tx even though there are available strategies registered, in which case, all the
-valid data providers will be rewarded by the base amount as well.
+Feed owner is also able to set the `feedRewardStrategy` of `feedReward` to `nil` by issuing a tx even though there are
+available strategies registered, in which case, all the valid data providers will be rewarded by the base amount as
+well.
 
 Only registered strategies are available for a feed, CLI to query the list of available strategies:
+
 ```bash
 getFeedRewardAvailStrategy
 ```

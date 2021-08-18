@@ -44,7 +44,10 @@ func (s msgServer) SubmitFeedDataTx(c context.Context, msg *types.MsgFeedData) (
 		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidHeight, ErrIncorrectHeightFound)
 	}
 
-	rewardDecision, totalReward := msg.RewardCalculator(s.GetFeed(ctx, msg.FeedId).GetFeed(), msg)
+	rewardDecision, totalReward, err := msg.RewardCalculator(s.GetFeed(ctx, msg.FeedId).GetFeed(), msg)
+	if err != nil {
+		return nil, err
+	}
 
 	// reward distribution
 	err = s.DistributeReward(ctx, msg, rewardDecision, totalReward)

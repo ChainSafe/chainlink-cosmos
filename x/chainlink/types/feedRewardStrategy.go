@@ -6,7 +6,7 @@ type RewardPayout struct {
 	Amount       uint32        `json:"amount"`
 }
 
-type FeedRewardStrategyFunc func(*MsgFeed, *MsgFeedData) []RewardPayout
+type FeedRewardStrategyFunc func(*MsgFeed, *MsgFeedData) ([]RewardPayout, error)
 
 var FeedRewardStrategyConvertor = map[string]FeedRewardStrategyFunc{}
 

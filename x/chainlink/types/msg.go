@@ -98,7 +98,7 @@ func (m *MsgFeedData) Validate(fn func(msg sdk.Msg) bool) bool {
 // RewardCalculator calculates the reward for each data provider in the current submit feed data tx
 // base on the registered reward strategy
 // return the slice of reward payout and the total reward amount
-func (m *MsgFeedData) RewardCalculator(feed *MsgFeed, feedData *MsgFeedData) ([]RewardPayout, uint32) {
+func (m *MsgFeedData) RewardCalculator(feed *MsgFeed, feedData *MsgFeedData) ([]RewardPayout, uint32, error) {
 	// every one gets the base amount if no strategy configured when chain launching
 	// or the owner of the current feed does not set a strategy
 	if len(FeedRewardStrategyConvertor) == 0 || feed.GetFeedReward().GetStrategy() == "" {
@@ -117,20 +117,23 @@ func (m *MsgFeedData) RewardCalculator(feed *MsgFeed, feedData *MsgFeedData) ([]
 			}
 			rewardPayout = append(rewardPayout, rp)
 		}
-		return rewardPayout, feed.GetFeedReward().GetAmount() * uint32(len(feedData.GetSignatures()))
+		return rewardPayout, feed.GetFeedReward().GetAmount() * uint32(len(feedData.GetSignatures())), nil
 	}
 
 	// strategy of a feed here has already been checked in anteHandler when set, ok must be true
 	strategyFn, _ := FeedRewardStrategyConvertor[feed.GetFeedReward().GetStrategy()]
 
-	RewardPayoutList := strategyFn(feed, feedData)
+	RewardPayoutList, err := strategyFn(feed, feedData)
+	if err != nil {
+		return nil, 0, err
+	}
 
 	totalRewardAmount := uint32(0)
 	for _, payout := range RewardPayoutList {
 		totalRewardAmount += payout.Amount
 	}
 
-	return RewardPayoutList, totalRewardAmount
+	return RewardPayoutList, totalRewardAmount, nil
 }
 
 func NewMsgModuleOwner(assigner, address sdk.Address, pubKey []byte) *MsgModuleOwner {
