@@ -6,9 +6,11 @@ import (
 )
 
 func feedRewardSchemaStrategyChecker(strategy string) error {
-	_, ok := types.FeedRewardStrategyConvertor[strategy]
-	if !ok {
-		return sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, "invalid feed reward strategy")
+	if strategy != "" {
+		_, ok := types.FeedRewardStrategyConvertor[strategy]
+		if !ok {
+			return sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, "invalid feed reward strategy")
+		}
 	}
 
 	return nil

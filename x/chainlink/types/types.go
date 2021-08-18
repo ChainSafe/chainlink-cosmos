@@ -50,3 +50,13 @@ func (dp DataProviders) Remove(addr sdk.Address) DataProviders {
 	}
 	return s
 }
+
+// DeriveCosmosAddrFromPubKey derives the cosmos address from Bech32 cosmos pubkey
+func DeriveCosmosAddrFromPubKey(pubKey string) (sdk.AccAddress, error) {
+	bech32PubKey := sdk.MustGetPubKeyFromBech32(sdk.Bech32PubKeyTypeAccPub, pubKey)
+	cosmosAddr, err := sdk.AccAddressFromHex(bech32PubKey.Address().String())
+	if err != nil {
+		return nil, err
+	}
+	return cosmosAddr, nil
+}

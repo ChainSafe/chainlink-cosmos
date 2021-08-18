@@ -36,7 +36,7 @@ var _ sdk.Tx = &MsgModuleOwner{}
 
 var _ Validation = &MsgFeedData{}
 
-func NewMsgFeedData(submitter sdk.Address, feedId string, feedData []byte, signatures [][]byte) *MsgFeedData {
+func NewMsgFeedData(submitter sdk.Address, feedId string, feedData []byte, signatures [][]byte, cosmosPubKeys [][]byte) *MsgFeedData {
 	return &MsgFeedData{
 		FeedId:     feedId,
 		Submitter:  submitter.Bytes(),
@@ -44,6 +44,7 @@ func NewMsgFeedData(submitter sdk.Address, feedId string, feedData []byte, signa
 		Signatures: signatures,
 		// IsFeedDataValid will be true by default
 		IsFeedDataValid: true,
+		CosmosPubKeys:   cosmosPubKeys,
 	}
 }
 
@@ -80,6 +81,10 @@ func (m *MsgFeedData) ValidateBasic() error {
 	if len(m.GetSignatures()) == 0 {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "number of oracle signatures does not meet the required number")
 	}
+	if len(m.Signatures) != len(m.CosmosPubKeys) {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "number of oracle signatures does not match the data provider cosmos pubkey number")
+	}
+
 	return nil
 }
 
@@ -97,11 +102,16 @@ func (m *MsgFeedData) RewardCalculator(feed *MsgFeed, feedData *MsgFeedData) ([]
 	// every one gets the base amount if no strategy configured when chain launching
 	// or the owner of the current feed does not set a strategy
 	if len(FeedRewardStrategyConvertor) == 0 || feed.GetFeedReward().GetStrategy() == "" {
-		rewardPayout := make([]RewardPayout, len(feedData.GetSignatures()))
-		for i := 0; i < len(feedData.GetSigners()); i++ {
+		rewardPayout := make([]RewardPayout, 0, len(feedData.GetCosmosPubKeys()))
+
+		for i := 0; i < len(feedData.GetCosmosPubKeys()); i++ {
+			// err is not possible here since pubkey has been checked in anteHandler
+			cosmosAddr, _ := DeriveCosmosAddrFromPubKey(string(feedData.GetCosmosPubKeys()[i]))
+			dataProviderAddr, _ := sdk.AccAddressFromBech32(cosmosAddr.String())
+
 			rp := RewardPayout{
 				DataProvider: &DataProvider{
-					Address: feedData.GetSigners()[i],
+					Address: dataProviderAddr,
 				},
 				Amount: feed.GetFeedReward().GetAmount(),
 			}

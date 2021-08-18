@@ -393,12 +393,14 @@ func (k Keeper) DistributeReward(ctx sdk.Context, msg *types.MsgFeedData, feedRe
 		return err
 	}
 
-	OraclePaidEvent := &types.MsgOraclePaidEvent{
+	OraclePaidEvent := types.MsgOraclePaidEvent{
 		FeedId: msg.FeedId,
 	}
 
 	// distribute reward to each data provider including submitter
 	for _, payout := range feedRewardDecision {
+		event := OraclePaidEvent
+
 		dataProvider := payout.DataProvider
 		payoutAmount := payout.Amount
 
@@ -414,10 +416,10 @@ func (k Keeper) DistributeReward(ctx sdk.Context, msg *types.MsgFeedData, feedRe
 		}
 
 		// emit OraclePaid event for valid data providers
-		OraclePaidEvent.Account = dataProvider.GetAddress()
-		OraclePaidEvent.Value = uint64(payoutAmount)
+		event.Account = dataProvider.GetAddress()
+		event.Value = uint64(payoutAmount)
 
-		err := types.EmitEvent(OraclePaidEvent, ctx.EventManager())
+		err := types.EmitEvent(&event, ctx.EventManager())
 		if err != nil {
 			k.Logger(ctx).Error(err.Error())
 		}
