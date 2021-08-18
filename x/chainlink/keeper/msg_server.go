@@ -19,7 +19,6 @@ const (
 	FeedParamChangeTypeSubmissionCount    = "SubmissionCount"
 	FeedParamChangeTypeHeartbeat          = "Heartbeat"
 	FeedParamChangeTypeDeviationThreshold = "DeviationThreshold"
-	FeedParamChangeTypeRewardSchema       = "RewardSchema"
 )
 
 type msgServer struct {
@@ -45,10 +44,10 @@ func (s msgServer) SubmitFeedDataTx(c context.Context, msg *types.MsgFeedData) (
 		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidHeight, ErrIncorrectHeightFound)
 	}
 
-	rewardDecision, totalRewardVal := msg.RewardCalculator(s.GetFeed(ctx, msg.FeedId).GetFeed(), msg)
+	rewardDecision, totalReward := msg.RewardCalculator(s.GetFeed(ctx, msg.FeedId).GetFeed(), msg)
 
 	// reward distribution
-	err = s.DistributeReward(ctx, msg, rewardDecision, totalRewardVal)
+	err = s.DistributeReward(ctx, msg, rewardDecision, totalReward)
 	if err != nil {
 		return nil, err
 	}

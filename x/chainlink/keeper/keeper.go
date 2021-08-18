@@ -402,7 +402,7 @@ func (k Keeper) DistributeReward(ctx sdk.Context, msg *types.MsgFeedData, feedRe
 		dataProvider := payout.DataProvider
 		payoutAmount := payout.Amount
 
-		// TODO: compensate tx fee for submitter
+		// TODO: compensate tx fee for submitter here
 		if dataProvider.GetAddress().String() == msg.Submitter.String() {
 			payoutAmount += uint32(0)
 		}
@@ -455,4 +455,15 @@ func (k Keeper) RequestNewRound(ctx sdk.Context, requestNewRound *types.MsgReque
 	}
 
 	return ctx.BlockHeight(), ctx.TxBytes(), nil
+}
+
+func (k Keeper) GetRegisteredFeedRewardStrategies(_ sdk.Context) *types.GetFeedRewardAvailStrategiesResponse {
+	availStrategies := make([]string, len(types.FeedRewardStrategyConvertor))
+	for name := range types.FeedRewardStrategyConvertor {
+		availStrategies = append(availStrategies, name)
+	}
+
+	return &types.GetFeedRewardAvailStrategiesResponse{
+		AvailStrategies: availStrategies,
+	}
 }

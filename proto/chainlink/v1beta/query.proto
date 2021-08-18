@@ -22,6 +22,9 @@ service Query {
   rpc GetFeedByFeedId(GetFeedByIdRequest) returns (GetFeedByIdResponse) {
     option (google.api.http).get = "/chainlink/module/feed/{feedId}";
   }
+  rpc GetFeedRewardAvailStrategy(GetFeedRewardAvailStrategiesRequest) returns (GetFeedRewardAvailStrategiesResponse) {
+    option (google.api.http).get = "/chainlink/module/feed/reward/strategy";
+  }
 }
 
 message GetFeedByIdRequest {
@@ -61,4 +64,11 @@ message GetLatestRoundDataResponse {
 message RoundData {
   string feedId = 1;
   OCRAbiEncoded feedData = 2;
+}
+
+message GetFeedRewardAvailStrategiesRequest {
+}
+
+message GetFeedRewardAvailStrategiesResponse {
+  repeated string availStrategies = 1;
 }

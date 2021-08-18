@@ -90,11 +90,13 @@ func (m *MsgFeedData) Validate(fn func(msg sdk.Msg) bool) bool {
 	return fn(m)
 }
 
+// RewardCalculator calculates the reward for each data provider in the current submit feed data tx
+// base on the registered reward strategy
+// return the slice of reward payout and the total reward amount
 func (m *MsgFeedData) RewardCalculator(feed *MsgFeed, feedData *MsgFeedData) ([]RewardPayout, uint32) {
-	// no strategy configured when chain launching
+	// every one gets the base amount if no strategy configured when chain launching
 	// or the owner of the current feed does not set a strategy
-	// so every one gets base amount
-	if len(feedRewardStrategyConvertor) == 0 || feed.GetFeedReward().GetStrategy() == "" {
+	if len(FeedRewardStrategyConvertor) == 0 || feed.GetFeedReward().GetStrategy() == "" {
 		rewardPayout := make([]RewardPayout, len(feedData.GetSignatures()))
 		for i := 0; i < len(feedData.GetSigners()); i++ {
 			rp := RewardPayout{
@@ -108,11 +110,8 @@ func (m *MsgFeedData) RewardCalculator(feed *MsgFeed, feedData *MsgFeedData) ([]
 		return rewardPayout, feed.GetFeedReward().GetAmount() * uint32(len(feedData.GetSignatures()))
 	}
 
-	// TODO: strategy checking should be in antehandler, it checks if strategy configured in feed has an associated func
-	strategyFn, ok := feedRewardStrategyConvertor[feed.GetFeedReward().GetStrategy()]
-	if !ok {
-		// this should never happen
-	}
+	// strategy of a feed here has already been checked in anteHandler when set, ok must be true
+	strategyFn, _ := FeedRewardStrategyConvertor[feed.GetFeedReward().GetStrategy()]
 
 	RewardPayoutList := strategyFn(feed, feedData)
 

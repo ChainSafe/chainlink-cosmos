@@ -63,7 +63,7 @@ message FeedRewardSchema {
   // amount is not allowed to be zero
   uint32 amount = 1;
   // reward strategy name, must be a registered strategy
-  // strategy is allowed to be empty, in which case every data provider will be rewarded the same amount token
+  // this is allowed to be empty, in which case every data provider will be rewarded the same amount token
   string strategy = 2;
 }
 

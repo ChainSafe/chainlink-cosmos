@@ -218,7 +218,7 @@ type FeedRewardSchema struct {
 	// amount is not allowed to be zero
 	Amount uint32 `protobuf:"varint,1,opt,name=amount,proto3" json:"amount,omitempty"`
 	// reward strategy name, must be a registered strategy
-	// strategy is allowed to be empty, in which case every data provider will be rewarded the same amount token
+	// this is allowed to be empty, in which case every data provider will be rewarded the same amount token
 	Strategy string `protobuf:"bytes,2,opt,name=strategy,proto3" json:"strategy,omitempty"`
 }
 
