@@ -96,8 +96,8 @@ type MsgModuleOwnerTestSuite struct {
 	suite.Suite
 	assignerAddress          sdk.AccAddress
 	assignerPublicKey        []byte
-	newModOwnerAddress       sdk.AccAddress
-	newModOwnerPublicKey     []byte
+	newModuleOwnerAddress    sdk.AccAddress
+	newModuleOwnerPublicKey  []byte
 	invalidModOwnerAddress   sdk.AccAddress
 	invalidModOwnerPublicKey []byte
 }
@@ -113,8 +113,8 @@ func (ts *MsgModuleOwnerTestSuite) SetupTest() {
 	ts.assignerPublicKey = []byte(pubkey)
 
 	_, pubkey, addr = GenerateAccount()
-	ts.newModOwnerAddress = addr
-	ts.newModOwnerPublicKey = []byte(pubkey)
+	ts.newModuleOwnerAddress = addr
+	ts.newModuleOwnerPublicKey = []byte(pubkey)
 
 	_, pubkey, addr = GenerateAccount()
 	ts.invalidModOwnerAddress = addr
@@ -124,8 +124,8 @@ func (ts *MsgModuleOwnerTestSuite) SetupTest() {
 func (ts *MsgModuleOwnerTestSuite) TestMsgModuleOwnerConstructor() {
 	msg := NewMsgModuleOwner(
 		ts.assignerAddress,
-		ts.newModOwnerAddress,
-		ts.newModOwnerPublicKey,
+		ts.newModuleOwnerAddress,
+		ts.newModuleOwnerPublicKey,
 	)
 
 	bz := ModuleCdc.MustMarshalJSON(msg)
@@ -135,6 +135,7 @@ func (ts *MsgModuleOwnerTestSuite) TestMsgModuleOwnerConstructor() {
 	ts.Require().Equal(msg.Type(), AddModuleOwner)
 	ts.Require().Equal(msg.GetSigners(), []sdk.AccAddress{ts.assignerAddress})
 	ts.Require().Equal(msg.GetSignBytes(), signedBytes)
+	ts.Require().Equal(msg.GetMsgs(), []sdk.Msg{msg})
 }
 
 func (ts *MsgModuleOwnerTestSuite) TestMsgModuleOwnerValidateBasic() {
@@ -145,8 +146,8 @@ func (ts *MsgModuleOwnerTestSuite) TestMsgModuleOwnerValidateBasic() {
 		publicKey   []byte
 		expPass     bool
 	}{
-		{description: "MsgModuleOwnerTestSuite: passing case - all valid values", assigner: ts.assignerAddress, address: ts.newModOwnerAddress, publicKey: []byte(ts.newModOwnerPublicKey), expPass: true},
-		{description: "MsgModuleOwnerTestSuite: failing case - address and publicKey does not match", assigner: ts.assignerAddress, address: ts.newModOwnerAddress, publicKey: ts.invalidModOwnerPublicKey, expPass: false},
+		{description: "MsgModuleOwnerTestSuite: passing case - all valid values", assigner: ts.assignerAddress, address: ts.newModuleOwnerAddress, publicKey: []byte(ts.newModuleOwnerPublicKey), expPass: true},
+		{description: "MsgModuleOwnerTestSuite: failing case - address and publicKey does not match", assigner: ts.assignerAddress, address: ts.newModuleOwnerAddress, publicKey: ts.invalidModOwnerPublicKey, expPass: false},
 	}
 
 	for i, tc := range testCases {
@@ -155,7 +156,80 @@ func (ts *MsgModuleOwnerTestSuite) TestMsgModuleOwnerValidateBasic() {
 			tc.address,
 			tc.publicKey,
 		)
+		err := msg.ValidateBasic()
 
+		if tc.expPass {
+			ts.Require().NoError(err, "valid test %d failed: %s, %v", i, tc.description)
+		} else {
+			ts.Require().Error(err, "invalid test %d passed: %s, %v", i, tc.description)
+		}
+	}
+}
+
+type MsgModuleOwnershipTransferTestSuite struct {
+	suite.Suite
+	assignerAddress          sdk.AccAddress
+	assignerPublicKey        []byte
+	newModuleOwnerAddress    sdk.AccAddress
+	newModuleOwnerPublicKey  []byte
+	invalidModOwnerAddress   sdk.AccAddress
+	invalidModOwnerPublicKey []byte
+}
+
+func TestMsgModuleOwnershipTransferTestSuite(t *testing.T) {
+	suite.Run(t, new(MsgModuleOwnershipTransferTestSuite))
+}
+
+func (ts *MsgModuleOwnershipTransferTestSuite) SetupTest() {
+	// assigner is a different account than the address + publicKey
+	_, pubkey, addr := GenerateAccount()
+	ts.assignerAddress = addr
+	ts.assignerPublicKey = []byte(pubkey)
+
+	_, pubkey, addr = GenerateAccount()
+	ts.newModuleOwnerAddress = addr
+	ts.newModuleOwnerPublicKey = []byte(pubkey)
+
+	_, pubkey, addr = GenerateAccount()
+	ts.invalidModOwnerAddress = addr
+	ts.invalidModOwnerPublicKey = []byte(pubkey)
+}
+
+func (ts *MsgModuleOwnershipTransferTestSuite) TestMsgModuleOwnershipTransferConstructor() {
+	msg := NewMsgModuleOwnershipTransfer(
+		ts.assignerAddress,
+		ts.newModuleOwnerAddress,
+		ts.newModuleOwnerPublicKey,
+	)
+
+	bz := ModuleCdc.MustMarshalJSON(msg)
+	signedBytes := sdk.MustSortJSON(bz)
+
+	ts.Require().Equal(msg.Route(), RouterKey)
+	ts.Require().Equal(msg.Type(), ModuleOwnershipTransfer)
+	ts.Require().Equal(msg.GetSigners(), []sdk.AccAddress{ts.assignerAddress})
+	ts.Require().Equal(msg.GetSignBytes(), signedBytes)
+}
+
+func (ts *MsgModuleOwnershipTransferTestSuite) TestMsgModuleOwnershipTransferValidateBasic() {
+	testCases := []struct {
+		description string
+		assigner    sdk.AccAddress
+		address     sdk.AccAddress
+		publicKey   []byte
+		expPass     bool
+	}{
+		{description: "MsgModuleOwnershipTransferTestSuite: passing case - all valid values", assigner: ts.assignerAddress, address: ts.newModuleOwnerAddress, publicKey: []byte(ts.newModuleOwnerPublicKey), expPass: true},
+		{description: "MsgModuleOwnershipTransferTestSuite: failing case - assigner address is empty", assigner: nil, address: ts.newModuleOwnerAddress, publicKey: ts.invalidModOwnerPublicKey, expPass: false},
+		{description: "MsgModuleOwnershipTransferTestSuite: failing case - address and publicKey does not match", assigner: ts.assignerAddress, address: ts.newModuleOwnerAddress, publicKey: ts.invalidModOwnerPublicKey, expPass: false},
+	}
+
+	for i, tc := range testCases {
+		msg := NewMsgModuleOwner(
+			tc.assigner,
+			tc.address,
+			tc.publicKey,
+		)
 		err := msg.ValidateBasic()
 
 		if tc.expPass {
