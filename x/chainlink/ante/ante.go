@@ -18,6 +18,7 @@ import (
 const (
 	ErrFeedDoesNotExist     = "feed does not exist"
 	ErrSignerIsNotFeedOwner = "account %s (%s) is not a feed owner"
+	ErrAccountAlreadyExists = "there is already a chainlink account associated with this cosmos address"
 	ErrDoesNotExist         = "no chainlink account associated with this cosmos address"
 )
 
@@ -304,19 +305,19 @@ func (fd AccountDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool,
 	for _, msg := range tx.GetMsgs() {
 		switch t := msg.(type) {
 		case *types.MsgAccount:
-			println(t)
-			// resp := fd.chainLinkKeeper.GetAccount(ctx, t.Submitter)
-			// println(resp)
-			// if resp.Account == nil {
-			// 	return ctx, sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, ErrDoesNotExist)
-			// }
+			// case to add a new chainlink account to the Account Store
+			req := &types.GetAccountRequest{AccountAddress: t.Submitter}
+			resp := fd.chainLinkKeeper.GetAccount(ctx, req)
+			if resp.Account.Submitter.String() != "" {
+				return ctx, sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, ErrAccountAlreadyExists)
+			}
+		// case to edit an existing chainlink account in the Account Store
 		case *types.MsgEditAccount:
-			println(t)
-			// resp := fd.chainLinkKeeper.GetAccount(ctx, t.Submitter)
-			// println(resp)
-			// if resp.Account == nil {
-			// 	return ctx, sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, ErrDoesNotExist)
-			// }
+			req := &types.GetAccountRequest{AccountAddress: t.Submitter}
+			resp := fd.chainLinkKeeper.GetAccount(ctx, req)
+			if resp.Account.Submitter.String() == "" {
+				return ctx, sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, ErrDoesNotExist)
+			}
 		default:
 			continue
 		}
