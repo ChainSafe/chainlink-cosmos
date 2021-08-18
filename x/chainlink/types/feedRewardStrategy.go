@@ -1,3 +1,6 @@
+// Copyright 2021 ChainSafe Systems
+// SPDX-License-Identifier: MIT
+
 package types
 
 // RewardPayout describes the calculated reward that data provider gets after the selected strategy applied
