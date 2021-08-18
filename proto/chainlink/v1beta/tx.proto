@@ -54,6 +54,8 @@ message MsgFeed {
   bytes moduleOwnerAddress = 7 [(gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"];
   // TODO: RewardConfig: Struct describing how rewards should be paid
   uint32 feedReward = 8;
+  // Feed description
+  string desc = 9;
 }
 
 // DataProvider is the type defined for feed data provider
@@ -145,6 +147,8 @@ message MsgFeedData {
   bytes feedData = 3;
   // Signatures is the data provider signature list of the current round
   repeated bytes signatures = 4;
+  // isFeedDataValid is the indicator whether feed data is valid against the external validation func, it's true by default
+  bool isFeedDataValid = 5;
 }
 
 // MsgRequestNewRound is the type defined for requesting new rounds to be triggered for a given feed
