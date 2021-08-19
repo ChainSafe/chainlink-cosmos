@@ -484,9 +484,21 @@ func (k Keeper) AddAccount(ctx sdk.Context, acc *types.MsgAccount) (int64, []byt
 
 func (k Keeper) EditAccount(ctx sdk.Context, acc *types.MsgEditAccount) (int64, []byte, error) {
 	accStore := ctx.KVStore(k.accountStoreKey)
+	accSubmitter := acc.Submitter.String()
+	accountBytes := accStore.Get(types.GetAccountKey(accSubmitter))
 
-	a := k.cdc.MustMarshalBinaryBare(acc)
+	var account types.MsgAccount
+	k.cdc.MustUnmarshalBinaryBare(accountBytes, &account)
 
+	// submitters must match
+	if acc.Submitter.String() != account.Submitter.String() {
+		return 0, []byte{}, fmt.Errorf("submitter does not match")
+	}
+
+	// overwrite the piggy address
+	account.PiggyAddress = acc.PiggyAddress
+
+	a := k.cdc.MustMarshalBinaryBare(&account)
 	accStore.Set(types.GetAccountKey(acc.GetSubmitter().String()), a)
 
 	return ctx.BlockHeight(), ctx.TxBytes(), nil

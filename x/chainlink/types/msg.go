@@ -553,7 +553,7 @@ func (m *MsgAccount) Type() string {
 
 func (m *MsgAccount) ValidateBasic() error {
 	if m.GetSubmitter().Empty() {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, "signer can not be empty")
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, "submitter can not be empty")
 	}
 	if len(m.GetChainlinkPublicKey()) == 0 {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "chainlink public key can not be empty")
@@ -562,7 +562,7 @@ func (m *MsgAccount) ValidateBasic() error {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "chainlink signing key can not be empty")
 	}
 	if m.GetPiggyAddress().Empty() {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, "signer can not be empty")
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, "piggy address can not be empty")
 	}
 
 	return nil
@@ -594,10 +594,10 @@ func (m *MsgEditAccount) Type() string {
 
 func (m *MsgEditAccount) ValidateBasic() error {
 	if m.GetSubmitter().Empty() {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, "signer can not be empty")
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, "submitter can not be empty")
 	}
 	if m.GetPiggyAddress().Empty() {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, "signer can not be empty")
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, "piggy address can not be empty")
 	}
 
 	return nil
