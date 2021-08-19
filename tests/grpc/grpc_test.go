@@ -6,7 +6,6 @@ package grpc
 import (
 	"context"
 	"errors"
-	"fmt"
 	"os"
 	"path/filepath"
 	"testing"
@@ -479,7 +478,6 @@ func (s *GRPCTestSuite) TestIntegration() {
 	}
 	s.Require().NoError(submitFeedDataTx.ValidateBasic())
 	submitFeedDataResponse := s.BroadcastTx(ctx, bob, submitFeedDataTx)
-	fmt.Printf("%+v\n", submitFeedDataResponse.TxResponse)
 	s.Require().EqualValues(0, submitFeedDataResponse.TxResponse.Code)
 
 	getRoundDataResponse, err := queryClient.GetRoundData(ctx, &types.GetRoundDataRequest{FeedId: feedId, RoundId: 1})
