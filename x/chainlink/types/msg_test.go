@@ -67,12 +67,54 @@ func (ts *MsgFeedDataTestSuite) TestMsgFeedDataValidateBasic() {
 		signatures  [][]byte
 		expPass     bool
 	}{
-		{description: "MsgFeedDataTestSuite: passing case - all valid values", submitter: ts.submitter, feedId: ts.feedId, feedData: ts.feedData, signatures: ts.signatures, expPass: true},
-		{description: "MsgFeedDataTestSuite: failing case - empty submitter", submitter: nil, feedId: ts.feedId, feedData: ts.feedData, signatures: ts.signatures, expPass: false},
-		{description: "MsgFeedDataTestSuite: failing case - empty feedId", submitter: ts.submitter, feedId: "", feedData: ts.feedData, signatures: ts.signatures, expPass: false},
-		{description: "MsgFeedDataTestSuite: failing case - invalid feedId format", submitter: ts.submitter, feedId: "BAD/FEED/ID", feedData: ts.feedData, signatures: ts.signatures, expPass: false},
-		{description: "MsgFeedDataTestSuite: failing case - empty feedData", submitter: ts.submitter, feedId: ts.feedId, feedData: nil, signatures: ts.signatures, expPass: false},
-		{description: "MsgFeedDataTestSuite: failing case - empty signatures", submitter: ts.submitter, feedId: ts.feedId, feedData: ts.feedData, signatures: [][]byte{}, expPass: false},
+		{
+			description: "MsgFeedDataTestSuite: passing case - all valid values",
+			submitter:   ts.submitter,
+			feedId:      ts.feedId,
+			feedData:    ts.feedData,
+			signatures:  ts.signatures,
+			expPass:     true,
+		},
+		{
+			description: "MsgFeedDataTestSuite: failing case - empty submitter",
+			submitter:   nil,
+			feedId:      ts.feedId,
+			feedData:    ts.feedData,
+			signatures:  ts.signatures,
+			expPass:     false,
+		},
+		{
+			description: "MsgFeedDataTestSuite: failing case - empty feedId",
+			submitter:   ts.submitter,
+			feedId:      "",
+			feedData:    ts.feedData,
+			signatures:  ts.signatures,
+			expPass:     false,
+		},
+		{
+			description: "MsgFeedDataTestSuite: failing case - invalid feedId format",
+			submitter:   ts.submitter,
+			feedId:      "BAD/FEED/ID",
+			feedData:    ts.feedData,
+			signatures:  ts.signatures,
+			expPass:     false,
+		},
+		{
+			description: "MsgFeedDataTestSuite: failing case - empty feedData",
+			submitter:   ts.submitter,
+			feedId:      ts.feedId,
+			feedData:    nil,
+			signatures:  ts.signatures,
+			expPass:     false,
+		},
+		{
+			description: "MsgFeedDataTestSuite: failing case - empty signatures",
+			submitter:   ts.submitter,
+			feedId:      ts.feedId,
+			feedData:    ts.feedData,
+			signatures:  [][]byte{},
+			expPass:     false,
+		},
 	}
 
 	for i, tc := range testCases {
@@ -146,8 +188,20 @@ func (ts *MsgModuleOwnerTestSuite) TestMsgModuleOwnerValidateBasic() {
 		publicKey   []byte
 		expPass     bool
 	}{
-		{description: "MsgModuleOwnerTestSuite: passing case - all valid values", assigner: ts.assignerAddress, address: ts.newModuleOwnerAddress, publicKey: []byte(ts.newModuleOwnerPublicKey), expPass: true},
-		{description: "MsgModuleOwnerTestSuite: failing case - address and publicKey does not match", assigner: ts.assignerAddress, address: ts.newModuleOwnerAddress, publicKey: ts.invalidModOwnerPublicKey, expPass: false},
+		{
+			description: "MsgModuleOwnerTestSuite: passing case - all valid values",
+			assigner:    ts.assignerAddress,
+			address:     ts.newModuleOwnerAddress,
+			publicKey:   []byte(ts.newModuleOwnerPublicKey),
+			expPass:     true,
+		},
+		{
+			description: "MsgModuleOwnerTestSuite: failing case - address and publicKey does not match",
+			assigner:    ts.assignerAddress,
+			address:     ts.newModuleOwnerAddress,
+			publicKey:   ts.invalidModOwnerPublicKey,
+			expPass:     false,
+		},
 	}
 
 	for i, tc := range testCases {
@@ -168,12 +222,12 @@ func (ts *MsgModuleOwnerTestSuite) TestMsgModuleOwnerValidateBasic() {
 
 type MsgModuleOwnershipTransferTestSuite struct {
 	suite.Suite
-	assignerAddress          sdk.AccAddress
-	assignerPublicKey        []byte
-	newModuleOwnerAddress    sdk.AccAddress
-	newModuleOwnerPublicKey  []byte
-	invalidModOwnerAddress   sdk.AccAddress
-	invalidModOwnerPublicKey []byte
+	assignerAddress             sdk.AccAddress
+	assignerPublicKey           []byte
+	newModuleOwnerAddress       sdk.AccAddress
+	newModuleOwnerPublicKey     []byte
+	invalidModuleOwnerAddress   sdk.AccAddress
+	invalidModuleOwnerPublicKey []byte
 }
 
 func TestMsgModuleOwnershipTransferTestSuite(t *testing.T) {
@@ -191,8 +245,8 @@ func (ts *MsgModuleOwnershipTransferTestSuite) SetupTest() {
 	ts.newModuleOwnerPublicKey = []byte(pubkey)
 
 	_, pubkey, addr = GenerateAccount()
-	ts.invalidModOwnerAddress = addr
-	ts.invalidModOwnerPublicKey = []byte(pubkey)
+	ts.invalidModuleOwnerAddress = addr
+	ts.invalidModuleOwnerPublicKey = []byte(pubkey)
 }
 
 func (ts *MsgModuleOwnershipTransferTestSuite) TestMsgModuleOwnershipTransferConstructor() {
@@ -219,9 +273,27 @@ func (ts *MsgModuleOwnershipTransferTestSuite) TestMsgModuleOwnershipTransferVal
 		publicKey   []byte
 		expPass     bool
 	}{
-		{description: "MsgModuleOwnershipTransferTestSuite: passing case - all valid values", assigner: ts.assignerAddress, address: ts.newModuleOwnerAddress, publicKey: []byte(ts.newModuleOwnerPublicKey), expPass: true},
-		{description: "MsgModuleOwnershipTransferTestSuite: failing case - assigner address is empty", assigner: nil, address: ts.newModuleOwnerAddress, publicKey: ts.invalidModOwnerPublicKey, expPass: false},
-		{description: "MsgModuleOwnershipTransferTestSuite: failing case - address and publicKey does not match", assigner: ts.assignerAddress, address: ts.newModuleOwnerAddress, publicKey: ts.invalidModOwnerPublicKey, expPass: false},
+		{
+			description: "MsgModuleOwnershipTransferTestSuite: passing case - all valid values",
+			assigner:    ts.assignerAddress,
+			address:     ts.newModuleOwnerAddress,
+			publicKey:   []byte(ts.newModuleOwnerPublicKey),
+			expPass:     true,
+		},
+		{
+			description: "MsgModuleOwnershipTransferTestSuite: failing case - assigner address is empty",
+			assigner:    nil,
+			address:     ts.newModuleOwnerAddress,
+			publicKey:   ts.invalidModuleOwnerPublicKey,
+			expPass:     false,
+		},
+		{
+			description: "MsgModuleOwnershipTransferTestSuite: failing case - address and publicKey does not match",
+			assigner:    ts.assignerAddress,
+			address:     ts.newModuleOwnerAddress,
+			publicKey:   ts.invalidModuleOwnerPublicKey,
+			expPass:     false,
+		},
 	}
 
 	for i, tc := range testCases {
@@ -238,4 +310,153 @@ func (ts *MsgModuleOwnershipTransferTestSuite) TestMsgModuleOwnershipTransferVal
 			ts.Require().Error(err, "invalid test %d passed: %s, %v", i, tc.description)
 		}
 	}
+}
+
+type MsgFeedTestSuite struct {
+	suite.Suite
+	feedOwner     sdk.AccAddress
+	moduleOwner   sdk.AccAddress
+	dataProviders []*DataProvider
+}
+
+func TestMsgFeedTestSuite(t *testing.T) {
+	suite.Run(t, new(MsgFeedTestSuite))
+}
+
+func (ts *MsgFeedTestSuite) SetupTest() {
+	_, _, feedOwnerAddr := GenerateAccount()
+	ts.feedOwner = feedOwnerAddr
+
+	_, _, moduleOwnerAddr := GenerateAccount()
+	ts.moduleOwner = moduleOwnerAddr
+
+	_, dpPubkey, dpAddr := GenerateAccount()
+	dp := &DataProvider{
+		Address: dpAddr,
+		PubKey:  []byte(dpPubkey),
+	}
+
+	var dps []*DataProvider
+	dps = append(dps, dp)
+	ts.dataProviders = dps
+}
+
+func (ts *MsgFeedTestSuite) MsgFeedConstructor() {
+	feedId := "feedId1"
+	desc := "feedDesc1"
+	submissionCount := uint32(1)
+	heartbeatTrigger := uint32(2)
+	deviationThresholdTrigger := uint32(3)
+	feedReward := uint32(4)
+
+	msg := NewMsgFeed(
+		feedId,
+		desc,
+		ts.feedOwner,
+		ts.moduleOwner,
+		ts.dataProviders,
+		submissionCount,
+		heartbeatTrigger,
+		deviationThresholdTrigger,
+		feedReward,
+	)
+
+	bz := ModuleCdc.MustMarshalJSON(msg)
+	signedBytes := sdk.MustSortJSON(bz)
+
+	ts.Require().Equal(msg.Route(), RouterKey)
+	ts.Require().Equal(msg.Type(), AddFeed)
+	ts.Require().Equal(msg.GetSigners(), []sdk.AccAddress{ts.moduleOwner})
+	ts.Require().Equal(msg.GetSignBytes(), signedBytes)
+}
+
+func (ts *MsgFeedTestSuite) TestMsgFeedValidateBasic() {
+	testCases := []struct {
+		description               string
+		feedId                    string
+		desc                      string
+		feedOwner                 sdk.AccAddress
+		moduleOwner               sdk.AccAddress
+		dataProviders             []*DataProvider
+		submissionCount           uint32
+		heartbeatTrigger          uint32
+		deviationThresholdTrigger uint32
+		feedReward                uint32
+		expPass                   bool
+	}{
+		{
+			description:               "MsgFeedTestSuite: passing case - all valid values",
+			feedId:                    "feed1",
+			desc:                      "feedDescription1",
+			feedOwner:                 ts.feedOwner,
+			moduleOwner:               ts.moduleOwner,
+			dataProviders:             ts.dataProviders,
+			submissionCount:           uint32(1),
+			heartbeatTrigger:          uint32(2),
+			deviationThresholdTrigger: uint32(3),
+			feedReward:                uint32(4),
+			expPass:                   true,
+		},
+		{
+			description:               "MsgFeedTestSuite: failing case - empty feed owner",
+			feedId:                    "feed1",
+			desc:                      "feedDescription1",
+			feedOwner:                 nil,
+			moduleOwner:               ts.moduleOwner,
+			dataProviders:             ts.dataProviders,
+			submissionCount:           uint32(1),
+			heartbeatTrigger:          uint32(2),
+			deviationThresholdTrigger: uint32(3),
+			feedReward:                uint32(4),
+			expPass:                   false,
+		},
+		{
+			description:               "MsgFeedTestSuite: failing case - empty module owner",
+			feedId:                    "feed1",
+			desc:                      "feedDescription1",
+			feedOwner:                 ts.feedOwner,
+			moduleOwner:               nil,
+			dataProviders:             ts.dataProviders,
+			submissionCount:           uint32(1),
+			heartbeatTrigger:          uint32(2),
+			deviationThresholdTrigger: uint32(3),
+			feedReward:                uint32(4),
+			expPass:                   false,
+		},
+		{
+			description:               "MsgFeedTestSuite: failing case - empty data providers",
+			feedId:                    "feed1",
+			desc:                      "feedDescription1",
+			feedOwner:                 ts.feedOwner,
+			moduleOwner:               ts.moduleOwner,
+			dataProviders:             nil,
+			submissionCount:           uint32(1),
+			heartbeatTrigger:          uint32(2),
+			deviationThresholdTrigger: uint32(3),
+			feedReward:                uint32(4),
+			expPass:                   false,
+		},
+	}
+
+	for i, tc := range testCases {
+		msg := NewMsgFeed(
+			tc.feedId,
+			tc.desc,
+			tc.feedOwner,
+			tc.moduleOwner,
+			tc.dataProviders,
+			tc.submissionCount,
+			tc.heartbeatTrigger,
+			tc.deviationThresholdTrigger,
+			tc.feedReward,
+		)
+		err := msg.ValidateBasic()
+
+		if tc.expPass {
+			ts.Require().NoError(err, "valid test %d failed: %s, %v", i, tc.description)
+		} else {
+			ts.Require().Error(err, "invalid test %d passed: %s, %v", i, tc.description)
+		}
+	}
+
 }
