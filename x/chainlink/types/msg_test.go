@@ -386,7 +386,7 @@ func (ts *MsgFeedTestSuite) TestMsgFeedValidateBasic() {
 	}{
 		{
 			description:               "MsgFeedTestSuite: passing case - all valid values",
-			feedId:                    "feed1",
+			feedId:                    "feedId1",
 			desc:                      "feedDescription1",
 			feedOwner:                 ts.feedOwner,
 			moduleOwner:               ts.moduleOwner,
@@ -399,7 +399,7 @@ func (ts *MsgFeedTestSuite) TestMsgFeedValidateBasic() {
 		},
 		{
 			description:               "MsgFeedTestSuite: failing case - empty feed owner",
-			feedId:                    "feed1",
+			feedId:                    "feedId1",
 			desc:                      "feedDescription1",
 			feedOwner:                 nil,
 			moduleOwner:               ts.moduleOwner,
@@ -412,7 +412,7 @@ func (ts *MsgFeedTestSuite) TestMsgFeedValidateBasic() {
 		},
 		{
 			description:               "MsgFeedTestSuite: failing case - empty module owner",
-			feedId:                    "feed1",
+			feedId:                    "feedId1",
 			desc:                      "feedDescription1",
 			feedOwner:                 ts.feedOwner,
 			moduleOwner:               nil,
@@ -425,7 +425,7 @@ func (ts *MsgFeedTestSuite) TestMsgFeedValidateBasic() {
 		},
 		{
 			description:               "MsgFeedTestSuite: failing case - empty data providers",
-			feedId:                    "feed1",
+			feedId:                    "feedId1",
 			desc:                      "feedDescription1",
 			feedOwner:                 ts.feedOwner,
 			moduleOwner:               ts.moduleOwner,
@@ -458,5 +458,102 @@ func (ts *MsgFeedTestSuite) TestMsgFeedValidateBasic() {
 			ts.Require().Error(err, "invalid test %d passed: %s, %v", i, tc.description)
 		}
 	}
+}
 
+type MsgAddDataProviderTestSuite struct {
+	suite.Suite
+	signer              sdk.AccAddress
+	validDataProvider   *DataProvider
+	invalidDataProvider *DataProvider
+}
+
+func TestMsgAddDataProviderTestSuite(t *testing.T) {
+	suite.Run(t, new(MsgAddDataProviderTestSuite))
+}
+
+func (ts *MsgAddDataProviderTestSuite) SetupTest() {
+	_, dpPubkey, dpAddr := GenerateAccount()
+	vdp := &DataProvider{
+		Address: dpAddr,
+		PubKey:  []byte(dpPubkey),
+	}
+
+	ts.validDataProvider = vdp
+
+	_, dpPubkey, _ = GenerateAccount()
+	_, _, dpAddr = GenerateAccount()
+
+	idp := &DataProvider{
+		Address: dpAddr,
+		PubKey:  []byte(dpPubkey),
+	}
+
+	ts.invalidDataProvider = idp
+
+	_, _, signerAddr := GenerateAccount()
+	ts.signer = signerAddr
+}
+
+func (ts *MsgAddDataProviderTestSuite) MsgAddDataProviderConstructor() {
+
+	msg := NewMsgAddDataProvider(
+		ts.signer,
+		"feedId1",
+		ts.validDataProvider,
+	)
+
+	bz := ModuleCdc.MustMarshalJSON(msg)
+	signedBytes := sdk.MustSortJSON(bz)
+
+	ts.Require().Equal(msg.Route(), RouterKey)
+	ts.Require().Equal(msg.Type(), AddDataProvider)
+	ts.Require().Equal(msg.GetSigners(), []sdk.AccAddress{ts.signer})
+	ts.Require().Equal(msg.GetSignBytes(), signedBytes)
+}
+
+func (ts *MsgAddDataProviderTestSuite) TestMsgAddDataProviderValidateBasic() {
+	testCases := []struct {
+		description  string
+		feedId       string
+		signer       sdk.AccAddress
+		dataProvider *DataProvider
+		expPass      bool
+	}{
+		{
+			description:  "MsgAddDataProviderTestSuite: passing case - all valid values",
+			feedId:       "feedId1",
+			signer:       ts.signer,
+			dataProvider: ts.validDataProvider,
+			expPass:      true,
+		},
+		{
+			description:  "MsgAddDataProviderTestSuite: failing case - invalid feedId",
+			feedId:       "",
+			signer:       ts.signer,
+			dataProvider: ts.validDataProvider,
+			expPass:      false,
+		},
+		{
+			description:  "MsgAddDataProviderTestSuite: failing case - data provider address and pubKey does not match",
+			feedId:       "feedId1",
+			signer:       ts.signer,
+			dataProvider: ts.invalidDataProvider,
+			expPass:      false,
+		},
+	}
+
+	for i, tc := range testCases {
+		msg := NewMsgAddDataProvider(
+			tc.signer,
+			tc.feedId,
+			tc.dataProvider,
+		)
+		err := msg.ValidateBasic()
+
+		if tc.expPass {
+			ts.Require().NoError(err, "valid test %d failed: %s, %v", i, tc.description)
+		} else {
+			ts.Require().Error(err, "invalid test %d passed: %s, %v", i, tc.description)
+		}
+	}
 }
