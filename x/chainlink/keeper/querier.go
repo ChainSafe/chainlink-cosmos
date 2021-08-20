@@ -4,12 +4,13 @@
 package keeper
 
 import (
+	"strconv"
+
 	"github.com/ChainSafe/chainlink-cosmos/x/chainlink/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/types/query"
-	"strconv"
 
 	abci "github.com/tendermint/tendermint/abci/types"
 )
