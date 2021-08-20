@@ -4,7 +4,6 @@
 package keeper
 
 import (
-	"bytes"
 	"fmt"
 	"strconv"
 
@@ -490,11 +489,6 @@ func (k Keeper) EditAccount(ctx sdk.Context, acc *types.MsgEditAccount) (int64, 
 
 	var account types.MsgAccount
 	k.cdc.MustUnmarshalBinaryBare(accountBytes, &account)
-
-	// submitters must match
-	if bytes.Equal(acc.Submitter.Bytes(), account.Submitter.Bytes()) {
-		return 0, []byte{}, fmt.Errorf("submitter address does not match")
-	}
 
 	// overwrite the piggy address
 	account.PiggyAddress = acc.PiggyAddress

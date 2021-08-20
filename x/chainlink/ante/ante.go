@@ -4,6 +4,8 @@
 package ante
 
 import (
+	"bytes"
+
 	chainlinkkeeper "github.com/ChainSafe/chainlink-cosmos/x/chainlink/keeper"
 	"github.com/ChainSafe/chainlink-cosmos/x/chainlink/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -16,10 +18,11 @@ import (
 )
 
 const (
-	ErrFeedDoesNotExist     = "feed does not exist"
-	ErrSignerIsNotFeedOwner = "account %s (%s) is not a feed owner"
-	ErrAccountAlreadyExists = "there is already a chainlink account associated with this cosmos address"
-	ErrDoesNotExist         = "no chainlink account associated with this cosmos address"
+	ErrFeedDoesNotExist      = "feed does not exist"
+	ErrSignerIsNotFeedOwner  = "account %s (%s) is not a feed owner"
+	ErrAccountAlreadyExists  = "there is already a chainlink account associated with this cosmos address"
+	ErrDoesNotExist          = "no chainlink account associated with this cosmos address"
+	ErrSubmitterDoesNotMatch = "submitter address does not match"
 )
 
 func NewAnteHandler(
@@ -314,9 +317,13 @@ func (fd AccountDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool,
 		// case to edit an existing chainlink account in the Account Store
 		case *types.MsgEditAccount:
 			req := &types.GetAccountRequest{AccountAddress: t.Submitter}
+			// submitters must match
 			resp := fd.chainLinkKeeper.GetAccount(ctx, req)
 			if resp.Account.Submitter.String() == "" {
 				return ctx, sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, ErrDoesNotExist)
+			}
+			if bytes.Equal(t.Submitter.Bytes(), resp.Account.Submitter.Bytes()) {
+				return ctx, sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, ErrSubmitterDoesNotMatch)
 			}
 		default:
 			continue
