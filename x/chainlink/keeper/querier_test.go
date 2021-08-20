@@ -12,6 +12,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
 )
@@ -23,16 +24,18 @@ func TestQuerier_GetRoundFeedData(t *testing.T) {
 	roundStore := ctx.KVStore(keeper.roundStoreKey)
 
 	testCases := []struct {
-		feedId    string
-		roundId   uint64
-		feedData  []byte
-		submitter []byte
-		insert    bool
+		feedId          string
+		roundId         uint64
+		feedData        []byte
+		submitter       sdk.AccAddress
+		signature       [][]byte
+		isFeedDataValid bool
+		insert          bool
 	}{
-		{feedId: "feed1", roundId: 100, feedData: []byte{'a', 'b', 'c'}, submitter: []byte("addressMock1"), insert: true},
-		{feedId: "feed1", roundId: 200, feedData: []byte{'d', 'e', 'f'}, submitter: []byte("addressMock2"), insert: true},
-		{feedId: "feed1", roundId: 300, feedData: []byte{'g', 'h', 'i'}, submitter: []byte("addressMock3"), insert: false},
-		{feedId: "feed2", roundId: 400, feedData: []byte{'j', 'k', 'l'}, submitter: []byte("addressMock4"), insert: false},
+		{feedId: "feed1", roundId: 100, feedData: []byte{'a', 'b', 'c'}, submitter: sdk.AccAddress("addressMock1"), signature: [][]byte{{'a', 'b'}, {'c', 'd'}}, isFeedDataValid: true, insert: true},
+		{feedId: "feed1", roundId: 200, feedData: []byte{'d', 'e', 'f'}, submitter: sdk.AccAddress("addressMock2"), signature: [][]byte{{'e', 'f'}, {'g', 'h'}}, isFeedDataValid: false, insert: true},
+		{feedId: "feed1", roundId: 300, feedData: []byte{'g', 'h', 'i'}, submitter: sdk.AccAddress("addressMock3"), signature: [][]byte{{'i', 'j'}, {'k', 'l'}}, isFeedDataValid: true, insert: false},
+		{feedId: "feed2", roundId: 400, feedData: []byte{'j', 'k', 'l'}, submitter: sdk.AccAddress("addressMock4"), signature: [][]byte{{'m', 'n'}, {'o', 'p'}}, isFeedDataValid: false, insert: false},
 	}
 
 	// Add all feed cases to store
@@ -44,9 +47,11 @@ func TestQuerier_GetRoundFeedData(t *testing.T) {
 		roundStore.Set(types.GetRoundIdKey(tc.feedId), i64tob(tc.roundId-1))
 
 		msgFeedData := types.MsgFeedData{
-			FeedId:    tc.feedId,
-			FeedData:  tc.feedData,
-			Submitter: tc.submitter,
+			FeedId:          tc.feedId,
+			FeedData:        tc.feedData,
+			Submitter:       tc.submitter,
+			Signatures:      tc.signature,
+			IsFeedDataValid: tc.isFeedDataValid,
 		}
 
 		_, _, err := keeper.SetFeedData(ctx, &msgFeedData)
@@ -68,7 +73,9 @@ func TestQuerier_GetRoundFeedData(t *testing.T) {
 				require.Equal(t, 1, len(roundDataResponse.GetRoundData()))
 				require.Equal(t, tc.feedId, roundDataResponse.GetRoundData()[0].GetFeedId())
 				require.Equal(t, strconv.FormatUint(tc.roundId, 10), string(roundDataResponse.GetRoundData()[0].GetFeedData().GetContext()))
-				require.Equal(t, tc.submitter, roundDataResponse.GetRoundData()[0].GetFeedData().GetOracles())
+				require.Equal(t, tc.submitter.Bytes(), roundDataResponse.GetRoundData()[0].GetFeedData().GetOracles())
+
+				// TODO if tc.isFeedDataValid is true, check if event is emitted with correct signature
 
 				observations := roundDataResponse.GetRoundData()[0].GetFeedData().GetObservations()
 				for i := 0; i < len(tc.feedData); i++ {
@@ -88,18 +95,20 @@ func TestQuerier_LatestRoundFeedData(t *testing.T) {
 	roundStore := ctx.KVStore(keeper.roundStoreKey)
 
 	testCases := []struct {
-		feedId    string
-		roundId   uint64
-		expected  uint64
-		feedData  []byte
-		submitter []byte
-		insert    bool
+		feedId          string
+		roundId         uint64
+		expected        uint64
+		feedData        []byte
+		submitter       []byte
+		signature       [][]byte
+		isFeedDataValid bool
+		insert          bool
 	}{
-		{feedId: "feed1", roundId: 100, expected: 100, feedData: []byte{'a', 'b', 'c'}, submitter: []byte("addressMock1"), insert: true},
-		{feedId: "feed1", roundId: 200, expected: 200, feedData: []byte{'d', 'e', 'f'}, submitter: []byte("addressMock2"), insert: true},
-		{feedId: "feed1", roundId: 300, expected: 200, feedData: []byte{'g', 'h', 'i'}, submitter: []byte("addressMock3"), insert: false},
-		{feedId: "feed2", roundId: 400, expected: 000, feedData: []byte{'j', 'k', 'l'}, submitter: []byte("addressMock4"), insert: false},
-		{feedId: "feed3", roundId: 500, expected: 500, feedData: []byte{'m', 'n', 'o'}, submitter: []byte("addressMock5"), insert: true},
+		{feedId: "feed1", roundId: 100, expected: 100, feedData: []byte{'a', 'b', 'c'}, submitter: sdk.AccAddress("addressMock1"), signature: [][]byte{{'a', 'b'}, {'c', 'd'}}, isFeedDataValid: true, insert: true},
+		{feedId: "feed1", roundId: 200, expected: 200, feedData: []byte{'d', 'e', 'f'}, submitter: sdk.AccAddress("addressMock2"), signature: [][]byte{{'e', 'f'}, {'g', 'h'}}, isFeedDataValid: false, insert: true},
+		{feedId: "feed1", roundId: 300, expected: 200, feedData: []byte{'g', 'h', 'i'}, submitter: sdk.AccAddress("addressMock3"), signature: [][]byte{{'i', 'j'}, {'k', 'l'}}, isFeedDataValid: true, insert: false},
+		{feedId: "feed2", roundId: 400, expected: 000, feedData: []byte{'j', 'k', 'l'}, submitter: sdk.AccAddress("addressMock4"), signature: [][]byte{{'m', 'n'}, {'o', 'p'}}, isFeedDataValid: false, insert: false},
+		{feedId: "feed3", roundId: 500, expected: 500, feedData: []byte{'m', 'n', 'o'}, submitter: sdk.AccAddress("addressMock5"), signature: [][]byte{{'q', 'r'}, {'s', 't'}}, isFeedDataValid: true, insert: true},
 	}
 
 	// Add all feed cases to store and try retrieve the latest round
@@ -111,9 +120,11 @@ func TestQuerier_LatestRoundFeedData(t *testing.T) {
 				roundStore.Set(types.GetRoundIdKey(tc.feedId), i64tob(tc.roundId-1))
 
 				msgFeedData := types.MsgFeedData{
-					FeedId:    tc.feedId,
-					FeedData:  tc.feedData,
-					Submitter: tc.submitter,
+					FeedId:          tc.feedId,
+					FeedData:        tc.feedData,
+					Submitter:       tc.submitter,
+					Signatures:      tc.signature,
+					IsFeedDataValid: tc.isFeedDataValid,
 				}
 
 				_, _, err := keeper.SetFeedData(ctx, &msgFeedData)
@@ -132,6 +143,8 @@ func TestQuerier_LatestRoundFeedData(t *testing.T) {
 				require.Equal(t, 1, len(roundDataResponse.GetRoundData()))
 				require.Equal(t, tc.feedId, roundDataResponse.GetRoundData()[0].GetFeedId())
 				require.Equal(t, strconv.FormatUint(tc.expected, 10), string(roundDataResponse.GetRoundData()[0].GetFeedData().GetContext()))
+
+				// TODO if tc.isFeedDataValid is true, check if event is emitted with correct signature
 			} else {
 				require.Equal(t, 0, len(roundDataResponse.GetRoundData()))
 			}
@@ -263,5 +276,75 @@ func TestQuerier_GetModuleOwners(t *testing.T) {
 			require.Equal(t, len(tc.expected), len(moduleOwner.GetModuleOwner()))
 		})
 
+	}
+}
+
+func TestQuerier_Fail(t *testing.T) {
+	keeper, ctx := setupKeeper(t)
+	amino := codec.NewLegacyAmino()
+	querier := NewQuerier(*keeper, amino)
+
+	testCases := []struct {
+		name           string
+		path           []string
+		expectedErr    error
+		expectedResult []byte
+	}{
+		{
+			name:           "QueryFeedInfo: missing feed id",
+			path:           []string{types.QueryFeedInfo},
+			expectedErr:    sdkerrors.ErrInvalidRequest,
+			expectedResult: nil,
+		},
+		{
+			name:           "QueryFeedInfo: unknown feed id",
+			path:           []string{types.QueryFeedInfo, "unknownFeedId"},
+			expectedErr:    sdkerrors.ErrKeyNotFound,
+			expectedResult: nil,
+		},
+		{
+			name:           "QueryRoundFeedData: missing round id and feed id",
+			path:           []string{types.QueryRoundFeedData},
+			expectedErr:    sdkerrors.ErrInvalidRequest,
+			expectedResult: nil,
+		},
+		{
+			name:           "QueryRoundFeedData: non-string round id",
+			path:           []string{types.QueryRoundFeedData, "roundIdString", "feedId"},
+			expectedErr:    strconv.ErrSyntax,
+			expectedResult: nil,
+		},
+		{
+			name:           "QueryRoundFeedData: unknown round id and feed id",
+			path:           []string{types.QueryRoundFeedData, "999", "unknownFeedId"},
+			expectedErr:    nil, // return no error, just empty pagination result
+			expectedResult: []byte("{\n  \"pagination\": {}\n}"),
+		},
+		{
+			name:           "QueryLatestFeedData: missing feed id",
+			path:           []string{types.QueryLatestFeedData},
+			expectedErr:    sdkerrors.ErrInvalidRequest,
+			expectedResult: nil,
+		},
+		{
+			name:           "QueryLatestFeedData: unknown feed id",
+			path:           []string{types.QueryLatestFeedData, "unknownFeedId"},
+			expectedErr:    nil, // return no error, just empty result
+			expectedResult: []byte("{}"),
+		},
+		{
+			name:           "QueryModuleOwner: no module owner set",
+			path:           []string{types.QueryModuleOwner},
+			expectedErr:    nil,
+			expectedResult: []byte("{}"),
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			result, err := querier(ctx, tc.path, abci.RequestQuery{})
+			require.ErrorIs(t, err, tc.expectedErr)
+			require.Equal(t, tc.expectedResult, result)
+		})
 	}
 }
