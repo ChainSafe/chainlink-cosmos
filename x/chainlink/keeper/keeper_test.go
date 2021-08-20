@@ -74,9 +74,7 @@ func TestFeedKeyStructure(t *testing.T) {
 			}
 
 			_, _, err := k.SetFeedData(ctx, &feedData)
-			if err != nil {
-				t.Fatal(err)
-			}
+			require.NoError(t, err)
 		}
 	}
 
@@ -131,9 +129,7 @@ func TestKeeper_SetFeedData(t *testing.T) {
 			}
 
 			_, _, err := k.SetFeedData(ctx, &msgFeedData)
-			if err != nil {
-				t.Fatal(err)
-			}
+			require.NoError(t, err)
 
 			roundId := roundStore.Get(types.GetRoundIdKey(tc.feedId))
 			require.Equal(t, i64tob(tc.roundId), roundId)
@@ -179,9 +175,7 @@ func TestKeeper_GetRoundFeedDataByFilter(t *testing.T) {
 		}
 
 		_, _, err := k.SetFeedData(ctx, &msgFeedData)
-		if err != nil {
-			t.Fatal(err)
-		}
+		require.NoError(t, err)
 	}
 
 	// Retrieve feed data
@@ -249,15 +243,12 @@ func TestKeeper_GetLatestRoundFeedDataByFilter(t *testing.T) {
 				}
 
 				_, _, err := k.SetFeedData(ctx, &msgFeedData)
-				if err != nil {
-					t.Fatal(err)
-				}
+				require.NoError(t, err)
 			}
 
 			resp, err := k.GetLatestRoundFeedDataByFilter(ctx, &types.GetLatestRoundDataRequest{
 				FeedId: tc.feedId,
 			})
-
 			require.NoError(t, err)
 
 			roundData := resp.GetRoundData()
