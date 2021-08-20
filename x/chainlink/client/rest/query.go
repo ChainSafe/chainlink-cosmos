@@ -97,7 +97,7 @@ func getFeedRewardAvailStrategy(clientCtx client.Context) http.HandlerFunc {
 			availStrategies = append(availStrategies, name)
 		}
 
-		_, height, err := clientCtx.QueryWithData(fmt.Sprintf("custom/%s/%s", types.QuerierRoute, types.QueryModuleOwner), nil)
+		_, height, err := clientCtx.QueryWithData(fmt.Sprintf("custom/%s/%s", types.QuerierRoute, types.QueryFeedRewardStrategy), nil)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusNotFound, err.Error())
 			return
