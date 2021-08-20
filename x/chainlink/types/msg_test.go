@@ -495,7 +495,6 @@ func (ts *MsgAddDataProviderTestSuite) SetupTest() {
 }
 
 func (ts *MsgAddDataProviderTestSuite) MsgAddDataProviderConstructor() {
-
 	msg := NewMsgAddDataProvider(
 		ts.signer,
 		"feedId1",
@@ -547,6 +546,87 @@ func (ts *MsgAddDataProviderTestSuite) TestMsgAddDataProviderValidateBasic() {
 			tc.signer,
 			tc.feedId,
 			tc.dataProvider,
+		)
+		err := msg.ValidateBasic()
+
+		if tc.expPass {
+			ts.Require().NoError(err, "valid test %d failed: %s, %v", i, tc.description)
+		} else {
+			ts.Require().Error(err, "invalid test %d passed: %s, %v", i, tc.description)
+		}
+	}
+}
+
+type MsgRemoveDataProviderTestSuite struct {
+	suite.Suite
+	signer  sdk.AccAddress
+	address sdk.AccAddress
+}
+
+func TestMsgRemoveDataProviderTestSuite(t *testing.T) {
+	suite.Run(t, new(MsgRemoveDataProviderTestSuite))
+}
+
+func (ts *MsgRemoveDataProviderTestSuite) SetupTest() {
+	_, _, signerAddr := GenerateAccount()
+	ts.signer = signerAddr
+
+	_, _, validAddr := GenerateAccount()
+	ts.address = validAddr
+}
+
+func (ts *MsgRemoveDataProviderTestSuite) MsgRemoveDataProviderConstructor() {
+	msg := NewMsgRemoveDataProvider(
+		ts.signer,
+		"feedId1",
+		ts.address,
+	)
+
+	bz := ModuleCdc.MustMarshalJSON(msg)
+	signedBytes := sdk.MustSortJSON(bz)
+
+	ts.Require().Equal(msg.Route(), RouterKey)
+	ts.Require().Equal(msg.Type(), AddDataProvider)
+	ts.Require().Equal(msg.GetSigners(), []sdk.AccAddress{ts.signer})
+	ts.Require().Equal(msg.GetSignBytes(), signedBytes)
+}
+
+func (ts *MsgRemoveDataProviderTestSuite) TestMsgRemoveDataProviderValidateBasic() {
+	testCases := []struct {
+		description string
+		feedId      string
+		signer      sdk.AccAddress
+		address     sdk.AccAddress
+		expPass     bool
+	}{
+		{
+			description: "MsgAddDataProviderTestSuite: passing case - all valid values",
+			feedId:      "feedId1",
+			signer:      ts.signer,
+			address:     ts.address,
+			expPass:     true,
+		},
+		{
+			description: "MsgAddDataProviderTestSuite: failing case - invalid feedId",
+			feedId:      "",
+			signer:      ts.signer,
+			address:     ts.address,
+			expPass:     false,
+		},
+		{
+			description: "MsgAddDataProviderTestSuite: failing case - data provider address is empty",
+			feedId:      "feedId1",
+			signer:      ts.signer,
+			address:     nil,
+			expPass:     false,
+		},
+	}
+
+	for i, tc := range testCases {
+		msg := NewMsgRemoveDataProvider(
+			tc.signer,
+			tc.feedId,
+			tc.address,
 		)
 		err := msg.ValidateBasic()
 
