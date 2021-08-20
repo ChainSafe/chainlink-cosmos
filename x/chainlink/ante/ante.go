@@ -322,7 +322,7 @@ func (fd AccountDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool,
 			if resp.Account.Submitter.String() == "" {
 				return ctx, sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, ErrDoesNotExist)
 			}
-			if bytes.Equal(t.Submitter.Bytes(), resp.Account.Submitter.Bytes()) {
+			if !bytes.Equal(t.Submitter.Bytes(), resp.Account.Submitter.Bytes()) {
 				return ctx, sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, ErrSubmitterDoesNotMatch)
 			}
 		default:
