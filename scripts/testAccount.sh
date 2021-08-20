@@ -36,7 +36,7 @@ echo "added alice account successfully..."
 
 # gEt AlIcE cHaInLiNk AcCoUnT iNfO
 echo "getting alice chainlink account information"
-getAliceAccountInfo=$(chainlinkd query chainlink getAccountInfo $(chainlinkd keys show alice -a) --from alice --keyring-backend test --chain-id testchain)
+getAliceAccountInfo=$(chainlinkd query chainlink getAccountInfo $aliceAddr --from alice --keyring-backend test --chain-id testchain)
 
 aliceSubmitterAddress=$(echo "$getAliceAccountInfo" | jq '.account.submitter')
 if [ "$aliceSubmitterAddress" != "\"$aliceAddr\"" ]
@@ -65,7 +65,7 @@ echo "got alice account info successfully..."
 
 # mAkE sUrE bOb AcCoUnT dOeS nOt ExIsT
 echo "getting bob chainlink account information"
-getBobAccountInfo=$(chainlinkd query chainlink getAccountInfo $(chainlinkd keys show bob -a) --from bob --keyring-backend test --chain-id testchain)
+getBobAccountInfo=$(chainlinkd query chainlink getAccountInfo $bobAddr --from bob --keyring-backend test --chain-id testchain)
 getBobAccountInfoResp=$(echo ${getBobAccountInfo#*\]} | jq '.account.submitter')
 if [ "$getBobAccountInfoResp" != "\"\"" ]
 then
@@ -86,10 +86,10 @@ echo "blocked repeat account successfully..."
 
 # eDiT aLiCe PiGgY aDdReSs tO bOb'S aDdReSs
 echo "edit alice piggy address"
-editAlicePiggyAddressTx=$(chainlinkd tx chainlink edit-piggy-address $(chainlinkd keys show bob -a) --from alice --keyring-backend test --chain-id testchain <<< 'y\n')
+editAlicePiggyAddressTx=$(chainlinkd tx chainlink edit-piggy-address $bobAddr --from alice --keyring-backend test --chain-id testchain <<< 'y\n')
 
 # gEt AlIcE cHaInLiNk AcCoUnT iNfO
-echo "getting alice chainlink account information"
+echo "getting alice chainlink account information again"
 getAliceAccountInfo=$(chainlinkd query chainlink getAccountInfo $(chainlinkd keys show alice -a) --from alice --keyring-backend test --chain-id testchain)
 
 aliceSubmitterAddress=$(echo "$getAliceAccountInfo" | jq '.account.submitter')

@@ -10,7 +10,7 @@ on:
 
 jobs:
   Feed:    
-    name: "Run Feed CI test"
+    name: "Feed CI test"
     strategy:
       matrix:
         go-version: [ 1.16.x ]
@@ -35,7 +35,7 @@ jobs:
           make test-feed
 
   Accounts:
-    name: "Run Chainlink Accounts CI test"
+    name: "Accounts CI test"
     strategy:
       matrix:
         go-version: [ 1.16.x ]
@@ -54,7 +54,7 @@ jobs:
           key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-go-
-      - name: Run editFeed test
+      - name: Run Account test
         run: |
           make install
           make test-account
