@@ -586,7 +586,7 @@ func (ts *MsgRemoveDataProviderTestSuite) MsgRemoveDataProviderConstructor() {
 	signedBytes := sdk.MustSortJSON(bz)
 
 	ts.Require().Equal(msg.Route(), RouterKey)
-	ts.Require().Equal(msg.Type(), AddDataProvider)
+	ts.Require().Equal(msg.Type(), RemoveDataProvider)
 	ts.Require().Equal(msg.GetSigners(), []sdk.AccAddress{ts.signer})
 	ts.Require().Equal(msg.GetSignBytes(), signedBytes)
 }
@@ -740,7 +740,7 @@ func (ts *MsgSetHeartbeatTriggerTestSuite) MsgSetHeartbeatTriggerConstructor() {
 	signedBytes := sdk.MustSortJSON(bz)
 
 	ts.Require().Equal(msg.Route(), RouterKey)
-	ts.Require().Equal(msg.Type(), SetSubmissionCount)
+	ts.Require().Equal(msg.Type(), SetHeartbeatTrigger)
 	ts.Require().Equal(msg.GetSigners(), []sdk.AccAddress{ts.signer})
 	ts.Require().Equal(msg.GetSignBytes(), signedBytes)
 }
@@ -817,7 +817,7 @@ func (ts *MsgSetDeviationThresholdTestSuite) MsgSetDeviationThresholdConstructor
 	signedBytes := sdk.MustSortJSON(bz)
 
 	ts.Require().Equal(msg.Route(), RouterKey)
-	ts.Require().Equal(msg.Type(), SetSubmissionCount)
+	ts.Require().Equal(msg.Type(), SetDeviationThresholdTrigger)
 	ts.Require().Equal(msg.GetSigners(), []sdk.AccAddress{ts.signer})
 	ts.Require().Equal(msg.GetSignBytes(), signedBytes)
 }
@@ -894,7 +894,7 @@ func (ts *MsgSetFeedRewardTestSuite) MsgSetFeedRewardConstructor() {
 	signedBytes := sdk.MustSortJSON(bz)
 
 	ts.Require().Equal(msg.Route(), RouterKey)
-	ts.Require().Equal(msg.Type(), SetSubmissionCount)
+	ts.Require().Equal(msg.Type(), SetFeedReward)
 	ts.Require().Equal(msg.GetSigners(), []sdk.AccAddress{ts.signer})
 	ts.Require().Equal(msg.GetSignBytes(), signedBytes)
 }
@@ -935,6 +935,87 @@ func (ts *MsgSetFeedRewardTestSuite) MsgSetFeedRewardValidateBasic() {
 			tc.signer,
 			tc.feedId,
 			tc.feedReward,
+		)
+		err := msg.ValidateBasic()
+
+		if tc.expPass {
+			ts.Require().NoError(err, "valid test %d failed: %s, %v", i, tc.description)
+		} else {
+			ts.Require().Error(err, "invalid test %d passed: %s, %v", i, tc.description)
+		}
+	}
+}
+
+type MsgFeedOwnershipTransferTestSuite struct {
+	suite.Suite
+	signer       sdk.AccAddress
+	newFeedOwner sdk.AccAddress
+}
+
+func TestMsgFeedOwnershipTransferTestSuite(t *testing.T) {
+	suite.Run(t, new(MsgFeedOwnershipTransferTestSuite))
+}
+
+func (ts *MsgFeedOwnershipTransferTestSuite) SetupTest() {
+	_, _, signerAddr := GenerateAccount()
+	ts.signer = signerAddr
+
+	_, _, newFeedOwnerAddr := GenerateAccount()
+	ts.newFeedOwner = newFeedOwnerAddr
+}
+
+func (ts *MsgFeedOwnershipTransferTestSuite) MsgFeedOwnershipTransferConstructor() {
+	msg := NewMsgFeedOwnershipTransfer(
+		ts.signer,
+		"feedId1",
+		ts.newFeedOwner,
+	)
+
+	bz := ModuleCdc.MustMarshalJSON(msg)
+	signedBytes := sdk.MustSortJSON(bz)
+
+	ts.Require().Equal(msg.Route(), RouterKey)
+	ts.Require().Equal(msg.Type(), FeedOwnershipTransfer)
+	ts.Require().Equal(msg.GetSigners(), []sdk.AccAddress{ts.signer})
+	ts.Require().Equal(msg.GetSignBytes(), signedBytes)
+}
+
+func (ts *MsgFeedOwnershipTransferTestSuite) MsgFeedOwnershipTransferValidateBasic() {
+	testCases := []struct {
+		description  string
+		feedId       string
+		signer       sdk.AccAddress
+		newFeedOwner sdk.AccAddress
+		expPass      bool
+	}{
+		{
+			description:  "MsgFeedOwnershipTransferTestSuite: passing case - all valid values",
+			feedId:       "feedId1",
+			signer:       ts.signer,
+			newFeedOwner: ts.newFeedOwner,
+			expPass:      true,
+		},
+		{
+			description:  "MsgFeedOwnershipTransferTestSuite: failing case - signer can not be empty",
+			feedId:       "feedId1",
+			signer:       nil,
+			newFeedOwner: ts.newFeedOwner,
+			expPass:      false,
+		},
+		{
+			description:  "MsgFeedOwnershipTransferTestSuite: failing case - feedId can not be empty",
+			feedId:       "",
+			signer:       ts.signer,
+			newFeedOwner: ts.newFeedOwner,
+			expPass:      false,
+		},
+	}
+
+	for i, tc := range testCases {
+		msg := NewMsgFeedOwnershipTransfer(
+			tc.signer,
+			tc.feedId,
+			tc.newFeedOwner,
 		)
 		err := msg.ValidateBasic()
 
