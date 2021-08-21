@@ -637,3 +637,311 @@ func (ts *MsgRemoveDataProviderTestSuite) TestMsgRemoveDataProviderValidateBasic
 		}
 	}
 }
+
+type MsgSetSubmissionCountTestSuite struct {
+	suite.Suite
+	signer sdk.AccAddress
+}
+
+func TestMsgSetSubmissionCountTestSuite(t *testing.T) {
+	suite.Run(t, new(MsgSetSubmissionCountTestSuite))
+}
+
+func (ts *MsgSetSubmissionCountTestSuite) SetupTest() {
+	_, _, signerAddr := GenerateAccount()
+	ts.signer = signerAddr
+}
+
+func (ts *MsgSetSubmissionCountTestSuite) MsgSetSubmissionCountConstructor() {
+	msg := NewMsgSetSubmissionCount(
+		ts.signer,
+		"feedId1",
+		uint32(1),
+	)
+
+	bz := ModuleCdc.MustMarshalJSON(msg)
+	signedBytes := sdk.MustSortJSON(bz)
+
+	ts.Require().Equal(msg.Route(), RouterKey)
+	ts.Require().Equal(msg.Type(), SetSubmissionCount)
+	ts.Require().Equal(msg.GetSigners(), []sdk.AccAddress{ts.signer})
+	ts.Require().Equal(msg.GetSignBytes(), signedBytes)
+}
+
+func (ts *MsgSetSubmissionCountTestSuite) MsgSetSubmissionCountValidateBasic() {
+	testCases := []struct {
+		description     string
+		feedId          string
+		submissionCount uint32
+		signer          sdk.AccAddress
+		expPass         bool
+	}{
+		{
+			description:     "MsgSetSubmissionCountTestSuite: passing case - all valid values",
+			feedId:          "feedId1",
+			signer:          ts.signer,
+			submissionCount: uint32(1),
+			expPass:         true,
+		},
+		{
+			description:     "MsgSetSubmissionCountTestSuite: failing case - invalid feedId",
+			feedId:          "",
+			signer:          ts.signer,
+			submissionCount: uint32(1),
+			expPass:         false,
+		},
+		{
+			description:     "MsgSetSubmissionCountTestSuite: failing case - submissionCount must not be 0",
+			feedId:          "feedId1",
+			signer:          ts.signer,
+			submissionCount: uint32(0),
+			expPass:         false,
+		},
+	}
+
+	for i, tc := range testCases {
+		msg := NewMsgSetSubmissionCount(
+			tc.signer,
+			tc.feedId,
+			tc.submissionCount,
+		)
+		err := msg.ValidateBasic()
+
+		if tc.expPass {
+			ts.Require().NoError(err, "valid test %d failed: %s, %v", i, tc.description)
+		} else {
+			ts.Require().Error(err, "invalid test %d passed: %s, %v", i, tc.description)
+		}
+	}
+}
+
+type MsgSetHeartbeatTriggerTestSuite struct {
+	suite.Suite
+	signer sdk.AccAddress
+}
+
+func TestMsgSetHeartbeatTriggerTestSuite(t *testing.T) {
+	suite.Run(t, new(MsgSetHeartbeatTriggerTestSuite))
+}
+
+func (ts *MsgSetHeartbeatTriggerTestSuite) SetupTest() {
+	_, _, signerAddr := GenerateAccount()
+	ts.signer = signerAddr
+}
+
+func (ts *MsgSetHeartbeatTriggerTestSuite) MsgSetHeartbeatTriggerConstructor() {
+	msg := NewMsgSetHeartbeatTrigger(
+		ts.signer,
+		"feedId1",
+		uint32(1),
+	)
+
+	bz := ModuleCdc.MustMarshalJSON(msg)
+	signedBytes := sdk.MustSortJSON(bz)
+
+	ts.Require().Equal(msg.Route(), RouterKey)
+	ts.Require().Equal(msg.Type(), SetSubmissionCount)
+	ts.Require().Equal(msg.GetSigners(), []sdk.AccAddress{ts.signer})
+	ts.Require().Equal(msg.GetSignBytes(), signedBytes)
+}
+
+func (ts *MsgSetHeartbeatTriggerTestSuite) MsgSetHeartbeatTriggeralidateBasic() {
+	testCases := []struct {
+		description      string
+		feedId           string
+		heartbeatTrigger uint32
+		signer           sdk.AccAddress
+		expPass          bool
+	}{
+		{
+			description:      "MsgSetHeartbeatTriggerTestSuite: passing case - all valid values",
+			feedId:           "feedId1",
+			signer:           ts.signer,
+			heartbeatTrigger: uint32(1),
+			expPass:          true,
+		},
+		{
+			description:      "MsgSetHeartbeatTriggerTestSuite: failing case - invalid feedId",
+			feedId:           "",
+			signer:           ts.signer,
+			heartbeatTrigger: uint32(1),
+			expPass:          false,
+		},
+		{
+			description:      "MsgSetHeartbeatTriggerTestSuite: failing case - heartbeatTrigger must not be 0",
+			feedId:           "feedId1",
+			signer:           ts.signer,
+			heartbeatTrigger: uint32(0),
+			expPass:          false,
+		},
+	}
+
+	for i, tc := range testCases {
+		msg := NewMsgSetHeartbeatTrigger(
+			tc.signer,
+			tc.feedId,
+			tc.heartbeatTrigger,
+		)
+		err := msg.ValidateBasic()
+
+		if tc.expPass {
+			ts.Require().NoError(err, "valid test %d failed: %s, %v", i, tc.description)
+		} else {
+			ts.Require().Error(err, "invalid test %d passed: %s, %v", i, tc.description)
+		}
+	}
+}
+
+type MsgSetDeviationThresholdTestSuite struct {
+	suite.Suite
+	signer sdk.AccAddress
+}
+
+func TestNewMsgSetDeviationThresholdTestSuite(t *testing.T) {
+	suite.Run(t, new(MsgSetDeviationThresholdTestSuite))
+}
+
+func (ts *MsgSetDeviationThresholdTestSuite) SetupTest() {
+	_, _, signerAddr := GenerateAccount()
+	ts.signer = signerAddr
+}
+
+func (ts *MsgSetDeviationThresholdTestSuite) MsgSetDeviationThresholdConstructor() {
+	msg := NewMsgSetDeviationThreshold(
+		ts.signer,
+		"feedId1",
+		uint32(1),
+	)
+
+	bz := ModuleCdc.MustMarshalJSON(msg)
+	signedBytes := sdk.MustSortJSON(bz)
+
+	ts.Require().Equal(msg.Route(), RouterKey)
+	ts.Require().Equal(msg.Type(), SetSubmissionCount)
+	ts.Require().Equal(msg.GetSigners(), []sdk.AccAddress{ts.signer})
+	ts.Require().Equal(msg.GetSignBytes(), signedBytes)
+}
+
+func (ts *MsgSetDeviationThresholdTestSuite) MsgSetDeviationThresholdValidateBasic() {
+	testCases := []struct {
+		description               string
+		feedId                    string
+		deviationThresholdTrigger uint32
+		signer                    sdk.AccAddress
+		expPass                   bool
+	}{
+		{
+			description:               "MsgSetHeartbeatTriggerTestSuite: passing case - all valid values",
+			feedId:                    "feedId1",
+			signer:                    ts.signer,
+			deviationThresholdTrigger: uint32(1),
+			expPass:                   true,
+		},
+		{
+			description:               "MsgSetHeartbeatTriggerTestSuite: failing case - invalid feedId",
+			feedId:                    "",
+			signer:                    ts.signer,
+			deviationThresholdTrigger: uint32(1),
+			expPass:                   false,
+		},
+		{
+			description:               "MsgSetHeartbeatTriggerTestSuite: failing case - deviationThresholdTrigger must not be 0",
+			feedId:                    "feedId1",
+			signer:                    ts.signer,
+			deviationThresholdTrigger: uint32(0),
+			expPass:                   false,
+		},
+	}
+
+	for i, tc := range testCases {
+		msg := NewMsgSetDeviationThreshold(
+			tc.signer,
+			tc.feedId,
+			tc.deviationThresholdTrigger,
+		)
+		err := msg.ValidateBasic()
+
+		if tc.expPass {
+			ts.Require().NoError(err, "valid test %d failed: %s, %v", i, tc.description)
+		} else {
+			ts.Require().Error(err, "invalid test %d passed: %s, %v", i, tc.description)
+		}
+	}
+}
+
+type MsgSetFeedRewardTestSuite struct {
+	suite.Suite
+	signer sdk.AccAddress
+}
+
+func TestMsgSetFeedRewardTestSuite(t *testing.T) {
+	suite.Run(t, new(MsgSetFeedRewardTestSuite))
+}
+
+func (ts *MsgSetFeedRewardTestSuite) SetupTest() {
+	_, _, signerAddr := GenerateAccount()
+	ts.signer = signerAddr
+}
+
+func (ts *MsgSetFeedRewardTestSuite) MsgSetFeedRewardConstructor() {
+	msg := NewMsgSetFeedReward(
+		ts.signer,
+		"feedId1",
+		uint32(1),
+	)
+
+	bz := ModuleCdc.MustMarshalJSON(msg)
+	signedBytes := sdk.MustSortJSON(bz)
+
+	ts.Require().Equal(msg.Route(), RouterKey)
+	ts.Require().Equal(msg.Type(), SetSubmissionCount)
+	ts.Require().Equal(msg.GetSigners(), []sdk.AccAddress{ts.signer})
+	ts.Require().Equal(msg.GetSignBytes(), signedBytes)
+}
+
+func (ts *MsgSetFeedRewardTestSuite) MsgSetFeedRewardValidateBasic() {
+	testCases := []struct {
+		description string
+		feedId      string
+		feedReward  uint32
+		signer      sdk.AccAddress
+		expPass     bool
+	}{
+		{
+			description: "MsgSetFeedRewardTestSuite: passing case - all valid values",
+			feedId:      "feedId1",
+			signer:      ts.signer,
+			feedReward:  uint32(1),
+			expPass:     true,
+		},
+		{
+			description: "MsgSetFeedRewardTestSuite: failing case - invalid feedId",
+			feedId:      "",
+			signer:      ts.signer,
+			feedReward:  uint32(1),
+			expPass:     false,
+		},
+		{
+			description: "MsgSetFeedRewardTestSuite: failing case - feedReward must not be 0",
+			feedId:      "feedId1",
+			signer:      ts.signer,
+			feedReward:  uint32(0),
+			expPass:     false,
+		},
+	}
+
+	for i, tc := range testCases {
+		msg := NewMsgSetFeedReward(
+			tc.signer,
+			tc.feedId,
+			tc.feedReward,
+		)
+		err := msg.ValidateBasic()
+
+		if tc.expPass {
+			ts.Require().NoError(err, "valid test %d failed: %s, %v", i, tc.description)
+		} else {
+			ts.Require().Error(err, "invalid test %d passed: %s, %v", i, tc.description)
+		}
+	}
+}
