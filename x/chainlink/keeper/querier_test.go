@@ -18,7 +18,7 @@ import (
 )
 
 func TestQuerier_GetRoundFeedData(t *testing.T) {
-	keeper, ctx := setupKeeper(t)
+	keeper, ctx := SetupKeeper(t)
 	amino := codec.NewLegacyAmino()
 	querier := NewQuerier(*keeper, amino)
 	roundStore := ctx.KVStore(keeper.roundStoreKey)
@@ -89,7 +89,7 @@ func TestQuerier_GetRoundFeedData(t *testing.T) {
 }
 
 func TestQuerier_LatestRoundFeedData(t *testing.T) {
-	keeper, ctx := setupKeeper(t)
+	keeper, ctx := SetupKeeper(t)
 	amino := codec.NewLegacyAmino()
 	querier := NewQuerier(*keeper, amino)
 	roundStore := ctx.KVStore(keeper.roundStoreKey)
@@ -153,7 +153,7 @@ func TestQuerier_LatestRoundFeedData(t *testing.T) {
 }
 
 func TestQuerier_GetFeedInfo(t *testing.T) {
-	keeper, ctx := setupKeeper(t)
+	keeper, ctx := SetupKeeper(t)
 	amino := codec.NewLegacyAmino()
 	querier := NewQuerier(*keeper, amino)
 
@@ -224,7 +224,7 @@ func TestQuerier_GetFeedInfo(t *testing.T) {
 }
 
 func TestQuerier_GetModuleOwners(t *testing.T) {
-	keeper, ctx := setupKeeper(t)
+	keeper, ctx := SetupKeeper(t)
 	amino := codec.NewLegacyAmino()
 	querier := NewQuerier(*keeper, amino)
 
@@ -280,7 +280,7 @@ func TestQuerier_GetModuleOwners(t *testing.T) {
 }
 
 func TestQuerier_Fail(t *testing.T) {
-	keeper, ctx := setupKeeper(t)
+	keeper, ctx := SetupKeeper(t)
 	amino := codec.NewLegacyAmino()
 	querier := NewQuerier(*keeper, amino)
 

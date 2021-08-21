@@ -13,6 +13,7 @@ import (
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/store"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
+	"github.com/cosmos/cosmos-sdk/testutil/testdata"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 	"github.com/tendermint/tendermint/libs/log"
@@ -21,7 +22,7 @@ import (
 )
 
 // nolint
-func setupKeeper(t testing.TB) (*Keeper, sdk.Context) {
+func SetupKeeper(t testing.TB) (*Keeper, sdk.Context) {
 	feedDataStoreKey := sdk.NewKVStoreKey(types.FeedDataStoreKey)
 	roundStoreKey := sdk.NewKVStoreKey(types.RoundStoreKey)
 	moduleOwnerStoreKey := sdk.NewKVStoreKey(types.ModuleOwnerStoreKey)
@@ -46,7 +47,7 @@ func setupKeeper(t testing.TB) (*Keeper, sdk.Context) {
 }
 
 func TestFeedKeyStructure(t *testing.T) {
-	k, ctx := setupKeeper(t)
+	k, ctx := SetupKeeper(t)
 	roundStore := ctx.KVStore(k.roundStoreKey)
 	feedStore := ctx.KVStore(k.feedDataStoreKey)
 
@@ -101,7 +102,7 @@ func TestFeedKeyStructure(t *testing.T) {
 }
 
 func TestKeeper_SetFeedData(t *testing.T) {
-	k, ctx := setupKeeper(t)
+	k, ctx := SetupKeeper(t)
 	roundStore := ctx.KVStore(k.roundStoreKey)
 	feedDateStore := ctx.KVStore(k.feedDataStoreKey)
 
@@ -142,7 +143,7 @@ func TestKeeper_SetFeedData(t *testing.T) {
 }
 
 func TestKeeper_GetRoundFeedDataByFilter(t *testing.T) {
-	k, ctx := setupKeeper(t)
+	k, ctx := SetupKeeper(t)
 	roundStore := ctx.KVStore(k.roundStoreKey)
 
 	testCases := []struct {
@@ -207,7 +208,7 @@ func TestKeeper_GetRoundFeedDataByFilter(t *testing.T) {
 }
 
 func TestKeeper_GetLatestRoundFeedDataByFilter(t *testing.T) {
-	k, ctx := setupKeeper(t)
+	k, ctx := SetupKeeper(t)
 
 	roundStore := ctx.KVStore(k.roundStoreKey)
 
@@ -264,7 +265,7 @@ func TestKeeper_GetLatestRoundFeedDataByFilter(t *testing.T) {
 }
 
 func TestKeeper_GetLatestRoundId(t *testing.T) {
-	k, ctx := setupKeeper(t)
+	k, ctx := SetupKeeper(t)
 	roundStore := ctx.KVStore(k.roundStoreKey)
 
 	testCases := []struct {
@@ -294,7 +295,47 @@ func TestKeeper_GetLatestRoundId(t *testing.T) {
 }
 
 func TestKeeper_SetModuleOwner(t *testing.T) {
-	t.Skip("TODO")
+	_, _, assignerAddr := testdata.KeyTestPubAddr()
+	_, moduleOwnerPublicKey, moduleOwnerAddr := testdata.KeyTestPubAddr()
+
+	k, ctx := SetupKeeper(t)
+	moduleOwnerStore := ctx.KVStore(k.moduleOwnerStoreKey)
+	testCases := []struct {
+		description          string
+		moduleOwnerAddress   sdk.AccAddress
+		moduleOwnerPublicKey []byte
+		assignerAddress      sdk.AccAddress
+	}{
+		{
+			description:          "set module owner - passing",
+			moduleOwnerAddress:   moduleOwnerAddr,
+			moduleOwnerPublicKey: moduleOwnerPublicKey.Bytes(),
+			assignerAddress:      assignerAddr,
+		},
+	}
+	for _, tc := range testCases {
+		// testName := fmt.Sprintf("feed:%s,round:%d", tc.feedId, tc.roundId)
+		t.Run(tc.description, func(t *testing.T) {
+
+			msg := types.NewMsgModuleOwner(
+				tc.assignerAddress,
+				tc.moduleOwnerAddress,
+				tc.moduleOwnerPublicKey,
+			)
+
+			bz := k.cdc.MustMarshalBinaryBare(msg)
+			moduleOwnerStore.Set(types.GetModuleOwnerKey(tc.moduleOwnerAddress.String()), bz)
+
+			storeModuleOwners := (types.MsgModuleOwners)(k.GetModuleOwnerList(ctx).ModuleOwner)
+			for _, mo := range storeModuleOwners {
+				if mo.GetAddress().Equals(tc.moduleOwnerAddress) {
+					require.Equal(t, mo.GetAssignerAddress(), tc.assignerAddress)
+					require.Equal(t, mo.GetAddress(), tc.moduleOwnerAddress)
+					require.Equal(t, mo.GetPubKey(), tc.moduleOwnerPublicKey)
+				}
+			}
+		})
+	}
 }
 
 func TestKeeper_RemoveModuleOwner(t *testing.T) {
