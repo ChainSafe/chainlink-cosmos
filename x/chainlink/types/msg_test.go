@@ -1026,3 +1026,79 @@ func (ts *MsgFeedOwnershipTransferTestSuite) MsgFeedOwnershipTransferValidateBas
 		}
 	}
 }
+
+type MsgRequestNewRoundTestSuite struct {
+	suite.Suite
+	signer       sdk.AccAddress
+	newFeedOwner sdk.AccAddress
+}
+
+func TestMsgRequestNewRoundTestSuite(t *testing.T) {
+	suite.Run(t, new(MsgRequestNewRoundTestSuite))
+}
+
+func (ts *MsgRequestNewRoundTestSuite) SetupTest() {
+	_, _, signerAddr := GenerateAccount()
+	ts.signer = signerAddr
+
+	_, _, newFeedOwnerAddr := GenerateAccount()
+	ts.newFeedOwner = newFeedOwnerAddr
+}
+
+func (ts *MsgRequestNewRoundTestSuite) MsgRequestNewRoundConstructor() {
+	msg := NewMsgRequestNewRound(
+		ts.signer,
+		"feedId1",
+	)
+
+	bz := ModuleCdc.MustMarshalJSON(msg)
+	signedBytes := sdk.MustSortJSON(bz)
+
+	ts.Require().Equal(msg.Route(), RouterKey)
+	ts.Require().Equal(msg.Type(), FeedOwnershipTransfer)
+	ts.Require().Equal(msg.GetSigners(), []sdk.AccAddress{ts.signer})
+	ts.Require().Equal(msg.GetSignBytes(), signedBytes)
+}
+
+func (ts *MsgRequestNewRoundTestSuite) MsgRequestNewRoundValidateBasic() {
+	testCases := []struct {
+		description  string
+		feedId       string
+		signer       sdk.AccAddress
+		newFeedOwner sdk.AccAddress
+		expPass      bool
+	}{
+		{
+			description: "MsgRequestNewRoundTestSuite: passing case - all valid values",
+			feedId:      "feedId1",
+			signer:      ts.signer,
+			expPass:     true,
+		},
+		{
+			description: "MsgRequestNewRoundTestSuite: failing case - signer can not be empty",
+			feedId:      "feedId1",
+			signer:      nil,
+			expPass:     false,
+		},
+		{
+			description: "MsgRequestNewRoundTestSuite: failing case - feedId can not be empty",
+			feedId:      "",
+			signer:      ts.signer,
+			expPass:     false,
+		},
+	}
+
+	for i, tc := range testCases {
+		msg := NewMsgRequestNewRound(
+			tc.signer,
+			tc.feedId,
+		)
+		err := msg.ValidateBasic()
+
+		if tc.expPass {
+			ts.Require().NoError(err, "valid test %d failed: %s, %v", i, tc.description)
+		} else {
+			ts.Require().Error(err, "invalid test %d passed: %s, %v", i, tc.description)
+		}
+	}
+}
