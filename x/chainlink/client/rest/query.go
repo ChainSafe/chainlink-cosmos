@@ -18,7 +18,8 @@ func registerQueryRoutes(clientCtx client.Context, r *mux.Router) {
 	r.HandleFunc("/chainlink/legacy/feed/data/round/{roundId}/{feedId}", listRoundFeedDataHandler(clientCtx)).Methods(MethodGet) // query feed data by roundId and feedId
 	r.HandleFunc("/chainlink/legacy/feed/data/latest/{feedId}", listLatestFeedDataHandler(clientCtx)).Methods(MethodGet)         // query the latest feed data by feedId
 	r.HandleFunc("/chainlink/legacy/module/owner", getModuleOwner(clientCtx)).Methods(MethodGet)                                 // query the module owners
-	r.HandleFunc("/chainlink/legacy/module/feed/{feedId}", getFeedInfo(clientCtx)).Methods(MethodGet)                            // query the feed info by feedUd
+	r.HandleFunc("/chainlink/legacy/module/feed/{feedId}", getFeedInfo(clientCtx)).Methods(MethodGet)                            // query the feed info by feedId
+	r.HandleFunc("/chainlink/legacy/module/feed/reward/strategy", getFeedRewardAvailStrategy(clientCtx)).Methods(MethodGet)      // query the available feed reward strategies
 }
 
 func listRoundFeedDataHandler(clientCtx client.Context) http.HandlerFunc {
@@ -86,5 +87,23 @@ func getFeedInfo(clientCtx client.Context) http.HandlerFunc {
 
 		clientCtx = clientCtx.WithHeight(height)
 		rest.PostProcessResponse(w, clientCtx, res)
+	}
+}
+
+func getFeedRewardAvailStrategy(clientCtx client.Context) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		availStrategies := make([]string, 0, len(types.FeedRewardStrategyConvertor))
+		for name := range types.FeedRewardStrategyConvertor {
+			availStrategies = append(availStrategies, name)
+		}
+
+		_, height, err := clientCtx.QueryWithData(fmt.Sprintf("custom/%s/%s", types.QuerierRoute, types.QueryFeedRewardStrategy), nil)
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusNotFound, err.Error())
+			return
+		}
+
+		clientCtx = clientCtx.WithHeight(height)
+		rest.PostProcessResponse(w, clientCtx, availStrategies)
 	}
 }

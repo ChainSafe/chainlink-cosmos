@@ -5,8 +5,9 @@ package types
 
 // Supported endpoints
 const (
-	QueryRoundFeedData  = "getRoundFeedData"
-	QueryLatestFeedData = "getLatestFeedData"
-	QueryModuleOwner    = "getModuleOwner"
-	QueryFeedInfo       = "getFeedInfo"
+	QueryRoundFeedData      = "getRoundFeedData"
+	QueryLatestFeedData     = "getLatestFeedData"
+	QueryModuleOwner        = "getModuleOwner"
+	QueryFeedInfo           = "getFeedInfo"
+	QueryFeedRewardStrategy = "getFeedRewardStrategy"
 )
