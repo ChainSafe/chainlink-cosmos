@@ -132,75 +132,75 @@ fi
 # fEeD oWnEr WiLl eDiT
 # eDiT sUbMiSsIoN cOuNt 
 echo "edit feed's submission count by alice"
-setSubmissionCountTx=$($chainlinkCMD setSubmissionCount feedid1 10 --from alice --keyring-backend test --chain-id testchain <<< 'y\n')
+setSubmissionCountTx=$($chainlinkCMD set-submission-count feedid1 10 --from alice --keyring-backend test --chain-id testchain <<< 'y\n')
 setSubmissionCountTxResp=$(echo "$setSubmissionCountTx" | jq '.height')
 if [ "$setSubmissionCountTxResp" == "\"0\"" ]
 then
-  errorAndExit "Error in submitting feed data #1: $setSubmissionCountTx"
+  errorAndExit "Error in editing submission count by alice: $setSubmissionCountTx"
 fi
 
 # eDiT hEaRtBeAt TrIgGeR
 echo "edit feed's heartbeat trigger by alice"
-setHeartbeatTriggerTx=$($chainlinkCMD setHeartbeatTrigger feedid1 20 --from alice --keyring-backend test --chain-id testchain <<< 'y\n')
+setHeartbeatTriggerTx=$($chainlinkCMD set-heartbeat-trigger feedid1 20 --from alice --keyring-backend test --chain-id testchain <<< 'y\n')
 setHeartbeatTriggerTxResp=$(echo "$setHeartbeatTriggerTx" | jq '.height')
 if [ "$setHeartbeatTriggerTxResp" == "\"0\"" ]
 then
-  errorAndExit "Error in submitting feed data #1: $setHeartbeatTriggerTx"
+  errorAndExit "Error in editing heartbeat trigger by alice: $setHeartbeatTriggerTx"
 fi
 
 # eDiT dEvIaTiOn ThReShOlD tRiGgEr
 echo "edit feed's deviation threshold trigger by alice"
-setDeviationThresholdTriggerTx=$($chainlinkCMD setDeviationThresholdTrigger feedid1 30 --from alice --keyring-backend test --chain-id testchain <<< 'y\n')
+setDeviationThresholdTriggerTx=$($chainlinkCMD set-deviation-threshold-trigger feedid1 30 --from alice --keyring-backend test --chain-id testchain <<< 'y\n')
 setDeviationThresholdTriggerTxResp=$(echo "$setDeviationThresholdTriggerTx" | jq '.height')
 if [ "$setHeartbeatTriggerTxResp" == "\"0\"" ]
 then
-  errorAndExit "Error in submitting feed data #1: $setDeviationThresholdTriggerTx"
+  errorAndExit "Error in editing deviation threshold tigger by alice: $setDeviationThresholdTriggerTx"
 fi
 
 # eDiT fEeD rEwArD
 echo "edit feed's reward by alice"
-setFeedRewardTx=$($chainlinkCMD setFeedReward feedid1 40 --from alice --keyring-backend test --chain-id testchain <<< 'y\n')
+setFeedRewardTx=$($chainlinkCMD set-feed-reward feedid1 40 --from alice --keyring-backend test --chain-id testchain <<< 'y\n')
 setFeedRewardTxResp=$(echo "$setFeedRewardTx" | jq '.height')
 if [ "$setFeedRewardTxResp" == "\"0\"" ]
 then
-  errorAndExit "Error in submitting feed data #1: $setFeedRewardTx"
+  errorAndExit "Error in editing feed reward by alice: $setFeedRewardTx"
 fi
 
 # nOn-FeEd OwMeR cAnNoT eDiT
 # eDiT sUbMiSsIoN cOuNt 
 echo "edit feed's submission count by cerlo"
-setSubmissionCountTx=$($chainlinkCMD setSubmissionCount feedid1 10 --from cerlo --keyring-backend test --chain-id testchain <<< 'y\n')
+setSubmissionCountTx=$($chainlinkCMD set-submission-count feedid1 10 --from cerlo --keyring-backend test --chain-id testchain <<< 'y\n')
 setSubmissionCountTxResp=$(echo "$setSubmissionCountTx" | jq '.height')
 if [ "$setSubmissionCountTxResp" != "\"0\"" ]
 then
-  errorAndExit "Error in submitting feed data #1: $setSubmissionCountTx"
+  errorAndExit "Error in incorrect edit of submission count by cerlo: $setSubmissionCountTx"
 fi
 
 # eDiT hEaRtBeAt TrIgGeR
 echo "edit feed's heartbeat trigger by cerlo"
-setHeartbeatTriggerTx=$($chainlinkCMD setHeartbeatTrigger feedid1 20 --from cerlo --keyring-backend test --chain-id testchain <<< 'y\n')
+setHeartbeatTriggerTx=$($chainlinkCMD set-heartbeat-trigger feedid1 20 --from cerlo --keyring-backend test --chain-id testchain <<< 'y\n')
 setHeartbeatTriggerTxResp=$(echo "$setHeartbeatTriggerTx" | jq '.height')
 if [ "$setHeartbeatTriggerTxResp" != "\"0\"" ]
 then
-  errorAndExit "Error in submitting feed data #1: $setHeartbeatTriggerTx"
+  errorAndExit "Error in incorrect edit of heartbeat trigger by cerlo: $setHeartbeatTriggerTx"
 fi
 
 # eDiT dEvIaTiOn ThReShOlD tRiGgEr
 echo "edit feed's deviation threshold trigger by cerlo"
-setDeviationThresholdTriggerTx=$($chainlinkCMD setDeviationThresholdTrigger feedid1 30 --from cerlo --keyring-backend test --chain-id testchain <<< 'y\n')
+setDeviationThresholdTriggerTx=$($chainlinkCMD set-deviation-threshold-trigger feedid1 30 --from cerlo --keyring-backend test --chain-id testchain <<< 'y\n')
 setDeviationThresholdTriggerTxResp=$(echo "$setDeviationThresholdTriggerTx" | jq '.height')
 if [ "$setDeviationThresholdTriggerTxResp" != "\"0\"" ]
 then
-  errorAndExit "Error in submitting feed data #1: $setDeviationThresholdTriggerTx"
+  errorAndExit "Error in incorrect edit of deviation threshold trigger by cerlo: $setDeviationThresholdTriggerTx"
 fi
 
 # eDiT fEeD rEwArD
 echo "edit feed's reward by cerlo"
-setFeedRewardTx=$($chainlinkCMD setFeedReward feedid1 40 --from cerlo --keyring-backend test --chain-id testchain <<< 'y\n')
+setFeedRewardTx=$($chainlinkCMD set-feed-reward feedid1 40 --from cerlo --keyring-backend test --chain-id testchain <<< 'y\n')
 setFeedRewardTxResp=$(echo "$setFeedRewardTx" | jq '.height')
 if [ "$setFeedRewardTxResp" != "\"0\"" ]
 then
-  errorAndExit "Error in submitting feed data #1: $setFeedRewardTx"
+  errorAndExit "Error in incorrect edit of feed reward by cerlo: $setFeedRewardTx"
 fi
 
 
