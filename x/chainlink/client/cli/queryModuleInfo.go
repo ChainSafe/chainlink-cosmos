@@ -5,6 +5,7 @@ package cli
 
 import (
 	"context"
+
 	"github.com/ChainSafe/chainlink-cosmos/x/chainlink/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
@@ -13,7 +14,7 @@ import (
 
 func CmdGetModuleOwnerList() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "getModuleOwnerList",
+		Use:   "get-module-owner-list",
 		Short: "List the module owner",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx := client.GetClientContextFromCmd(cmd)

@@ -24,7 +24,7 @@ cerloPK=$(chainlinkd keys show cerlo -p)
 # aDd NeW fEeD bY aLiCe
 # wIlL aDd AlIcE aDdReSs AnD pUbLiC kEy
 echo "adding new feed by alice"
-addFeedTx=$($chainlinkCMD addFeed feedid1 "this is the test feed 1" $aliceAddr 1 2 3 100 "" $aliceAddr,$alicePK --from alice --keyring-backend test --chain-id testchain <<< 'y\n')
+addFeedTx=$($chainlinkCMD add-feed feedid1 "this is the test feed 1" $aliceAddr 1 2 3 100 "" $aliceAddr,$alicePK --from alice --keyring-backend test --chain-id testchain <<< 'y\n')
 addFeedTxResp=$(echo "$addFeedTx" | jq '.logs')
 if [ ${#addFeedTxResp} == 2 ] # log: [] if tx failed
 then
@@ -47,7 +47,7 @@ fi
 
 # sUbMiT fEeD dAtA bY aLiCe
 echo "submitting feed data by alice"
-submitFeedTx1=$($chainlinkCMD submitFeedData feedid1 "feed 1 test data" "signatures_alice" "$alicePK" --from alice --keyring-backend test --chain-id testchain <<< 'y\n')
+submitFeedTx1=$($chainlinkCMD submit-feed-data feedid1 "feed 1 test data" "signatures_alice" "$alicePK" --from alice --keyring-backend test --chain-id testchain <<< 'y\n')
 submitFeedTx1Resp=$(echo "$submitFeedTx1" | jq '.height')
 if [ "$submitFeedTx1Resp" == "\"0\"" ]
 then
@@ -72,7 +72,7 @@ fi
 
 # sUbMiT fEeD dAtA bY cErLo (nOn-AuThOrIzEd DaTa PrOvIdEr)...
 echo "submitting feed data by unauthorized data provider"
-badSubmitFeedTx=$($chainlinkCMD submitFeedData feedid1 "feed 1 test data" "signatures_bob" "$bobPK" --from bob --keyring-backend test --chain-id testchain <<< 'y\n')
+badSubmitFeedTx=$($chainlinkCMD submit-feed-data feedid1 "feed 1 test data" "signatures_bob" "$bobPK" --from bob --keyring-backend test --chain-id testchain <<< 'y\n')
 badSubmitFeedTxResp=$(echo "$badSubmitFeedTx" | jq '.raw_log')
 if [ "$badSubmitFeedTxResp" != "\"submitter is not a valid data provider: unauthorized\"" ]
 then
@@ -83,7 +83,7 @@ fi
 
 # aDd BoB aS dAtA pRoViDeR
 echo "adding bob as a data provider"
-addBobTx=$($chainlinkCMD addDataProvider feedid1 $bobAddr $bobPK --from alice --keyring-backend test --chain-id testchain <<< 'y\n')
+addBobTx=$($chainlinkCMD add-data-provider feedid1 $bobAddr $bobPK --from alice --keyring-backend test --chain-id testchain <<< 'y\n')
 addBobTxResp=$(echo $addBobTx | jq '.height')
 if [ "$addBobTxResp" == "\"0\"" ]
 then
@@ -93,7 +93,7 @@ fi
 # uPdAtE fEeD rEwArD
 echo "updating feed reward to $newFeedReward"
 newFeedReward=10
-updateFeedReward=$($chainlinkCMD setFeedReward feedid1 $newFeedReward "" --from alice --keyring-backend test --chain-id testchain <<< 'y\n')
+updateFeedReward=$($chainlinkCMD set-feed-reward feedid1 $newFeedReward "" --from alice --keyring-backend test --chain-id testchain <<< 'y\n')
 updateFeedRewardResp=$(echo "$updateFeedReward" | jq '.height')
 if [ "$updateFeedRewardResp" == "\"0\"" ]
 then
@@ -102,7 +102,7 @@ fi
 
 # sUbMiT fEeD dAtA bY bOb
 echo "submitting feed data by bob"
-submitFeedTx2=$($chainlinkCMD submitFeedData feedid1 "feed 1 test data" "signatures_bob" "$bobPK" --from bob --keyring-backend test --chain-id testchain <<< 'y\n')
+submitFeedTx2=$($chainlinkCMD submit-feed-data feedid1 "feed 1 test data" "signatures_bob" "$bobPK" --from bob --keyring-backend test --chain-id testchain <<< 'y\n')
 submitFeedTx2Resp=$(echo "$submitFeedTx2" | jq '.height')
 if [ "$submitFeedTx2Resp" == "\"0\"" ]
 then
