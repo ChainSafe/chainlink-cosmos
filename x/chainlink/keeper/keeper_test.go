@@ -265,7 +265,7 @@ func TestKeeper_GetLatestRoundFeedDataByFilter(t *testing.T) {
 }
 
 func TestKeeper_GetLatestRoundId(t *testing.T) {
-	k, ctx := SetupKeeper(t)
+	k, ctx := setupKeeper(t)
 	roundStore := ctx.KVStore(k.roundStoreKey)
 
 	testCases := []struct {
