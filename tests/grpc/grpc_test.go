@@ -344,11 +344,14 @@ func (s *GRPCTestSuite) TestIntegration() {
 				PubKey:  []byte(cerlo.Cosmos),
 			},
 		},
-		SubmissionCount:           1,
+		SubmissionCount:           10,
 		HeartbeatTrigger:          2,
 		DeviationThresholdTrigger: 3,
-		FeedReward:                4,
-		ModuleOwnerAddress:        alice.Addr,
+		FeedReward: &types.FeedRewardSchema{
+			Amount:   100,
+			Strategy: "",
+		},
+		ModuleOwnerAddress: alice.Addr,
 	}
 	s.Require().NoError(addFeedTx.ValidateBasic())
 	addFeedResponse := s.BroadcastTx(ctx, alice, addFeedTx)
@@ -362,10 +365,11 @@ func (s *GRPCTestSuite) TestIntegration() {
 	s.Require().EqualValues(cerlo.Addr, feed.GetFeedOwner())
 	s.Require().EqualValues(1, len(feed.GetDataProviders()))
 	s.Require().Contains(feed.GetDataProviders(), &types.DataProvider{Address: cerlo.Addr, PubKey: []byte(cerlo.Cosmos)})
-	s.Require().EqualValues(1, feed.GetSubmissionCount())
+	s.Require().EqualValues(10, feed.GetSubmissionCount())
 	s.Require().EqualValues(2, feed.GetHeartbeatTrigger())
 	s.Require().EqualValues(3, feed.GetDeviationThresholdTrigger())
-	s.Require().EqualValues(4, feed.GetFeedReward())
+	s.Require().EqualValues(uint32(0x64), feed.GetFeedReward().GetAmount())
+	s.Require().EqualValues("", feed.GetFeedReward().GetStrategy())
 
 	s.T().Log("5 - Add data provider by cerlo")
 
@@ -425,7 +429,7 @@ func (s *GRPCTestSuite) TestIntegration() {
 
 	setSubmissionCountTx := &types.MsgSetSubmissionCount{
 		FeedId:          feedId,
-		SubmissionCount: 100,
+		SubmissionCount: 1,
 		Signer:          bob.Addr,
 	}
 	setHeartbeatTriggerTx := &types.MsgSetHeartbeatTrigger{
@@ -439,9 +443,12 @@ func (s *GRPCTestSuite) TestIntegration() {
 		Signer:                    bob.Addr,
 	}
 	setFeedRewardTx := &types.MsgSetFeedReward{
-		FeedId:     feedId,
-		FeedReward: 400,
-		Signer:     bob.Addr,
+		FeedId: feedId,
+		FeedReward: &types.FeedRewardSchema{
+			Amount:   400,
+			Strategy: "",
+		},
+		Signer: bob.Addr,
 	}
 
 	s.Require().NoError(setSubmissionCountTx.ValidateBasic())
@@ -454,18 +461,20 @@ func (s *GRPCTestSuite) TestIntegration() {
 	getFeedByFeedIdResponse, err = queryClient.GetFeedByFeedId(ctx, &types.GetFeedByIdRequest{FeedId: feedId})
 	s.Require().NoError(err)
 	feed = getFeedByFeedIdResponse.GetFeed()
-	s.Require().EqualValues(100, feed.GetSubmissionCount())
+	s.Require().EqualValues(1, feed.GetSubmissionCount())
 	s.Require().EqualValues(200, feed.GetHeartbeatTrigger())
 	s.Require().EqualValues(300, feed.GetDeviationThresholdTrigger())
-	s.Require().EqualValues(400, feed.GetFeedReward())
+	s.Require().EqualValues(400, feed.GetFeedReward().GetAmount())
+	s.Require().EqualValues("", feed.GetFeedReward().GetStrategy())
 
 	s.T().Log("9 - Submit feed data by bob")
 
 	submitFeedDataTx := &types.MsgFeedData{
-		FeedId:     feedId,
-		FeedData:   []byte("test data"),
-		Signatures: [][]byte{[]byte("dummy signature")},
-		Submitter:  bob.Addr,
+		FeedId:        feedId,
+		FeedData:      []byte("test data"),
+		Signatures:    [][]byte{[]byte("signature_bob")},
+		Submitter:     bob.Addr,
+		CosmosPubKeys: [][]byte{[]byte(bob.Cosmos)},
 	}
 	s.Require().NoError(submitFeedDataTx.ValidateBasic())
 	submitFeedDataResponse := s.BroadcastTx(ctx, bob, submitFeedDataTx)

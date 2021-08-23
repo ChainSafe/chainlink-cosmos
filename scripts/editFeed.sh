@@ -24,7 +24,7 @@ cerloPK=$(chainlinkd keys show cerlo -p)
 # aDd NeW fEeD bY aLiCe
 # wIlL aDd AlIcE aDdReSs AnD pUbLiC kEy As fEeD oWnEr
 echo "adding new feed by alice"
-addFeedTx=$($chainlinkCMD add-feed feedid1 "this is test feed description" $aliceAddr 1 2 3 4 $aliceAddr,$alicePK --from alice --keyring-backend test --chain-id testchain <<< 'y\n')
+addFeedTx=$($chainlinkCMD add-feed feedid1 "this is test feed description" $aliceAddr 1 2 3 100 "" $aliceAddr,$alicePK --from alice --keyring-backend test --chain-id testchain <<< 'y\n')
 addFeedTxResp=$(echo "$addFeedTx" | jq '.logs')
 if [ ${#addFeedTxResp} == 2 ] # log: [] if tx failed
 then
@@ -61,7 +61,7 @@ fi
 
 # eDiT fEeD rEwArD
 echo "edit feed's reward by alice"
-setFeedRewardTx=$($chainlinkCMD set-feed-reward feedid1 40 --from alice --keyring-backend test --chain-id testchain <<< 'y\n')
+setFeedRewardTx=$($chainlinkCMD set-feed-reward feedid1 40 "" --from alice --keyring-backend test --chain-id testchain <<< 'y\n')
 setFeedRewardTxResp=$(echo "$setFeedRewardTx" | jq '.height')
 if [ "$setFeedRewardTxResp" == "\"0\"" ]
 then
@@ -98,7 +98,7 @@ fi
 
 # eDiT fEeD rEwArD
 echo "edit feed's reward by cerlo"
-setFeedRewardTx=$($chainlinkCMD set-feed-reward feedid1 40 --from cerlo --keyring-backend test --chain-id testchain <<< 'y\n')
+setFeedRewardTx=$($chainlinkCMD set-feed-reward feedid1 40 "" --from cerlo --keyring-backend test --chain-id testchain <<< 'y\n')
 setFeedRewardTxResp=$(echo "$setFeedRewardTx" | jq '.height')
 if [ "$setFeedRewardTxResp" != "\"0\"" ]
 then
