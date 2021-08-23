@@ -5,6 +5,7 @@ import "cosmos/base/query/v1beta1/pagination.proto";
 import "chainlink/v1beta/tx.proto";
 import "google/api/annotations.proto";
 import "chainlink/v1beta/genesis.proto";
+import "gogoproto/gogo.proto";
 
 option go_package = "github.com/ChainSafe/chainlink-cosmos/x/chainlink/types";
 
@@ -21,6 +22,9 @@ service Query {
   }
   rpc GetFeedByFeedId(GetFeedByIdRequest) returns (GetFeedByIdResponse) {
     option (google.api.http).get = "/chainlink/module/feed/{feedId}";
+  }
+  rpc GetAccountInfo(GetAccountRequest) returns (GetAccountResponse) {
+    option (google.api.http).get = "/chainlink/module/account/{accountAddress}";
   }
   rpc GetFeedRewardAvailStrategy(GetFeedRewardAvailStrategiesRequest) returns (GetFeedRewardAvailStrategiesResponse) {
     option (google.api.http).get = "/chainlink/module/feed/reward/strategy";
@@ -66,6 +70,13 @@ message RoundData {
   OCRAbiEncoded feedData = 2;
 }
 
+message GetAccountRequest {
+  bytes accountAddress = 1 [(gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"];
+}
+
+message GetAccountResponse {
+  MsgAccount account = 1;
+}
 message GetFeedRewardAvailStrategiesRequest {
 }
 

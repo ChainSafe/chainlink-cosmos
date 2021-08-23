@@ -19,7 +19,7 @@ import (
 
 func CmdAddFeed() *cobra.Command {
 	cmd := &cobra.Command{
-		Use: "addFeed [feedId] [feedDescription] [feedOwnerAddress] [submissionCount] [heartbeatTrigger]" +
+		Use: "add-feed [feedId] [feedDescription] [feedOwnerAddress] [submissionCount] [heartbeatTrigger]" +
 			" [deviationThresholdTrigger] [baseFeedRewardAmount] [feedRewardStrategy] [initDataProviderList]",
 		Short: "Add new feed. Signer must be the existing module owner.",
 		Long:  "The following fields are required:\n\tThe feedId will be a string that uniquely identifies the feed. The feedOwnerAddress must be a valid cosmos address.\n\tThe submissionCount in the required number of signatures.\n\tThe deviationThresholdTrigger is the fraction of deviation in the feed data required to trigger a new round.\n\tThe initDataProviderList is a string contains each data provider's address with pubkey and split by comma.\n\tThe feedReward is a uint32 value that represents the data provider reward for submitting data to a feed.",
@@ -100,7 +100,7 @@ func CmdAddFeed() *cobra.Command {
 
 func CmdAddDataProvider() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "addDataProvider [feedId] [address] [publicKey]",
+		Use:   "add-data-provider [feedId] [address] [publicKey]",
 		Short: "Add new data provider to the feed. Signer must be the existing module owner.",
 		Args:  cobra.MinimumNArgs(3),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -136,7 +136,7 @@ func CmdAddDataProvider() *cobra.Command {
 
 func CmdRemoveDataProvider() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "removeDataProvider [feedId] [address]",
+		Use:   "remove-data-provider [feedId] [address]",
 		Short: "Remove data provider from the feed. Signer must be the existing module owner.",
 		Args:  cobra.MinimumNArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -168,7 +168,7 @@ func CmdRemoveDataProvider() *cobra.Command {
 
 func CmdSetSubmissionCount() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "setSubmissionCount [feedId] [count]",
+		Use:   "set-submission-count [feedId] [count]",
 		Short: "Sets a new submission count for a given feed",
 		Long:  "Set the required number of signatures. Signer must be the existing module owner.",
 		Args:  cobra.MinimumNArgs(2),
@@ -201,7 +201,7 @@ func CmdSetSubmissionCount() *cobra.Command {
 
 func CmdSetHeartbeatTrigger() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "setHeartbeatTrigger [feedId] [heartbeatTrigger]",
+		Use:   "set-heartbeat-trigger [feedId] [heartbeatTrigger]",
 		Short: "Sets a new heartbeat trigger for the given feed",
 		Long:  "Set the interval between which a new round should automatically be triggered. Signer must be the existing module owner.",
 		Args:  cobra.MinimumNArgs(2),
@@ -234,7 +234,7 @@ func CmdSetHeartbeatTrigger() *cobra.Command {
 
 func CmdSetDeviationThreshold() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "setDeviationThresholdTrigger [feedId] [deviationThresholdTrigger]",
+		Use:   "set-deviation-threshold-trigger [feedId] [deviationThresholdTrigger]",
 		Short: "Sets a new deviation threshold trigger for the given feed",
 		Long:  "Set the fraction of deviation in the feed data required to trigger a new round. Signer must be the existing module owner.",
 		Args:  cobra.MinimumNArgs(2),
@@ -267,7 +267,7 @@ func CmdSetDeviationThreshold() *cobra.Command {
 
 func CmdSetFeedReward() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "setFeedReward [feedId] [baseFeedRewardAmount] [feedRewardStrategy]",
+		Use:   "set-feed-reward [feedId] [baseFeedRewardAmount] [feedRewardStrategy]",
 		Short: "Sets a new feed reward for the given feed",
 		Long:  "Set the feed reward for a given feed, the reward will be distributed in tokens denominated as 'link'. Signer must be the existing module owner.",
 		Args:  cobra.MinimumNArgs(3),
@@ -301,7 +301,7 @@ func CmdSetFeedReward() *cobra.Command {
 
 func CmdTransferFeedOwnership() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "feedOwnershipTransfer [feedId] [newFeedOwnerAddress]",
+		Use:   "feed-ownership-transfer [feedId] [newFeedOwnerAddress]",
 		Short: "Transfer chainLink feed ownership from an existing feed owner account to another account. Signer must be an existing feed owner.",
 		Args:  cobra.MinimumNArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -333,7 +333,7 @@ func CmdTransferFeedOwnership() *cobra.Command {
 
 func CmdSubmitFeedData() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "submitFeedData [feedId] [feedData] [signatures] [cosmosPubKeys]",
+		Use:   "submit-feed-data [feedId] [feedData] [signatures] [cosmosPubKeys]",
 		Short: "Submit feed data",
 		Long:  "Submit feed data, called by an OCR round leader to submit an off-chain report of data signed by a number of oracles.",
 		Args:  cobra.MinimumNArgs(4),
@@ -376,7 +376,7 @@ func CmdSubmitFeedData() *cobra.Command {
 
 func CmdRequestNewRound() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "requestNewRound [feedId]",
+		Use:   "request-new-round [feedId]",
 		Short: "Produces a new round for the given feedId",
 		Long: "Trigger an event to have data providers produce a new round report. New report will only be valid if " +
 			"it meets the deviation threshold or heartbeat interval requirements.",

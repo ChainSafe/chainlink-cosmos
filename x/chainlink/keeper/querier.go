@@ -35,6 +35,8 @@ func NewQuerier(k Keeper, legacyQuerierCdc *codec.LegacyAmino) sdk.Querier {
 			return getModuleOwners(ctx, path, k, legacyQuerierCdc)
 		case types.QueryFeedInfo:
 			return getFeedInfo(ctx, path, k, legacyQuerierCdc)
+		case types.QueryAccountInfo:
+			return getAccountInfo(ctx, path, k, legacyQuerierCdc)
 		case types.QueryFeedRewardStrategy:
 			return getFeedRewardStrategy(ctx, path, k, legacyQuerierCdc)
 		default:
@@ -124,6 +126,29 @@ func getFeedInfo(ctx sdk.Context, path []string, keeper Keeper, legacQuerierCdc 
 	if resp.Feed == nil {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, "No feed found")
 	}
+
+	bz, err := codec.MarshalJSONIndent(legacQuerierCdc, resp)
+	if err != nil {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, err.Error())
+	}
+
+	return bz, nil
+}
+
+func getAccountInfo(ctx sdk.Context, path []string, keeper Keeper, legacQuerierCdc *codec.LegacyAmino) ([]byte, error) {
+	if len(path) < 2 {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest,
+			"Insufficient parameters, at least 2 parameters is required")
+	}
+
+	accAddrString := path[1]
+	accAddr, err := sdk.AccAddressFromBech32(accAddrString)
+	if err != nil {
+		return nil, err
+	}
+
+	req := &types.GetAccountRequest{AccountAddress: accAddr}
+	resp := keeper.GetAccount(ctx, req)
 
 	bz, err := codec.MarshalJSONIndent(legacQuerierCdc, resp)
 	if err != nil {

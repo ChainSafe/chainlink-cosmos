@@ -6,12 +6,13 @@ package rest
 import (
 	"errors"
 	"fmt"
+	"net/http"
+	"strconv"
+
 	"github.com/ChainSafe/chainlink-cosmos/x/chainlink/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/types/rest"
 	"github.com/gorilla/mux"
-	"net/http"
-	"strconv"
 )
 
 func registerQueryRoutes(clientCtx client.Context, r *mux.Router) {
@@ -19,6 +20,7 @@ func registerQueryRoutes(clientCtx client.Context, r *mux.Router) {
 	r.HandleFunc("/chainlink/legacy/feed/data/latest/{feedId}", listLatestFeedDataHandler(clientCtx)).Methods(MethodGet)         // query the latest feed data by feedId
 	r.HandleFunc("/chainlink/legacy/module/owner", getModuleOwner(clientCtx)).Methods(MethodGet)                                 // query the module owners
 	r.HandleFunc("/chainlink/legacy/module/feed/{feedId}", getFeedInfo(clientCtx)).Methods(MethodGet)                            // query the feed info by feedId
+	r.HandleFunc("/chainlink/legacy/module/account/{accountAddress}", getAccountInfo(clientCtx)).Methods(MethodGet)              // query the chainlink account
 	r.HandleFunc("/chainlink/legacy/module/feed/reward/strategy", getFeedRewardAvailStrategy(clientCtx)).Methods(MethodGet)      // query the available feed reward strategies
 }
 
@@ -80,6 +82,22 @@ func getFeedInfo(clientCtx client.Context) http.HandlerFunc {
 		feedId := vars["feedId"]
 
 		res, height, err := clientCtx.QueryWithData(fmt.Sprintf("custom/%s/%s/%s", types.QuerierRoute, types.QueryFeedInfo, feedId), nil)
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusNotFound, err.Error())
+			return
+		}
+
+		clientCtx = clientCtx.WithHeight(height)
+		rest.PostProcessResponse(w, clientCtx, res)
+	}
+}
+
+func getAccountInfo(clientCtx client.Context) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		vars := mux.Vars(r)
+		accAddr := vars["accountAddress"]
+
+		res, height, err := clientCtx.QueryWithData(fmt.Sprintf("custom/%s/%s/%s", types.QuerierRoute, types.QueryAccountInfo, accAddr), nil)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusNotFound, err.Error())
 			return
