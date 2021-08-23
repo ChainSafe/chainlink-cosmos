@@ -390,47 +390,7 @@ func TestKeeper_GetModuleOwnerList(t *testing.T) {
 	}
 }
 
-func TestKeeper_SetFeed(t *testing.T) {
-	k, ctx := setupKeeper(t)
-	feedInfoStore := ctx.KVStore(k.feedInfoStoreKey)
-
-	feedToInsert := types.MsgFeed{
-		FeedId:    "feed1",
-		FeedOwner: GenerateAccount(),
-		DataProviders: types.DataProviders{
-			{Address: GenerateAccount()},
-			{Address: GenerateAccount()},
-		},
-		SubmissionCount:           1,
-		HeartbeatTrigger:          2,
-		DeviationThresholdTrigger: 3,
-		FeedReward: &types.FeedRewardSchema{
-			Amount:   4,
-			Strategy: "none",
-		},
-		Desc:               "desc1",
-		ModuleOwnerAddress: GenerateAccount(),
-	}
-
-	k.SetFeed(ctx, &feedToInsert)
-
-	data := feedInfoStore.Get(types.GetFeedInfoKey(feedToInsert.GetFeedId()))
-	var feed types.MsgFeed
-	err := k.cdc.UnmarshalBinaryBare(data, &feed)
-	require.NoError(t, err)
-
-	require.Equal(t, feedToInsert.GetFeedId(), feed.GetFeedId())
-	require.Equal(t, feedToInsert.GetFeedOwner(), feed.GetFeedOwner())
-	require.EqualValues(t, feedToInsert.GetDataProviders(), feed.GetDataProviders())
-	require.Equal(t, feedToInsert.GetSubmissionCount(), feed.GetSubmissionCount())
-	require.Equal(t, feedToInsert.GetHeartbeatTrigger(), feed.GetHeartbeatTrigger())
-	require.Equal(t, feedToInsert.GetDeviationThresholdTrigger(), feed.GetDeviationThresholdTrigger())
-	require.Equal(t, feedToInsert.GetFeedReward(), feed.GetFeedReward())
-	require.Equal(t, feedToInsert.GetDesc(), feed.GetDesc())
-	require.Equal(t, feedToInsert.GetModuleOwnerAddress(), feed.GetModuleOwnerAddress())
-}
-
-func TestKeeper_GetFeed(t *testing.T) {
+func TestKeeper_SetAndGetFeed(t *testing.T) {
 	k, ctx := setupKeeper(t)
 
 	feedToInsert := types.MsgFeed{
