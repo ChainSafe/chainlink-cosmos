@@ -27,6 +27,7 @@ func setupKeeper(t testing.TB) (*Keeper, sdk.Context) {
 	roundStoreKey := sdk.NewKVStoreKey(types.RoundStoreKey)
 	moduleOwnerStoreKey := sdk.NewKVStoreKey(types.ModuleOwnerStoreKey)
 	feedInfoStoreKey := sdk.NewKVStoreKey(types.FeedInfoStoreKey)
+	accountStoreKey := sdk.NewKVStoreKey(types.AccountStoreKey)
 	memStoreKey := storetypes.NewMemoryStoreKey(types.MemStoreKey)
 
 	db := tmdb.NewMemDB()
@@ -35,12 +36,13 @@ func setupKeeper(t testing.TB) (*Keeper, sdk.Context) {
 	stateStore.MountStoreWithDB(roundStoreKey, sdk.StoreTypeIAVL, db)
 	stateStore.MountStoreWithDB(moduleOwnerStoreKey, sdk.StoreTypeIAVL, db)
 	stateStore.MountStoreWithDB(feedInfoStoreKey, sdk.StoreTypeIAVL, db)
+	stateStore.MountStoreWithDB(accountStoreKey, sdk.StoreTypeIAVL, db)
 	stateStore.MountStoreWithDB(memStoreKey, sdk.StoreTypeMemory, nil)
 	require.NoError(t, stateStore.LoadLatestVersion())
 
 	registry := codectypes.NewInterfaceRegistry()
 	// TODO: do i need to replace nil -> bankKeeper? not quite sure if that can be exposed from this level
-	keeper := NewKeeper(codec.NewProtoCodec(registry), nil, feedDataStoreKey, roundStoreKey, moduleOwnerStoreKey, feedInfoStoreKey, memStoreKey)
+	keeper := NewKeeper(codec.NewProtoCodec(registry), nil, feedDataStoreKey, roundStoreKey, moduleOwnerStoreKey, feedInfoStoreKey, accountStoreKey, memStoreKey)
 
 	ctx := sdk.NewContext(stateStore, tmproto.Header{}, false, log.NewNopLogger())
 	return keeper, ctx

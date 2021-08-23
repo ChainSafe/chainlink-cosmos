@@ -26,6 +26,7 @@ type (
 		roundStoreKey       sdk.StoreKey
 		moduleOwnerStoreKey sdk.StoreKey
 		feedInfoStoreKey    sdk.StoreKey
+		accountStoreKey     sdk.StoreKey
 		memKey              sdk.StoreKey
 	}
 )
@@ -37,6 +38,7 @@ func NewKeeper(
 	roundStoreKey,
 	moduleOwnerStoreKey,
 	feedInfoStoreKey,
+	accountStoreKey,
 	memKey sdk.StoreKey,
 ) *Keeper {
 	return &Keeper{
@@ -46,6 +48,7 @@ func NewKeeper(
 		roundStoreKey:       roundStoreKey,
 		moduleOwnerStoreKey: moduleOwnerStoreKey,
 		feedInfoStoreKey:    feedInfoStoreKey,
+		accountStoreKey:     accountStoreKey,
 		memKey:              memKey,
 	}
 }
@@ -457,6 +460,46 @@ func (k Keeper) RequestNewRound(ctx sdk.Context, requestNewRound *types.MsgReque
 	}
 
 	return ctx.BlockHeight(), ctx.TxBytes(), nil
+}
+
+func (k Keeper) AddAccount(ctx sdk.Context, acc *types.MsgAccount) (int64, []byte) {
+	accStore := ctx.KVStore(k.accountStoreKey)
+
+	a := k.cdc.MustMarshalBinaryBare(acc)
+
+	accStore.Set(types.GetAccountKey(acc.GetSubmitter().String()), a)
+
+	return ctx.BlockHeight(), ctx.TxBytes()
+}
+
+func (k Keeper) EditAccount(ctx sdk.Context, acc *types.MsgEditAccount) (int64, []byte, error) {
+	accStore := ctx.KVStore(k.accountStoreKey)
+	accSubmitter := acc.Submitter.String()
+	accountBytes := accStore.Get(types.GetAccountKey(accSubmitter))
+
+	var account types.MsgAccount
+	k.cdc.MustUnmarshalBinaryBare(accountBytes, &account)
+
+	// overwrite the piggy address
+	account.PiggyAddress = acc.PiggyAddress
+
+	a := k.cdc.MustMarshalBinaryBare(&account)
+	accStore.Set(types.GetAccountKey(acc.GetSubmitter().String()), a)
+
+	return ctx.BlockHeight(), ctx.TxBytes(), nil
+}
+
+func (k Keeper) GetAccount(ctx sdk.Context, accReq *types.GetAccountRequest) *types.GetAccountResponse {
+	acc := accReq.AccountAddress.String()
+	accStore := ctx.KVStore(k.accountStoreKey)
+	accountBytes := accStore.Get(types.GetAccountKey(acc))
+
+	var account types.MsgAccount
+	k.cdc.MustUnmarshalBinaryBare(accountBytes, &account)
+
+	return &types.GetAccountResponse{
+		Account: &account,
+	}
 }
 
 func (k Keeper) GetRegisteredFeedRewardStrategies(_ sdk.Context) *types.GetFeedRewardAvailStrategiesResponse {

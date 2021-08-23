@@ -4,6 +4,8 @@
 package ante
 
 import (
+	"bytes"
+
 	chainlinkkeeper "github.com/ChainSafe/chainlink-cosmos/x/chainlink/keeper"
 	"github.com/ChainSafe/chainlink-cosmos/x/chainlink/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -16,8 +18,11 @@ import (
 )
 
 const (
-	ErrFeedDoesNotExist     = "feed does not exist"
-	ErrSignerIsNotFeedOwner = "account %s (%s) is not a feed owner"
+	ErrFeedDoesNotExist      = "feed does not exist"
+	ErrSignerIsNotFeedOwner  = "account %s (%s) is not a feed owner"
+	ErrAccountAlreadyExists  = "there is already a chainlink account associated with this cosmos address"
+	ErrDoesNotExist          = "no chainlink account associated with this cosmos address"
+	ErrSubmitterDoesNotMatch = "submitter address does not match"
 )
 
 func NewAnteHandler(
@@ -48,6 +53,7 @@ func NewAnteHandler(
 			NewFeedDecorator(chainLinkKeeper),
 			NewFeedDataDecorator(chainLinkKeeper),
 			NewValidationDecorator(externalTxDataValidationFunc),
+			NewAccountDecorator(chainLinkKeeper),
 		)
 
 		return anteHandler(ctx, tx, sim)
@@ -304,6 +310,49 @@ func (fd ValidationDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bo
 		switch t := msg.(type) {
 		case *types.MsgFeedData:
 			t.IsFeedDataValid = t.Validate(fd.validationFn)
+		default:
+			continue
+		}
+	}
+
+	return next(ctx, tx, simulate)
+}
+
+type AccountDecorator struct {
+	chainLinkKeeper chainlinkkeeper.Keeper
+}
+
+func NewAccountDecorator(chainLinkKeeper chainlinkkeeper.Keeper) AccountDecorator {
+	return AccountDecorator{
+		chainLinkKeeper: chainLinkKeeper,
+	}
+}
+
+func (fd AccountDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (newCtx sdk.Context, err error) {
+	if len(tx.GetMsgs()) == 0 {
+		return ctx, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "invalid Msg: empty Msg: %T", tx)
+	}
+
+	for _, msg := range tx.GetMsgs() {
+		switch t := msg.(type) {
+		case *types.MsgAccount:
+			// case to add a new chainlink account to the Account Store
+			req := &types.GetAccountRequest{AccountAddress: t.Submitter}
+			resp := fd.chainLinkKeeper.GetAccount(ctx, req)
+			if resp.Account.Submitter.String() != "" {
+				return ctx, sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, ErrAccountAlreadyExists)
+			}
+		// case to edit an existing chainlink account in the Account Store
+		case *types.MsgEditAccount:
+			req := &types.GetAccountRequest{AccountAddress: t.Submitter}
+			// submitters must match
+			resp := fd.chainLinkKeeper.GetAccount(ctx, req)
+			if resp.Account.Submitter.String() == "" {
+				return ctx, sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, ErrDoesNotExist)
+			}
+			if !bytes.Equal(t.Submitter.Bytes(), resp.Account.Submitter.Bytes()) {
+				return ctx, sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, ErrSubmitterDoesNotMatch)
+			}
 		default:
 			continue
 		}

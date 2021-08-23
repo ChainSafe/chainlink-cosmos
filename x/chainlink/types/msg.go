@@ -26,11 +26,12 @@ const (
 	SetFeedReward                = "SetFeedReward"
 	FeedOwnershipTransfer        = "FeedOwnershipTransfer"
 	RequestNewRound              = "RequestNewRound"
+	SetAccountPiggyAddress       = "SetAccountPiggyAddress"
 )
 
-var _, _, _, _, _, _, _, _, _, _, _ sdk.Msg = &MsgFeedData{}, &MsgModuleOwnershipTransfer{}, &MsgModuleOwner{},
+var _, _, _, _, _, _, _, _, _, _, _, _ sdk.Msg = &MsgFeedData{}, &MsgModuleOwnershipTransfer{}, &MsgModuleOwner{},
 	&MsgFeed{}, &MsgAddDataProvider{}, &MsgRemoveDataProvider{}, &MsgSetSubmissionCount{}, &MsgSetHeartbeatTrigger{},
-	&MsgSetDeviationThresholdTrigger{}, &MsgFeedOwnershipTransfer{}, &MsgRequestNewRound{}
+	&MsgSetDeviationThresholdTrigger{}, &MsgFeedOwnershipTransfer{}, &MsgRequestNewRound{}, &MsgAccount{}
 
 var _ sdk.Tx = &MsgModuleOwner{}
 
@@ -584,4 +585,82 @@ func (m *MsgRequestNewRound) GetSignBytes() []byte {
 
 func (m *MsgRequestNewRound) GetSigners() []githubcosmossdktypes.AccAddress {
 	return []sdk.AccAddress{m.Signer}
+}
+
+func NewMsgAddAccount(submitter githubcosmossdktypes.AccAddress, chainlinkPublicKey, chainlinkSigningKey []byte, piggyAddress githubcosmossdktypes.AccAddress) *MsgAccount {
+	return &MsgAccount{
+		Submitter:           submitter,
+		ChainlinkPublicKey:  chainlinkPublicKey,
+		ChainlinkSigningKey: chainlinkSigningKey,
+		PiggyAddress:        piggyAddress,
+	}
+}
+
+func (m *MsgAccount) Route() string {
+	return RouterKey
+}
+
+func (m *MsgAccount) Type() string {
+	return RequestNewRound
+}
+
+func (m *MsgAccount) ValidateBasic() error {
+	if m.GetSubmitter().Empty() {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, "submitter can not be empty")
+	}
+	if len(m.GetChainlinkPublicKey()) == 0 {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "chainlink public key can not be empty")
+	}
+	if len(m.GetChainlinkSigningKey()) == 0 {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "chainlink signing key can not be empty")
+	}
+	if m.GetPiggyAddress().Empty() {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, "piggy address can not be empty")
+	}
+
+	return nil
+}
+
+func (m *MsgAccount) GetSignBytes() []byte {
+	bz := ModuleCdc.MustMarshalJSON(m)
+	return sdk.MustSortJSON(bz)
+}
+
+func (m *MsgAccount) GetSigners() []githubcosmossdktypes.AccAddress {
+	return []sdk.AccAddress{m.Submitter}
+}
+
+func NewMsgEditAccount(submitter githubcosmossdktypes.AccAddress, piggyAddress githubcosmossdktypes.AccAddress) *MsgEditAccount {
+	return &MsgEditAccount{
+		Submitter:    submitter,
+		PiggyAddress: piggyAddress,
+	}
+}
+
+func (m *MsgEditAccount) Route() string {
+	return RouterKey
+}
+
+func (m *MsgEditAccount) Type() string {
+	return RequestNewRound
+}
+
+func (m *MsgEditAccount) ValidateBasic() error {
+	if m.GetSubmitter().Empty() {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, "submitter can not be empty")
+	}
+	if m.GetPiggyAddress().Empty() {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, "piggy address can not be empty")
+	}
+
+	return nil
+}
+
+func (m *MsgEditAccount) GetSignBytes() []byte {
+	bz := ModuleCdc.MustMarshalJSON(m)
+	return sdk.MustSortJSON(bz)
+}
+
+func (m *MsgEditAccount) GetSigners() []githubcosmossdktypes.AccAddress {
+	return []sdk.AccAddress{m.Submitter}
 }

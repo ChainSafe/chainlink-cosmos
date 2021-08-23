@@ -55,11 +55,11 @@ check:
 test:
 	go test --race ./...
 
-test-addFeed:
-	./scripts/addFeed.sh
+test-feed:
+	./scripts/testFeed.sh
 
-test-editFeed:
-	./scripts/editFeed.sh
+test-account:
+	./scripts/testAccount.sh
 
 test-grpc:
 	./scripts/grpc-integration-tests.sh
