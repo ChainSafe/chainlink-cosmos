@@ -18,7 +18,7 @@ import (
 )
 
 func TestQuerier_GetRoundFeedData(t *testing.T) {
-	keeper, ctx := SetupKeeper(t)
+	keeper, ctx := setupKeeper(t)
 	amino := codec.NewLegacyAmino()
 	querier := NewQuerier(*keeper, amino)
 	roundStore := ctx.KVStore(keeper.roundStoreKey)
@@ -89,7 +89,7 @@ func TestQuerier_GetRoundFeedData(t *testing.T) {
 }
 
 func TestQuerier_LatestRoundFeedData(t *testing.T) {
-	keeper, ctx := SetupKeeper(t)
+	keeper, ctx := setupKeeper(t)
 	amino := codec.NewLegacyAmino()
 	querier := NewQuerier(*keeper, amino)
 	roundStore := ctx.KVStore(keeper.roundStoreKey)
@@ -153,7 +153,7 @@ func TestQuerier_LatestRoundFeedData(t *testing.T) {
 }
 
 func TestQuerier_GetFeedInfo(t *testing.T) {
-	keeper, ctx := SetupKeeper(t)
+	keeper, ctx := setupKeeper(t)
 	amino := codec.NewLegacyAmino()
 	querier := NewQuerier(*keeper, amino)
 
@@ -167,8 +167,11 @@ func TestQuerier_GetFeedInfo(t *testing.T) {
 			SubmissionCount:           1,
 			HeartbeatTrigger:          2,
 			DeviationThresholdTrigger: 3,
-			FeedReward:                4,
-			Desc:                      "desc test",
+			FeedReward: &types.FeedRewardSchema{
+				Amount:   4,
+				Strategy: "none",
+			},
+			Desc: "desc test",
 		},
 		{
 			FeedId:    "feed1",
@@ -180,8 +183,11 @@ func TestQuerier_GetFeedInfo(t *testing.T) {
 			SubmissionCount:           10,
 			HeartbeatTrigger:          20,
 			DeviationThresholdTrigger: 30,
-			FeedReward:                40,
-			Desc:                      "desc test 2",
+			FeedReward: &types.FeedRewardSchema{
+				Amount:   40,
+				Strategy: "none",
+			},
+			Desc: "desc test 2",
 		},
 		{
 			FeedId:    "feed2",
@@ -193,8 +199,11 @@ func TestQuerier_GetFeedInfo(t *testing.T) {
 			SubmissionCount:           100,
 			HeartbeatTrigger:          200,
 			DeviationThresholdTrigger: 300,
-			FeedReward:                400,
-			Desc:                      "desc test 3",
+			FeedReward: &types.FeedRewardSchema{
+				Amount:   400,
+				Strategy: "none",
+			},
+			Desc: "desc test 3",
 		},
 	}
 
@@ -224,7 +233,7 @@ func TestQuerier_GetFeedInfo(t *testing.T) {
 }
 
 func TestQuerier_GetModuleOwners(t *testing.T) {
-	keeper, ctx := SetupKeeper(t)
+	keeper, ctx := setupKeeper(t)
 	amino := codec.NewLegacyAmino()
 	querier := NewQuerier(*keeper, amino)
 
@@ -280,7 +289,7 @@ func TestQuerier_GetModuleOwners(t *testing.T) {
 }
 
 func TestQuerier_Fail(t *testing.T) {
-	keeper, ctx := SetupKeeper(t)
+	keeper, ctx := setupKeeper(t)
 	amino := codec.NewLegacyAmino()
 	querier := NewQuerier(*keeper, amino)
 

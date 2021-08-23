@@ -22,7 +22,7 @@ import (
 )
 
 // nolint
-func SetupKeeper(t testing.TB) (*Keeper, sdk.Context) {
+func setupKeeper(t testing.TB) (*Keeper, sdk.Context) {
 	feedDataStoreKey := sdk.NewKVStoreKey(types.FeedDataStoreKey)
 	roundStoreKey := sdk.NewKVStoreKey(types.RoundStoreKey)
 	moduleOwnerStoreKey := sdk.NewKVStoreKey(types.ModuleOwnerStoreKey)
@@ -47,7 +47,7 @@ func SetupKeeper(t testing.TB) (*Keeper, sdk.Context) {
 }
 
 func TestFeedKeyStructure(t *testing.T) {
-	k, ctx := SetupKeeper(t)
+	k, ctx := setupKeeper(t)
 	roundStore := ctx.KVStore(k.roundStoreKey)
 	feedStore := ctx.KVStore(k.feedDataStoreKey)
 
@@ -102,7 +102,7 @@ func TestFeedKeyStructure(t *testing.T) {
 }
 
 func TestKeeper_SetFeedData(t *testing.T) {
-	k, ctx := SetupKeeper(t)
+	k, ctx := setupKeeper(t)
 	roundStore := ctx.KVStore(k.roundStoreKey)
 	feedDateStore := ctx.KVStore(k.feedDataStoreKey)
 
@@ -143,7 +143,7 @@ func TestKeeper_SetFeedData(t *testing.T) {
 }
 
 func TestKeeper_GetRoundFeedDataByFilter(t *testing.T) {
-	k, ctx := SetupKeeper(t)
+	k, ctx := setupKeeper(t)
 	roundStore := ctx.KVStore(k.roundStoreKey)
 
 	testCases := []struct {
@@ -208,7 +208,7 @@ func TestKeeper_GetRoundFeedDataByFilter(t *testing.T) {
 }
 
 func TestKeeper_GetLatestRoundFeedDataByFilter(t *testing.T) {
-	k, ctx := SetupKeeper(t)
+	k, ctx := setupKeeper(t)
 
 	roundStore := ctx.KVStore(k.roundStoreKey)
 
@@ -298,7 +298,7 @@ func TestKeeper_SetModuleOwner(t *testing.T) {
 	_, _, assignerAddr := testdata.KeyTestPubAddr()
 	_, moduleOwnerPublicKey, moduleOwnerAddr := testdata.KeyTestPubAddr()
 
-	k, ctx := SetupKeeper(t)
+	k, ctx := setupKeeper(t)
 	moduleOwnerStore := ctx.KVStore(k.moduleOwnerStoreKey)
 	testCases := []struct {
 		description          string
