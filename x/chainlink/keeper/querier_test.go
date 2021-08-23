@@ -167,9 +167,12 @@ func TestQuerier_GetFeedInfo(t *testing.T) {
 			SubmissionCount:           1,
 			HeartbeatTrigger:          2,
 			DeviationThresholdTrigger: 3,
-			FeedReward:                4,
-			Desc:                      "desc test",
-			ModuleOwnerAddress:        GenerateAccount(),
+			FeedReward: &types.FeedRewardSchema{
+				Amount:   4,
+				Strategy: "none",
+			},
+			Desc:               "desc test",
+			ModuleOwnerAddress: GenerateAccount(),
 		},
 		{
 			FeedId:    "feed1",
@@ -181,9 +184,12 @@ func TestQuerier_GetFeedInfo(t *testing.T) {
 			SubmissionCount:           10,
 			HeartbeatTrigger:          20,
 			DeviationThresholdTrigger: 30,
-			FeedReward:                40,
-			Desc:                      "desc test 2",
-			ModuleOwnerAddress:        GenerateAccount(),
+			FeedReward: &types.FeedRewardSchema{
+				Amount:   40,
+				Strategy: "abc",
+			},
+			Desc:               "desc test 2",
+			ModuleOwnerAddress: GenerateAccount(),
 		},
 		{
 			FeedId:    "feed2",
@@ -195,9 +201,12 @@ func TestQuerier_GetFeedInfo(t *testing.T) {
 			SubmissionCount:           100,
 			HeartbeatTrigger:          200,
 			DeviationThresholdTrigger: 300,
-			FeedReward:                400,
-			Desc:                      "desc test 3",
-			ModuleOwnerAddress:        GenerateAccount(),
+			FeedReward: &types.FeedRewardSchema{
+				Amount:   400,
+				Strategy: "xyz",
+			},
+			Desc:               "desc test 3",
+			ModuleOwnerAddress: GenerateAccount(),
 		},
 	}
 

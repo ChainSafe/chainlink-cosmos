@@ -404,9 +404,12 @@ func TestKeeper_SetFeed(t *testing.T) {
 		SubmissionCount:           1,
 		HeartbeatTrigger:          2,
 		DeviationThresholdTrigger: 3,
-		FeedReward:                4,
-		Desc:                      "desc1",
-		ModuleOwnerAddress:        GenerateAccount(),
+		FeedReward: &types.FeedRewardSchema{
+			Amount:   4,
+			Strategy: "none",
+		},
+		Desc:               "desc1",
+		ModuleOwnerAddress: GenerateAccount(),
 	}
 
 	k.SetFeed(ctx, &feedToInsert)
@@ -440,9 +443,12 @@ func TestKeeper_GetFeed(t *testing.T) {
 		SubmissionCount:           1,
 		HeartbeatTrigger:          2,
 		DeviationThresholdTrigger: 3,
-		FeedReward:                4,
-		Desc:                      "desc1",
-		ModuleOwnerAddress:        GenerateAccount(),
+		FeedReward: &types.FeedRewardSchema{
+			Amount:   4,
+			Strategy: "none",
+		},
+		Desc:               "desc1",
+		ModuleOwnerAddress: GenerateAccount(),
 	}
 
 	k.SetFeed(ctx, &feedToInsert)
@@ -546,7 +552,7 @@ func TestKeeper_ModifyFeedInfo(t *testing.T) {
 		submissionCount           uint32
 		heartbeatTrigger          uint32
 		deviationThresholdTrigger uint32
-		feedReward                uint32
+		feedReward                *types.FeedRewardSchema
 	}
 
 	testCases := []struct {
@@ -556,13 +562,13 @@ func TestKeeper_ModifyFeedInfo(t *testing.T) {
 	}{
 		{
 			feedId: "feed1",
-			insert: param{10, 20, 30, 40},
-			modify: param{11, 22, 33, 44},
+			insert: param{submissionCount: 10, heartbeatTrigger: 20, deviationThresholdTrigger: 30, feedReward: &types.FeedRewardSchema{Amount: 4, Strategy: "none"}},
+			modify: param{submissionCount: 11, heartbeatTrigger: 22, deviationThresholdTrigger: 33, feedReward: &types.FeedRewardSchema{Amount: 44, Strategy: "abc"}},
 		},
 		{
 			feedId: "feed2",
-			insert: param{100, 200, 300, 400},
-			modify: param{101, 202, 303, 404},
+			insert: param{submissionCount: 100, heartbeatTrigger: 200, deviationThresholdTrigger: 300, feedReward: &types.FeedRewardSchema{Amount: 400, Strategy: "none"}},
+			modify: param{submissionCount: 101, heartbeatTrigger: 202, deviationThresholdTrigger: 303, feedReward: &types.FeedRewardSchema{Amount: 404, Strategy: "xyz"}},
 		},
 	}
 
