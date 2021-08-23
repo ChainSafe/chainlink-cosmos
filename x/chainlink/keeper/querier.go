@@ -37,6 +37,8 @@ func NewQuerier(k Keeper, legacyQuerierCdc *codec.LegacyAmino) sdk.Querier {
 			return getFeedInfo(ctx, path, k, legacyQuerierCdc)
 		case types.QueryAccountInfo:
 			return getAccountInfo(ctx, path, k, legacyQuerierCdc)
+		case types.QueryFeedRewardStrategy:
+			return getFeedRewardStrategy(ctx, path, k, legacyQuerierCdc)
 		default:
 			err = sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "unknown %s query endpoint: %s", types.ModuleName, path[0])
 		}
@@ -147,6 +149,22 @@ func getAccountInfo(ctx sdk.Context, path []string, keeper Keeper, legacQuerierC
 
 	req := &types.GetAccountRequest{AccountAddress: accAddr}
 	resp := keeper.GetAccount(ctx, req)
+
+	bz, err := codec.MarshalJSONIndent(legacQuerierCdc, resp)
+	if err != nil {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, err.Error())
+	}
+
+	return bz, nil
+}
+
+func getFeedRewardStrategy(ctx sdk.Context, path []string, keeper Keeper, legacQuerierCdc *codec.LegacyAmino) ([]byte, error) {
+	if len(path) < 1 {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest,
+			"Insufficient parameters, at least 1 parameters is required")
+	}
+
+	resp := keeper.GetRegisteredFeedRewardStrategies(ctx)
 
 	bz, err := codec.MarshalJSONIndent(legacQuerierCdc, resp)
 	if err != nil {

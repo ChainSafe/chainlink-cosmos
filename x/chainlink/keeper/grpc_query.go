@@ -39,3 +39,8 @@ func (k Keeper) GetAccountInfo(c context.Context, req *types.GetAccountRequest) 
 	ctx := sdk.UnwrapSDKContext(c)
 	return k.GetAccount(ctx, req), nil
 }
+
+func (k Keeper) GetFeedRewardAvailStrategy(c context.Context, _ *types.GetFeedRewardAvailStrategiesRequest) (*types.GetFeedRewardAvailStrategiesResponse, error) {
+	ctx := sdk.UnwrapSDKContext(c)
+	return k.GetRegisteredFeedRewardStrategies(ctx), nil
+}

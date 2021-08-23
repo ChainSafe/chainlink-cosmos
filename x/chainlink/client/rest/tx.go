@@ -23,10 +23,11 @@ func registerTxHandlers(clientCtx client.Context, r *mux.Router) {
 }
 
 type FeedDataRequest struct {
-	BaseReq    rest.BaseReq `json:"baseReq"`
-	FeedId     string       `json:"feedId"`
-	FeedData   []byte       `json:"feedData"`
-	Signatures [][]byte     `json:"signature"`
+	BaseReq       rest.BaseReq `json:"baseReq"`
+	FeedId        string       `json:"feedId"`
+	FeedData      []byte       `json:"feedData"`
+	Signatures    [][]byte     `json:"signature"`
+	CosmosPubKeys [][]byte     `json:"cosmosPubKeys"`
 }
 
 func NewFeedDataRequestHandler(clientCtx client.Context) http.HandlerFunc {
@@ -47,7 +48,7 @@ func NewFeedDataRequestHandler(clientCtx client.Context) http.HandlerFunc {
 			return
 		}
 
-		msg := types.NewMsgFeedData(submitter, req.FeedId, req.FeedData, req.Signatures)
+		msg := types.NewMsgFeedData(submitter, req.FeedId, req.FeedData, req.Signatures, req.CosmosPubKeys)
 		err = msg.ValidateBasic()
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())

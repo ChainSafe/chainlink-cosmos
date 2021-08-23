@@ -26,6 +26,7 @@ func GetQueryCmd() *cobra.Command {
 	cmd.AddCommand(CmdGetModuleOwnerList())
 	cmd.AddCommand(CmdGetFeedInfo())
 	cmd.AddCommand(CmdGetAccountInfo())
+	cmd.AddCommand(CmdGetFeedRewardAvailStrategy())
 
 	return cmd
 }

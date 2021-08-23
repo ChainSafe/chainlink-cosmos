@@ -386,15 +386,8 @@ func (k Keeper) SetFeedReward(ctx sdk.Context, setFeedReward *types.MsgSetFeedRe
 
 // DistributeReward will mint the reward from the module
 // then transfer the reward to the receiver (data provider)
-func (k Keeper) DistributeReward(ctx sdk.Context, msg *types.MsgFeedData, dataProviders []*types.DataProvider, feedReward uint32) error {
-	// calculate the total reward to mint (minus fee compensation)
-	totalFeedReward := int64(feedReward) * int64(len(dataProviders))
-	tokensToMint := types.NewLinkCoinInt64(totalFeedReward)
-	tokensToSend := types.NewLinkCoinInt64(int64(feedReward))
-
-	OraclePaidEvent := &types.MsgOraclePaidEvent{
-		FeedId: msg.FeedId,
-	}
+func (k Keeper) DistributeReward(ctx sdk.Context, msg *types.MsgFeedData, feedRewardDecision []types.RewardPayout, totalRewardVal uint32) error {
+	tokensToMint := types.NewLinkCoinInt64(int64(totalRewardVal))
 
 	// mint new tokens if the source of the transfer is the same chain
 	if err := k.bankKeeper.MintCoins(
@@ -403,39 +396,36 @@ func (k Keeper) DistributeReward(ctx sdk.Context, msg *types.MsgFeedData, dataPr
 		return err
 	}
 
-	// distribute reward to all data providers except submitter
-	for _, dp := range dataProviders {
-		if dp.Address.String() != msg.Submitter.String() {
-			if err := k.bankKeeper.SendCoinsFromModuleToAccount(
-				ctx, types.ModuleName, dp.Address, sdk.NewCoins(tokensToSend),
-			); err != nil {
-				return err
-			}
-			// emit OraclePaid event for valid data providers
-			OraclePaidEvent.Account = dp.Address
-			OraclePaidEvent.Value = uint64(feedReward)
-			err := types.EmitEvent(OraclePaidEvent, ctx.EventManager())
-			if err != nil {
-				return err
-			}
+	OraclePaidEvent := types.MsgOraclePaidEvent{
+		FeedId: msg.FeedId,
+	}
+
+	// distribute reward to each data provider including submitter
+	for _, payout := range feedRewardDecision {
+		event := OraclePaidEvent
+
+		dataProvider := payout.DataProvider
+		payoutAmount := payout.Amount
+
+		// TODO: compensate tx fee for submitter here
+		if dataProvider.GetAddress().String() == msg.Submitter.String() {
+			payoutAmount += uint32(0)
 		}
-	}
 
-	// send to submitter
-	// TODO: include fees - need to mint this amount as well
-	if err := k.bankKeeper.SendCoinsFromModuleToAccount(
-		ctx, types.ModuleName, msg.Submitter, sdk.NewCoins(tokensToSend),
-	); err != nil {
-		return err
-	}
+		if err := k.bankKeeper.SendCoinsFromModuleToAccount(
+			ctx, types.ModuleName, dataProvider.GetAddress(), sdk.NewCoins(types.NewLinkCoinInt64(int64(payoutAmount))),
+		); err != nil {
+			return err
+		}
 
-	// emit OraclePaid event to submitter including the fee
-	OraclePaidEvent.Account = msg.Submitter
-	// TODO: event.Value =  uint64(feedReward) + fee
-	OraclePaidEvent.Value = uint64(feedReward)
-	err := types.EmitEvent(OraclePaidEvent, ctx.EventManager())
-	if err != nil {
-		return err
+		// emit OraclePaid event for valid data providers
+		event.Account = dataProvider.GetAddress()
+		event.Value = uint64(payoutAmount)
+
+		err := types.EmitEvent(&event, ctx.EventManager())
+		if err != nil {
+			k.Logger(ctx).Error(err.Error())
+		}
 	}
 
 	return nil
@@ -509,5 +499,16 @@ func (k Keeper) GetAccount(ctx sdk.Context, accReq *types.GetAccountRequest) *ty
 
 	return &types.GetAccountResponse{
 		Account: &account,
+	}
+}
+
+func (k Keeper) GetRegisteredFeedRewardStrategies(_ sdk.Context) *types.GetFeedRewardAvailStrategiesResponse {
+	availStrategies := make([]string, 0, len(types.FeedRewardStrategyConvertor))
+	for name := range types.FeedRewardStrategyConvertor {
+		availStrategies = append(availStrategies, name)
+	}
+
+	return &types.GetFeedRewardAvailStrategiesResponse{
+		AvailStrategies: availStrategies,
 	}
 }

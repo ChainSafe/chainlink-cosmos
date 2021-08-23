@@ -26,6 +26,9 @@ service Query {
   rpc GetAccountInfo(GetAccountRequest) returns (GetAccountResponse) {
     option (google.api.http).get = "/chainlink/module/account/{accountAddress}";
   }
+  rpc GetFeedRewardAvailStrategy(GetFeedRewardAvailStrategiesRequest) returns (GetFeedRewardAvailStrategiesResponse) {
+    option (google.api.http).get = "/chainlink/module/feed/reward/strategy";
+  }
 }
 
 message GetFeedByIdRequest {
@@ -73,4 +76,10 @@ message GetAccountRequest {
 
 message GetAccountResponse {
   MsgAccount account = 1;
+}
+message GetFeedRewardAvailStrategiesRequest {
+}
+
+message GetFeedRewardAvailStrategiesResponse {
+  repeated string availStrategies = 1;
 }

@@ -16,7 +16,7 @@ import (
 
 func CmdGetFeedDataByRound() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "getRoundFeedData [roundId] [feedId]",
+		Use:   "get-round-feed-data [roundId] [feedId]",
 		Short: "List feed data by round. roundId is required, feedId is optional.",
 		Args:  cobra.MinimumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -68,7 +68,7 @@ func CmdGetFeedDataByRound() *cobra.Command {
 
 func CmdGetLatestFeedData() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "getLatestFeedData [feedId]",
+		Use:   "get-latest-feed-data [feedId]",
 		Short: "List the latest round feed data. feedId is optional.",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			var feedId string
@@ -102,7 +102,7 @@ func CmdGetLatestFeedData() *cobra.Command {
 
 func CmdGetFeedInfo() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "getFeedInfo [feedId]",
+		Use:   "get-feed-info [feedId]",
 		Short: "Get feed info by feedId",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -121,6 +121,34 @@ func CmdGetFeedInfo() *cobra.Command {
 			params := &types.GetFeedByIdRequest{FeedId: feedId}
 
 			res, err := queryClient.GetFeedByFeedId(context.Background(), params)
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintProto(res)
+		},
+	}
+
+	flags.AddQueryFlagsToCmd(cmd)
+	return cmd
+}
+
+func CmdGetFeedRewardAvailStrategy() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "getFeedRewardAvailStrategy",
+		Short: "Get feed reward available strategies info",
+		RunE: func(cmd *cobra.Command, args []string) error {
+
+			clientCtx := client.GetClientContextFromCmd(cmd)
+			clientCtx, err := client.ReadPersistentCommandFlags(clientCtx, cmd.Flags())
+			if err != nil {
+				return err
+			}
+
+			params := &types.GetFeedRewardAvailStrategiesRequest{}
+
+			queryClient := types.NewQueryClient(clientCtx)
+			res, err := queryClient.GetFeedRewardAvailStrategy(context.Background(), params)
 			if err != nil {
 				return err
 			}

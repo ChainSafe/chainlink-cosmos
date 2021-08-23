@@ -19,10 +19,11 @@ import (
 
 func CmdAddFeed() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "addFeed [feedId] [feedDescription] [feedOwnerAddress] [submissionCount] [heartbeatTrigger] [deviationThresholdTrigger] [feedReward] [initDataProviderList]",
+		Use: "add-feed [feedId] [feedDescription] [feedOwnerAddress] [submissionCount] [heartbeatTrigger]" +
+			" [deviationThresholdTrigger] [baseFeedRewardAmount] [feedRewardStrategy] [initDataProviderList]",
 		Short: "Add new feed. Signer must be the existing module owner.",
 		Long:  "The following fields are required:\n\tThe feedId will be a string that uniquely identifies the feed. The feedOwnerAddress must be a valid cosmos address.\n\tThe submissionCount in the required number of signatures.\n\tThe deviationThresholdTrigger is the fraction of deviation in the feed data required to trigger a new round.\n\tThe initDataProviderList is a string contains each data provider's address with pubkey and split by comma.\n\tThe feedReward is a uint32 value that represents the data provider reward for submitting data to a feed.",
-		Args:  cobra.MinimumNArgs(8),
+		Args:  cobra.MinimumNArgs(9),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			argsFeedId := args[0]
 			argsFeedDesc := args[1]
@@ -30,8 +31,9 @@ func CmdAddFeed() *cobra.Command {
 			argsSubmissionCount := args[3]
 			argsHeartbeatTrigger := args[4]
 			argsDeviationThresholdTrigger := args[5]
-			argsFeedReward := args[6]
-			argsInitDataProviderListStr := strings.TrimSpace(args[7])
+			argsFeedRewardSchemaAmount := args[6]
+			argsFeedRewardSchemaStrategy := args[7]
+			argsInitDataProviderListStr := strings.TrimSpace(args[8])
 
 			submissionCount, err := strconv.ParseUint(argsSubmissionCount, 10, 32)
 			if err != nil {
@@ -45,7 +47,8 @@ func CmdAddFeed() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			feedReward, err := strconv.ParseUint(argsFeedReward, 10, 32)
+
+			feedRewardBaseAmount, err := strconv.ParseUint(argsFeedRewardSchemaAmount, 10, 32)
 			if err != nil {
 				return err
 			}
@@ -80,7 +83,9 @@ func CmdAddFeed() *cobra.Command {
 				return err
 			}
 
-			msg := types.NewMsgFeed(argsFeedId, argsFeedDesc, feedOwnerAddr, clientCtx.GetFromAddress(), initDataProviderList, uint32(submissionCount), uint32(heartbeatTrigger), uint32(deviationThresholdTrigger), uint32(feedReward))
+			msg := types.NewMsgFeed(argsFeedId, argsFeedDesc, feedOwnerAddr, clientCtx.GetFromAddress(),
+				initDataProviderList, uint32(submissionCount), uint32(heartbeatTrigger), uint32(deviationThresholdTrigger),
+				uint32(feedRewardBaseAmount), argsFeedRewardSchemaStrategy)
 			if err := msg.ValidateBasic(); err != nil {
 				return err
 			}
@@ -95,7 +100,7 @@ func CmdAddFeed() *cobra.Command {
 
 func CmdAddDataProvider() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "addDataProvider [feedId] [address] [publicKey]",
+		Use:   "add-data-provider [feedId] [address] [publicKey]",
 		Short: "Add new data provider to the feed. Signer must be the existing module owner.",
 		Args:  cobra.MinimumNArgs(3),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -131,7 +136,7 @@ func CmdAddDataProvider() *cobra.Command {
 
 func CmdRemoveDataProvider() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "removeDataProvider [feedId] [address]",
+		Use:   "remove-data-provider [feedId] [address]",
 		Short: "Remove data provider from the feed. Signer must be the existing module owner.",
 		Args:  cobra.MinimumNArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -163,7 +168,7 @@ func CmdRemoveDataProvider() *cobra.Command {
 
 func CmdSetSubmissionCount() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "setSubmissionCount [feedId] [count]",
+		Use:   "set-submission-count [feedId] [count]",
 		Short: "Sets a new submission count for a given feed",
 		Long:  "Set the required number of signatures. Signer must be the existing module owner.",
 		Args:  cobra.MinimumNArgs(2),
@@ -196,7 +201,7 @@ func CmdSetSubmissionCount() *cobra.Command {
 
 func CmdSetHeartbeatTrigger() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "setHeartbeatTrigger [feedId] [heartbeatTrigger]",
+		Use:   "set-heartbeat-trigger [feedId] [heartbeatTrigger]",
 		Short: "Sets a new heartbeat trigger for the given feed",
 		Long:  "Set the interval between which a new round should automatically be triggered. Signer must be the existing module owner.",
 		Args:  cobra.MinimumNArgs(2),
@@ -229,7 +234,7 @@ func CmdSetHeartbeatTrigger() *cobra.Command {
 
 func CmdSetDeviationThreshold() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "setDeviationThresholdTrigger [feedId] [deviationThresholdTrigger]",
+		Use:   "set-deviation-threshold-trigger [feedId] [deviationThresholdTrigger]",
 		Short: "Sets a new deviation threshold trigger for the given feed",
 		Long:  "Set the fraction of deviation in the feed data required to trigger a new round. Signer must be the existing module owner.",
 		Args:  cobra.MinimumNArgs(2),
@@ -262,15 +267,16 @@ func CmdSetDeviationThreshold() *cobra.Command {
 
 func CmdSetFeedReward() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "setFeedReward [feedId] [feedReward]",
+		Use:   "set-feed-reward [feedId] [baseFeedRewardAmount] [feedRewardStrategy]",
 		Short: "Sets a new feed reward for the given feed",
 		Long:  "Set the feed reward for a given feed, the reward will be distributed in tokens denominated as 'link'. Signer must be the existing module owner.",
-		Args:  cobra.MinimumNArgs(2),
+		Args:  cobra.MinimumNArgs(3),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			argsFeedId := args[0]
-			argsFeedReward := args[1]
+			argsFeedRewardSchemaAmount := args[1]
+			argsFeedRewardSchemaStrategy := args[2]
 
-			feedReward, err := strconv.ParseUint(argsFeedReward, 10, 32)
+			feedRewardAmount, err := strconv.ParseUint(argsFeedRewardSchemaAmount, 10, 32)
 			if err != nil {
 				return err
 			}
@@ -280,7 +286,7 @@ func CmdSetFeedReward() *cobra.Command {
 				return err
 			}
 
-			msg := types.NewMsgSetFeedReward(clientCtx.GetFromAddress(), argsFeedId, uint32(feedReward))
+			msg := types.NewMsgSetFeedReward(clientCtx.GetFromAddress(), argsFeedId, uint32(feedRewardAmount), argsFeedRewardSchemaStrategy)
 			if err := msg.ValidateBasic(); err != nil {
 				return err
 			}
@@ -295,7 +301,7 @@ func CmdSetFeedReward() *cobra.Command {
 
 func CmdTransferFeedOwnership() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "feedOwnershipTransfer [feedId] [newFeedOwnerAddress]",
+		Use:   "feed-ownership-transfer [feedId] [newFeedOwnerAddress]",
 		Short: "Transfer chainLink feed ownership from an existing feed owner account to another account. Signer must be an existing feed owner.",
 		Args:  cobra.MinimumNArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -327,14 +333,15 @@ func CmdTransferFeedOwnership() *cobra.Command {
 
 func CmdSubmitFeedData() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "submitFeedData [feedId] [feedData] [signatures]",
+		Use:   "submit-feed-data [feedId] [feedData] [signatures] [cosmosPubKeys]",
 		Short: "Submit feed data",
 		Long:  "Submit feed data, called by an OCR round leader to submit an off-chain report of data signed by a number of oracles.",
-		Args:  cobra.MinimumNArgs(3),
+		Args:  cobra.MinimumNArgs(4),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			argsFeedId := args[0]
 			argsFeedData := args[1]
 			argsSignatures := args[2]
+			argsCosmosPubKeys := args[3]
 
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
@@ -342,13 +349,19 @@ func CmdSubmitFeedData() *cobra.Command {
 			}
 
 			// TODO: this is dummy data to simulate the data providers signature set
-			signatures := strings.Split(argsSignatures, " ")
+			signatures := strings.Split(argsSignatures, ",")
 			s := make([][]byte, 0)
 			for _, sign := range signatures {
 				s = append(s, []byte(sign))
 			}
 
-			msg := types.NewMsgFeedData(clientCtx.GetFromAddress(), argsFeedId, []byte(argsFeedData), s)
+			pubkeys := strings.Split(argsCosmosPubKeys, ",")
+			p := make([][]byte, 0)
+			for _, key := range pubkeys {
+				p = append(p, []byte(key))
+			}
+
+			msg := types.NewMsgFeedData(clientCtx.GetFromAddress(), argsFeedId, []byte(argsFeedData), s, p)
 			if err := msg.ValidateBasic(); err != nil {
 				return err
 			}
@@ -363,11 +376,11 @@ func CmdSubmitFeedData() *cobra.Command {
 
 func CmdRequestNewRound() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "requestNewRound [feedId]",
+		Use:   "request-new-round [feedId]",
 		Short: "Produces a new round for the given feedId",
-		Long:  "Trigger an event to have data providers produce a new round report. New report will only be valid if " +
+		Long: "Trigger an event to have data providers produce a new round report. New report will only be valid if " +
 			"it meets the deviation threshold or heartbeat interval requirements.",
-		Args:  cobra.MinimumNArgs(1),
+		Args: cobra.MinimumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			argsFeedId := args[0]
 

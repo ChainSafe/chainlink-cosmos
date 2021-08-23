@@ -37,7 +37,7 @@ var _ sdk.Tx = &MsgModuleOwner{}
 
 var _ Validation = &MsgFeedData{}
 
-func NewMsgFeedData(submitter sdk.Address, feedId string, feedData []byte, signatures [][]byte) *MsgFeedData {
+func NewMsgFeedData(submitter sdk.Address, feedId string, feedData []byte, signatures [][]byte, cosmosPubKeys [][]byte) *MsgFeedData {
 	return &MsgFeedData{
 		FeedId:     feedId,
 		Submitter:  submitter.Bytes(),
@@ -45,6 +45,7 @@ func NewMsgFeedData(submitter sdk.Address, feedId string, feedData []byte, signa
 		Signatures: signatures,
 		// IsFeedDataValid will be true by default
 		IsFeedDataValid: true,
+		CosmosPubKeys:   cosmosPubKeys,
 	}
 }
 
@@ -81,6 +82,10 @@ func (m *MsgFeedData) ValidateBasic() error {
 	if len(m.GetSignatures()) == 0 {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "number of oracle signatures does not meet the required number")
 	}
+	if len(m.Signatures) != len(m.CosmosPubKeys) {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "number of oracle signatures does not match the data provider cosmos pubkey number")
+	}
+
 	return nil
 }
 
@@ -89,6 +94,47 @@ func (m *MsgFeedData) Validate(fn func(msg sdk.Msg) bool) bool {
 		return true
 	}
 	return fn(m)
+}
+
+// RewardCalculator calculates the reward for each data provider in the current submit feed data tx
+// base on the registered reward strategy
+// return the slice of reward payout and the total reward amount
+func (m *MsgFeedData) RewardCalculator(feed *MsgFeed, feedData *MsgFeedData) ([]RewardPayout, uint32, error) {
+	// every one gets the base amount if no strategy configured when chain launching
+	// or the owner of the current feed does not set a strategy
+	if len(FeedRewardStrategyConvertor) == 0 || feed.GetFeedReward().GetStrategy() == "" {
+		rewardPayout := make([]RewardPayout, 0, len(feedData.GetCosmosPubKeys()))
+
+		for i := 0; i < len(feedData.GetCosmosPubKeys()); i++ {
+			// err is not possible here since pubkey has been checked in anteHandler
+			cosmosAddr, _ := DeriveCosmosAddrFromPubKey(string(feedData.GetCosmosPubKeys()[i]))
+			dataProviderAddr, _ := sdk.AccAddressFromBech32(cosmosAddr.String())
+
+			rp := RewardPayout{
+				DataProvider: &DataProvider{
+					Address: dataProviderAddr,
+				},
+				Amount: feed.GetFeedReward().GetAmount(),
+			}
+			rewardPayout = append(rewardPayout, rp)
+		}
+		return rewardPayout, feed.GetFeedReward().GetAmount() * uint32(len(feedData.GetSignatures())), nil
+	}
+
+	// strategy of a feed here has already been checked in anteHandler when set, ok must be true
+	strategyFn, _ := FeedRewardStrategyConvertor[feed.GetFeedReward().GetStrategy()]// nolint
+
+	RewardPayoutList, err := strategyFn(feed, feedData)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	totalRewardAmount := uint32(0)
+	for _, payout := range RewardPayoutList {
+		totalRewardAmount += payout.Amount
+	}
+
+	return RewardPayoutList, totalRewardAmount, nil
 }
 
 func NewMsgModuleOwner(assigner, address sdk.Address, pubKey []byte) *MsgModuleOwner {
@@ -168,7 +214,8 @@ func (m *MsgModuleOwnershipTransfer) GetSigners() []githubcosmossdktypes.AccAddr
 	return []sdk.AccAddress{sdk.AccAddress(m.AssignerAddress)}
 }
 
-func NewMsgFeed(feedId, feedDesc string, feedOwner, moduleOwner sdk.Address, initDataProviders []*DataProvider, submissionCount, heartbeatTrigger, deviationThresholdTrigger, feedReward uint32) *MsgFeed {
+func NewMsgFeed(feedId, feedDesc string, feedOwner, moduleOwner sdk.Address, initDataProviders []*DataProvider,
+	submissionCount, heartbeatTrigger, deviationThresholdTrigger, baseFeedRewardAmount uint32, feedRewardStrategy string) *MsgFeed {
 	return &MsgFeed{
 		FeedId:                    feedId,
 		Desc:                      feedDesc,
@@ -178,7 +225,10 @@ func NewMsgFeed(feedId, feedDesc string, feedOwner, moduleOwner sdk.Address, ini
 		HeartbeatTrigger:          heartbeatTrigger,
 		DeviationThresholdTrigger: deviationThresholdTrigger,
 		ModuleOwnerAddress:        moduleOwner.Bytes(),
-		FeedReward:                feedReward,
+		FeedReward: &FeedRewardSchema{
+			Amount:   baseFeedRewardAmount,
+			Strategy: feedRewardStrategy,
+		},
 	}
 }
 
@@ -209,8 +259,8 @@ func (m *MsgFeed) ValidateBasic() error {
 	if m.GetDeviationThresholdTrigger() == 0 {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "deviationThresholdTrigger must not be 0")
 	}
-	if m.GetFeedReward() == 0 {
-		return errors.New("FeedReward must not be 0")
+	if m.GetFeedReward().GetAmount() == 0 {
+		return errors.New("baseFeedRewardAmount must not be 0")
 	}
 
 	if len(m.GetDataProviders()) == 0 {
@@ -427,11 +477,14 @@ func (m *MsgSetDeviationThresholdTrigger) GetSigners() []githubcosmossdktypes.Ac
 	return []sdk.AccAddress{m.Signer}
 }
 
-func NewMsgSetFeedReward(signer githubcosmossdktypes.AccAddress, feedId string, feedReward uint32) *MsgSetFeedReward {
+func NewMsgSetFeedReward(signer githubcosmossdktypes.AccAddress, feedId string, baseFeedRewardAmount uint32, feedRewardStrategy string) *MsgSetFeedReward {
 	return &MsgSetFeedReward{
-		FeedId:     feedId,
-		FeedReward: feedReward,
-		Signer:     signer,
+		FeedId: feedId,
+		FeedReward: &FeedRewardSchema{
+			Amount:   baseFeedRewardAmount,
+			Strategy: feedRewardStrategy,
+		},
+		Signer: signer,
 	}
 }
 
@@ -450,8 +503,8 @@ func (m *MsgSetFeedReward) ValidateBasic() error {
 	if len(m.GetFeedId()) == 0 {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "feedId can not be empty")
 	}
-	if m.GetFeedReward() == 0 {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "feedReward must not be 0")
+	if m.GetFeedReward().GetAmount() == 0 {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "baseFeedRewardAmount must not be 0")
 	}
 	return nil
 }
