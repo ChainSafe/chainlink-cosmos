@@ -336,6 +336,11 @@ func New(
 		keys[chainlinktypes.MemStoreKey],
 	)
 
+	// Register feed reward payout strategy functions
+	// nil means no strategy registered when chain launching, empty string must be passed in as `feedRewardStrategy` when
+	// sending adding a new feed or set FeedReward txs.
+	chainlinktypes.NewFeedRewardStrategyRegister(nil)
+
 	/****  Module Options ****/
 
 	// NOTE: we may consider parsing `appOpts` inside module constructors. For the moment

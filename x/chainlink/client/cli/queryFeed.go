@@ -132,3 +132,31 @@ func CmdGetFeedInfo() *cobra.Command {
 	flags.AddQueryFlagsToCmd(cmd)
 	return cmd
 }
+
+func CmdGetFeedRewardAvailStrategy() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "getFeedRewardAvailStrategy",
+		Short: "Get feed reward available strategies info",
+		RunE: func(cmd *cobra.Command, args []string) error {
+
+			clientCtx := client.GetClientContextFromCmd(cmd)
+			clientCtx, err := client.ReadPersistentCommandFlags(clientCtx, cmd.Flags())
+			if err != nil {
+				return err
+			}
+
+			params := &types.GetFeedRewardAvailStrategiesRequest{}
+
+			queryClient := types.NewQueryClient(clientCtx)
+			res, err := queryClient.GetFeedRewardAvailStrategy(context.Background(), params)
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintProto(res)
+		},
+	}
+
+	flags.AddQueryFlagsToCmd(cmd)
+	return cmd
+}

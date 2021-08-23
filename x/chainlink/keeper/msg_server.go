@@ -19,7 +19,6 @@ const (
 	FeedParamChangeTypeSubmissionCount    = "SubmissionCount"
 	FeedParamChangeTypeHeartbeat          = "Heartbeat"
 	FeedParamChangeTypeDeviationThreshold = "DeviationThreshold"
-	FeedParamChangeTypeRewardSchema       = "RewardSchema"
 )
 
 type msgServer struct {
@@ -45,13 +44,13 @@ func (s msgServer) SubmitFeedDataTx(c context.Context, msg *types.MsgFeedData) (
 		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidHeight, ErrIncorrectHeightFound)
 	}
 
+	rewardDecision, totalReward, err := msg.RewardCalculator(s.GetFeed(ctx, msg.FeedId).GetFeed(), msg)
+	if err != nil {
+		return nil, err
+	}
+
 	// reward distribution
-	feed := s.GetFeed(ctx, msg.FeedId)
-	feedReward := feed.GetFeed().FeedReward
-
-	dataProviders := feed.GetFeed().DataProviders
-
-	err = s.DistributeReward(ctx, msg, dataProviders, feedReward)
+	err = s.DistributeReward(ctx, msg, rewardDecision, totalReward)
 	if err != nil {
 		return nil, err
 	}
@@ -301,11 +300,11 @@ func (s msgServer) SetFeedRewardTx(c context.Context, msg *types.MsgSetFeedRewar
 	}
 
 	// emit FeedParameterChange event
-	err = types.EmitEvent(&types.MsgFeedParameterChangeEvent{
-		FeedId:            msg.GetFeedId(),
-		ChangeType:        FeedParamChangeTypeRewardSchema,
-		NewParameterValue: msg.GetFeedReward(),
-		Signer:            msg.GetSigner(),
+	err = types.EmitEvent(&types.MsgFeedRewardSchemaChangeEvent{
+		FeedId:        msg.GetFeedId(),
+		NewBaseAmount: msg.GetFeedReward().GetAmount(),
+		NewStrategy:   msg.GetFeedReward().GetStrategy(),
+		Signer:        msg.GetSigner(),
 	}, ctx.EventManager())
 	if err != nil {
 		return nil, err

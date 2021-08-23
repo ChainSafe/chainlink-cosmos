@@ -28,10 +28,13 @@ chainlinkd tx chainlink moduleOwnershipTransfer "$aliceAddr" "$alicePK" --from b
 # ====
 
 # Add new feed
-chainlinkd tx chainlink addFeed feedid1 "this is test feed 1" "$cerloAddr" 1 2 3 4 "$cerloAddr,$cerloPK" --from alice --keyring-backend test --chain-id testchain
+chainlinkd tx chainlink addFeed feedid1 "this is test feed 1" "$cerloAddr" 1 2 3 100 "" "$bobAddr,$bobPK,$cerloAddr,$cerloPK" --from alice --keyring-backend test --chain-id testchain
 
 # Query feed info by feedId
 chainlinkd query chainlink getFeedInfo feedid1 --chain-id testchain
+
+# Query available feed reward strategy
+chainlinkd query chainlink getFeedRewardAvailStrategy --chain-id testchain
 
 # Add feed data provider
 chainlinkd tx chainlink addDataProvider feedid1 "$bobAddr" "$bobPK" --from cerlo --keyring-backend test --chain-id testchain
@@ -61,17 +64,14 @@ chainlinkd tx chainlink setHeartbeatTrigger feedid1 200 --from bob --keyring-bac
 chainlinkd tx chainlink setDeviationThresholdTrigger feedid1 300 --from bob --keyring-backend test --chain-id testchain
 
 # Update feed reward parameter
-chainlinkd tx chainlink setFeedReward feedid1 100 --from bob --keyring-backend test --chain-id testchain
-
-# Query feed info by feedId
-chainlinkd query chainlink getFeedInfo feedid1 --chain-id testchain
+chainlinkd tx chainlink setFeedReward feedid1 1000 "" --from cerlo --keyring-backend test --chain-id testchain
 
 # ==================
 # Feed Data (Report)
 # ==================
 
 # Submit feed data by bob
-chainlinkd tx chainlink submitFeedData feedid1 "feed 1 test data" "dummy signatures" --from bob --keyring-backend test --chain-id testchain
+chainlinkd tx chainlink submitFeedData feedid1 "feed 1 test data" "signatures_bob,signatures_cerlo" "$bobPK,$cerloPK" --from cerlo --keyring-backend test --chain-id testchain
 
 # Query feed data by txHash
 chainlinkd query tx C350CAD4673DB75005C6215262633375ECE318BAEDC794820EE43FA958FB8174 --chain-id testchain -o json

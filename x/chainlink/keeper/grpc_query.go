@@ -34,3 +34,8 @@ func (k Keeper) GetFeedByFeedId(c context.Context, req *types.GetFeedByIdRequest
 	ctx := sdk.UnwrapSDKContext(c)
 	return k.GetFeed(ctx, req.FeedId), nil
 }
+
+func (k Keeper) GetFeedRewardAvailStrategy(c context.Context, _ *types.GetFeedRewardAvailStrategiesRequest) (*types.GetFeedRewardAvailStrategiesResponse, error) {
+	ctx := sdk.UnwrapSDKContext(c)
+	return k.GetRegisteredFeedRewardStrategies(ctx), nil
+}
