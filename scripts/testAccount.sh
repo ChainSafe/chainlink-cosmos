@@ -6,6 +6,13 @@ function errorAndExit() {
   exit 1
 }
 
+function checkReturn() {
+  if [ $? -ne 0 ]
+  then
+    errorAndExit "CLI cmd returned a non-zero response"
+  fi
+}
+
 chainlinkCMD="chainlinkd tx chainlink"
 
 #### according to `start.sh`, ALICE is the Module Owner. #####
@@ -26,6 +33,7 @@ cerloPK=$(chainlinkd keys show cerlo -p)
 # aDd AlIcE aS cHaInLiNk oRaClE iN aCcOuNt StOrE
 echo "adding alice chainlink account"
 addChainlinkAccountTx=$(chainlinkd tx chainlink add-chainlink-account "aliceChainlinkPubKey" "aliceChainlinkSigningKey" --from alice --keyring-backend test --chain-id testchain <<< 'y\n')
+checkReturn
 sleep 1
 addChainlinkAccountTxResp=$(echo ${addChainlinkAccountTx#*\]} | jq '.height')
 if [ "$addChainlinkAccountTxResp" == "\"0\"" ]
@@ -36,8 +44,7 @@ echo "added alice account successfully..."
 
 # gEt AlIcE cHaInLiNk AcCoUnT iNfO
 echo "getting alice chainlink account information"
-getAliceAccountInfo=$(chainlinkd query chainlink getAccountInfo $aliceAddr --from alice --keyring-backend test --chain-id testchain)
-
+getAliceAccountInfo=$(chainlinkd query chainlink get-account-info $aliceAddr --from alice --keyring-backend test --chain-id testchain)
 aliceSubmitterAddress=$(echo "$getAliceAccountInfo" | jq '.account.submitter')
 if [ "$aliceSubmitterAddress" != "\"$aliceAddr\"" ]
 then
@@ -65,7 +72,7 @@ echo "got alice account info successfully..."
 
 # mAkE sUrE bOb AcCoUnT dOeS nOt ExIsT
 echo "getting bob chainlink account information"
-getBobAccountInfo=$(chainlinkd query chainlink getAccountInfo $bobAddr --from bob --keyring-backend test --chain-id testchain)
+getBobAccountInfo=$(chainlinkd query chainlink get-account-info $bobAddr --from bob --keyring-backend test --chain-id testchain)
 getBobAccountInfoResp=$(echo ${getBobAccountInfo#*\]} | jq '.account.submitter')
 if [ "$getBobAccountInfoResp" != "\"\"" ]
 then
@@ -76,6 +83,7 @@ echo "empty account found succesfully..."
 # dIsAlLoW rEpEaT aCcOuNt CrEaTiOn
 echo "attempting to add alice chainlink account again"
 addChainlinkAccountTx=$(chainlinkd tx chainlink add-chainlink-account "aliceChainlinkPubKey" "aliceChainlinkSigningKey" --from alice --keyring-backend test --chain-id testchain <<< 'y\n')
+checkReturn
 sleep 1
 addChainlinkAccountTxResp=$(echo ${addChainlinkAccountTx#*\]} | jq '.height')
 if [ "$addChainlinkAccountTxResp" != "\"0\"" ]
@@ -90,7 +98,8 @@ editAlicePiggyAddressTx=$(chainlinkd tx chainlink edit-piggy-address $bobAddr --
 
 # gEt AlIcE cHaInLiNk AcCoUnT iNfO
 echo "getting alice chainlink account information again"
-getAliceAccountInfo=$(chainlinkd query chainlink getAccountInfo $(chainlinkd keys show alice -a) --from alice --keyring-backend test --chain-id testchain)
+getAliceAccountInfo=$(chainlinkd query chainlink get-account-info $(chainlinkd keys show alice -a) --from alice --keyring-backend test --chain-id testchain)
+checkReturn
 
 aliceSubmitterAddress=$(echo "$getAliceAccountInfo" | jq '.account.submitter')
 if [ "$aliceSubmitterAddress" != "\"$aliceAddr\"" ]

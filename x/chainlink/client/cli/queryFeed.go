@@ -135,7 +135,7 @@ func CmdGetFeedInfo() *cobra.Command {
 
 func CmdGetFeedRewardAvailStrategy() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "getFeedRewardAvailStrategy",
+		Use:   "get-feed-reward-avail-strategy",
 		Short: "Get feed reward available strategies info",
 		RunE: func(cmd *cobra.Command, args []string) error {
 

@@ -100,7 +100,7 @@ func CmdEditPiggyAddress() *cobra.Command {
 
 func CmdGetAccountInfo() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "getAccountInfo <cosmos address>",
+		Use:   "get-account-info <cosmos address>",
 		Short: "Gets the Chainlink account information.",
 		Long: `Retreives the Chainlink account information associated with the sender's Cosmos account address. Optional cosmos address can be provided as an argument to look up. Default will retrieve the account associated with the FromAddress.
 		`,
