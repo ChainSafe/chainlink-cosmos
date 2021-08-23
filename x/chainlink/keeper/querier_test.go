@@ -169,6 +169,7 @@ func TestQuerier_GetFeedInfo(t *testing.T) {
 			DeviationThresholdTrigger: 3,
 			FeedReward:                4,
 			Desc:                      "desc test",
+			ModuleOwnerAddress:        GenerateAccount(),
 		},
 		{
 			FeedId:    "feed1",
@@ -182,6 +183,7 @@ func TestQuerier_GetFeedInfo(t *testing.T) {
 			DeviationThresholdTrigger: 30,
 			FeedReward:                40,
 			Desc:                      "desc test 2",
+			ModuleOwnerAddress:        GenerateAccount(),
 		},
 		{
 			FeedId:    "feed2",
@@ -195,6 +197,7 @@ func TestQuerier_GetFeedInfo(t *testing.T) {
 			DeviationThresholdTrigger: 300,
 			FeedReward:                400,
 			Desc:                      "desc test 3",
+			ModuleOwnerAddress:        GenerateAccount(),
 		},
 	}
 
@@ -275,7 +278,6 @@ func TestQuerier_GetModuleOwners(t *testing.T) {
 
 			require.Equal(t, len(tc.expected), len(moduleOwner.GetModuleOwner()))
 		})
-
 	}
 }
 
