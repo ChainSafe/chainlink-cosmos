@@ -159,7 +159,7 @@ fi
 
 # eDiT fEeD rEwArD
 echo "edit feed's reward by alice"
-setFeedRewardTx=$($chainlinkCMD set-feed-reward feedid1 40 --from alice --keyring-backend test --chain-id testchain <<< 'y\n')
+setFeedRewardTx=$($chainlinkCMD set-feed-reward feedid1 40 "" --from alice --keyring-backend test --chain-id testchain <<< 'y\n')
 setFeedRewardTxResp=$(echo "$setFeedRewardTx" | jq '.height')
 if [ "$setFeedRewardTxResp" == "\"0\"" ]
 then
