@@ -118,11 +118,28 @@ func TestTypes_DataProviders_Contains_Remove(t *testing.T) {
 	require.True(t, dps.Contains(dataProviderAddress1))
 	require.True(t, dps.Contains(dataProviderAddress2))
 
-	dps.Remove(dataProviderAddress1)
+	dps = dps.Remove(dataProviderAddress1)
+	require.Equal(t, 1, len(dps))
 	require.False(t, dps.Contains(dataProviderAddress1))
 	require.True(t, dps.Contains(dataProviderAddress2))
 
-	dps.Remove(dataProviderAddress1)
+	dps = dps.Remove(dataProviderAddress2)
 	require.False(t, dps.Contains(dataProviderAddress1))
 	require.False(t, dps.Contains(dataProviderAddress2))
+}
+
+func TestTypes_DeriveCosmosAddrFromPubKey(t *testing.T) {
+	_, pubkey1, addr1 := GenerateAccount()
+	_, pubkey2, addr2 := GenerateAccount()
+
+	require.NotEqual(t, pubkey1, pubkey2)
+	require.NotEqual(t, addr1, addr2)
+
+	expAddr1, err := DeriveCosmosAddrFromPubKey(pubkey1)
+	require.NoError(t, err)
+	require.Equal(t, expAddr1, addr1)
+
+	expAddr2, err := DeriveCosmosAddrFromPubKey(pubkey2)
+	require.NoError(t, err)
+	require.Equal(t, expAddr2, addr2)
 }
