@@ -24,10 +24,11 @@ func GenerateAccount() (types.PrivKey, string, sdk.AccAddress) {
 
 type MsgFeedDataTestSuite struct {
 	suite.Suite
-	submitter  sdk.AccAddress
-	feedId     string
-	feedData   []byte
-	signatures [][]byte
+	submitter    sdk.AccAddress
+	feedId       string
+	feedData     []byte
+	signatures   [][]byte
+	cosmosPubKey [][]byte
 }
 
 func TestMsgFeedDataTestSuite(t *testing.T) {
@@ -39,6 +40,7 @@ func (ts *MsgFeedDataTestSuite) SetupTest() {
 	ts.feedId = "testfeed"
 	ts.feedData = []byte("feedData")
 	ts.signatures = [][]byte{[]byte("signatures")}
+	ts.cosmosPubKey = [][]byte{[]byte("cosmosPubKKey")}
 }
 
 func (ts *MsgFeedDataTestSuite) TestMsgFeedDataConstructor() {
@@ -47,6 +49,7 @@ func (ts *MsgFeedDataTestSuite) TestMsgFeedDataConstructor() {
 		ts.feedId,
 		ts.feedData,
 		ts.signatures,
+		ts.cosmosPubKey,
 	)
 
 	bz := ModuleCdc.MustMarshalJSON(msg)
@@ -60,60 +63,67 @@ func (ts *MsgFeedDataTestSuite) TestMsgFeedDataConstructor() {
 
 func (ts *MsgFeedDataTestSuite) TestMsgFeedDataValidateBasic() {
 	testCases := []struct {
-		description string
-		submitter   sdk.AccAddress
-		feedId      string
-		feedData    []byte
-		signatures  [][]byte
-		expPass     bool
+		description  string
+		submitter    sdk.AccAddress
+		feedId       string
+		feedData     []byte
+		signatures   [][]byte
+		cosmosPubKey [][]byte
+		expPass      bool
 	}{
 		{
-			description: "MsgFeedDataTestSuite: passing case - all valid values",
-			submitter:   ts.submitter,
-			feedId:      ts.feedId,
-			feedData:    ts.feedData,
-			signatures:  ts.signatures,
-			expPass:     true,
+			description:  "MsgFeedDataTestSuite: passing case - all valid values",
+			submitter:    ts.submitter,
+			feedId:       ts.feedId,
+			feedData:     ts.feedData,
+			signatures:   ts.signatures,
+			cosmosPubKey: ts.cosmosPubKey,
+			expPass:      true,
 		},
 		{
-			description: "MsgFeedDataTestSuite: failing case - empty submitter",
-			submitter:   nil,
-			feedId:      ts.feedId,
-			feedData:    ts.feedData,
-			signatures:  ts.signatures,
-			expPass:     false,
+			description:  "MsgFeedDataTestSuite: failing case - empty submitter",
+			submitter:    nil,
+			feedId:       ts.feedId,
+			feedData:     ts.feedData,
+			signatures:   ts.signatures,
+			cosmosPubKey: ts.cosmosPubKey,
+			expPass:      false,
 		},
 		{
-			description: "MsgFeedDataTestSuite: failing case - empty feedId",
-			submitter:   ts.submitter,
-			feedId:      "",
-			feedData:    ts.feedData,
-			signatures:  ts.signatures,
-			expPass:     false,
+			description:  "MsgFeedDataTestSuite: failing case - empty feedId",
+			submitter:    ts.submitter,
+			feedId:       "",
+			feedData:     ts.feedData,
+			signatures:   ts.signatures,
+			cosmosPubKey: ts.cosmosPubKey,
+			expPass:      false,
 		},
 		{
-			description: "MsgFeedDataTestSuite: failing case - invalid feedId format",
-			submitter:   ts.submitter,
-			feedId:      "BAD/FEED/ID",
-			feedData:    ts.feedData,
-			signatures:  ts.signatures,
-			expPass:     false,
+			description:  "MsgFeedDataTestSuite: failing case - invalid feedId format",
+			submitter:    ts.submitter,
+			feedId:       "BAD/FEED/ID",
+			feedData:     ts.feedData,
+			signatures:   ts.signatures,
+			cosmosPubKey: ts.cosmosPubKey,
+			expPass:      false,
 		},
 		{
-			description: "MsgFeedDataTestSuite: failing case - empty feedData",
-			submitter:   ts.submitter,
-			feedId:      ts.feedId,
-			feedData:    nil,
-			signatures:  ts.signatures,
-			expPass:     false,
+			description:  "MsgFeedDataTestSuite: failing case - empty feedData",
+			submitter:    ts.submitter,
+			feedId:       ts.feedId,
+			feedData:     nil,
+			signatures:   ts.signatures,
+			cosmosPubKey: ts.cosmosPubKey,
+			expPass:      false,
 		},
 		{
-			description: "MsgFeedDataTestSuite: failing case - empty signatures",
-			submitter:   ts.submitter,
-			feedId:      ts.feedId,
-			feedData:    ts.feedData,
-			signatures:  [][]byte{},
-			expPass:     false,
+			description:  "MsgFeedDataTestSuite: failing case - empty signatures",
+			submitter:    ts.submitter,
+			feedId:       ts.feedId,
+			feedData:     ts.feedData,
+			signatures:   [][]byte{},
+			cosmosPubKey: ts.cosmosPubKey,
+			expPass:      false,
 		},
 	}
 
@@ -123,6 +133,7 @@ func (ts *MsgFeedDataTestSuite) TestMsgFeedDataValidateBasic() {
 			tc.feedId,
 			tc.feedData,
 			tc.signatures,
+			tc.cosmosPubKey,
 		)
 		err := msg.ValidateBasic()
 
@@ -347,7 +358,8 @@ func (ts *MsgFeedTestSuite) MsgFeedConstructor() {
 	submissionCount := uint32(1)
 	heartbeatTrigger := uint32(2)
 	deviationThresholdTrigger := uint32(3)
-	feedReward := uint32(4)
+	baseFeedRewardAmount := uint32(4)
+	feedRewardStrategy := "strategy"
 
 	msg := NewMsgFeed(
 		feedId,
@@ -358,7 +370,8 @@ func (ts *MsgFeedTestSuite) MsgFeedConstructor() {
 		submissionCount,
 		heartbeatTrigger,
 		deviationThresholdTrigger,
-		feedReward,
+		baseFeedRewardAmount,
+		feedRewardStrategy,
 	)
 
 	bz := ModuleCdc.MustMarshalJSON(msg)
@@ -381,7 +394,8 @@ func (ts *MsgFeedTestSuite) TestMsgFeedValidateBasic() {
 		submissionCount           uint32
 		heartbeatTrigger          uint32
 		deviationThresholdTrigger uint32
-		feedReward                uint32
+		baseFeedRewardAmount      uint32
+		feedRewardStrategy        string
 		expPass                   bool
 	}{
 		{
@@ -394,7 +408,8 @@ func (ts *MsgFeedTestSuite) TestMsgFeedValidateBasic() {
 			submissionCount:           uint32(1),
 			heartbeatTrigger:          uint32(2),
 			deviationThresholdTrigger: uint32(3),
-			feedReward:                uint32(4),
+			baseFeedRewardAmount:      uint32(4),
+			feedRewardStrategy:        "strategy",
 			expPass:                   true,
 		},
 		{
@@ -407,7 +422,8 @@ func (ts *MsgFeedTestSuite) TestMsgFeedValidateBasic() {
 			submissionCount:           uint32(1),
 			heartbeatTrigger:          uint32(2),
 			deviationThresholdTrigger: uint32(3),
-			feedReward:                uint32(4),
+			baseFeedRewardAmount:      uint32(4),
+			feedRewardStrategy:        "strategy",
 			expPass:                   false,
 		},
 		{
@@ -420,7 +436,8 @@ func (ts *MsgFeedTestSuite) TestMsgFeedValidateBasic() {
 			submissionCount:           uint32(1),
 			heartbeatTrigger:          uint32(2),
 			deviationThresholdTrigger: uint32(3),
-			feedReward:                uint32(4),
+			baseFeedRewardAmount:      uint32(4),
+			feedRewardStrategy:        "strategy",
 			expPass:                   false,
 		},
 		{
@@ -433,7 +450,8 @@ func (ts *MsgFeedTestSuite) TestMsgFeedValidateBasic() {
 			submissionCount:           uint32(1),
 			heartbeatTrigger:          uint32(2),
 			deviationThresholdTrigger: uint32(3),
-			feedReward:                uint32(4),
+			baseFeedRewardAmount:      uint32(4),
+			feedRewardStrategy:        "strategy",
 			expPass:                   false,
 		},
 	}
@@ -448,7 +466,8 @@ func (ts *MsgFeedTestSuite) TestMsgFeedValidateBasic() {
 			tc.submissionCount,
 			tc.heartbeatTrigger,
 			tc.deviationThresholdTrigger,
-			tc.feedReward,
+			tc.baseFeedRewardAmount,
+			tc.feedRewardStrategy,
 		)
 		err := msg.ValidateBasic()
 
@@ -888,6 +907,7 @@ func (ts *MsgSetFeedRewardTestSuite) MsgSetFeedRewardConstructor() {
 		ts.signer,
 		"feedId1",
 		uint32(1),
+		"strategy",
 	)
 
 	bz := ModuleCdc.MustMarshalJSON(msg)
@@ -901,32 +921,36 @@ func (ts *MsgSetFeedRewardTestSuite) MsgSetFeedRewardConstructor() {
 
 func (ts *MsgSetFeedRewardTestSuite) MsgSetFeedRewardValidateBasic() {
 	testCases := []struct {
-		description string
-		feedId      string
-		feedReward  uint32
-		signer      sdk.AccAddress
-		expPass     bool
+		description          string
+		feedId               string
+		baseFeedRewardAmount uint32
+		feedRewardStrategy   string
+		signer               sdk.AccAddress
+		expPass              bool
 	}{
 		{
-			description: "MsgSetFeedRewardTestSuite: passing case - all valid values",
-			feedId:      "feedId1",
-			signer:      ts.signer,
-			feedReward:  uint32(1),
-			expPass:     true,
+			description:          "MsgSetFeedRewardTestSuite: passing case - all valid values",
+			feedId:               "feedId1",
+			signer:               ts.signer,
+			baseFeedRewardAmount: uint32(1),
+			feedRewardStrategy:   "strategy",
+			expPass:              true,
 		},
 		{
-			description: "MsgSetFeedRewardTestSuite: failing case - invalid feedId",
-			feedId:      "",
-			signer:      ts.signer,
-			feedReward:  uint32(1),
-			expPass:     false,
+			description:          "MsgSetFeedRewardTestSuite: failing case - invalid feedId",
+			feedId:               "",
+			signer:               ts.signer,
+			baseFeedRewardAmount: uint32(1),
+			feedRewardStrategy:   "strategy",
+			expPass:              false,
 		},
 		{
-			description: "MsgSetFeedRewardTestSuite: failing case - feedReward must not be 0",
-			feedId:      "feedId1",
-			signer:      ts.signer,
-			feedReward:  uint32(0),
-			expPass:     false,
+			description:          "MsgSetFeedRewardTestSuite: failing case - baseFeedRewardAmount must not be 0",
+			feedId:               "feedId1",
+			signer:               ts.signer,
+			baseFeedRewardAmount: uint32(0),
+			feedRewardStrategy:   "strategy",
+			expPass:              false,
 		},
 	}
 
@@ -934,7 +958,8 @@ func (ts *MsgSetFeedRewardTestSuite) MsgSetFeedRewardValidateBasic() {
 		msg := NewMsgSetFeedReward(
 			tc.signer,
 			tc.feedId,
-			tc.feedReward,
+			tc.baseFeedRewardAmount,
+			tc.feedRewardStrategy,
 		)
 		err := msg.ValidateBasic()
 
