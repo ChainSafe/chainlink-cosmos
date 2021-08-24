@@ -1,4 +1,5 @@
-
+// Copyright 2021 ChainSafe Systems
+// SPDX-License-Identifier: MIT
 
 package types
 
@@ -82,7 +83,7 @@ func TestTypes_DataProvider_Verify(t *testing.T) {
 	require.False(t, idp.Verify())
 }
 
-func TestTypes_DataProviders_Contains(t *testing.T) {
+func TestTypes_DataProviders_Contains_Remove(t *testing.T) {
 	_, pubkey1, addr1 := GenerateAccount()
 	dataProviderAddress1 := addr1
 	dataProviderPublicKey1 := []byte(pubkey1)
@@ -116,5 +117,12 @@ func TestTypes_DataProviders_Contains(t *testing.T) {
 
 	require.True(t, dps.Contains(dataProviderAddress1))
 	require.True(t, dps.Contains(dataProviderAddress2))
-}
 
+	dps.Remove(dataProviderAddress1)
+	require.False(t, dps.Contains(dataProviderAddress1))
+	require.True(t, dps.Contains(dataProviderAddress2))
+
+	dps.Remove(dataProviderAddress1)
+	require.False(t, dps.Contains(dataProviderAddress1))
+	require.False(t, dps.Contains(dataProviderAddress2))
+}
