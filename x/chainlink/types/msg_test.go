@@ -24,10 +24,11 @@ func GenerateAccount() (types.PrivKey, string, sdk.AccAddress) {
 
 type MsgFeedDataTestSuite struct {
 	suite.Suite
-	submitter  sdk.AccAddress
-	feedId     string
-	feedData   []byte
-	signatures [][]byte
+	submitter     sdk.AccAddress
+	feedId        string
+	feedData      []byte
+	signatures    [][]byte
+	cosmosPubKeys [][]byte
 }
 
 func TestMsgFeedDataTestSuite(t *testing.T) {
@@ -39,6 +40,7 @@ func (ts *MsgFeedDataTestSuite) SetupTest() {
 	ts.feedId = "testfeed"
 	ts.feedData = []byte("feedData")
 	ts.signatures = [][]byte{[]byte("signatures")}
+	ts.cosmosPubKeys = [][]byte{[]byte("cosmosPubKey")}
 }
 
 func (ts *MsgFeedDataTestSuite) TestMsgFeedDataConstructor() {
@@ -47,6 +49,7 @@ func (ts *MsgFeedDataTestSuite) TestMsgFeedDataConstructor() {
 		ts.feedId,
 		ts.feedData,
 		ts.signatures,
+		ts.cosmosPubKeys,
 	)
 
 	bz := ModuleCdc.MustMarshalJSON(msg)
@@ -60,60 +63,76 @@ func (ts *MsgFeedDataTestSuite) TestMsgFeedDataConstructor() {
 
 func (ts *MsgFeedDataTestSuite) TestMsgFeedDataValidateBasic() {
 	testCases := []struct {
-		description string
-		submitter   sdk.AccAddress
-		feedId      string
-		feedData    []byte
-		signatures  [][]byte
-		expPass     bool
+		description   string
+		submitter     sdk.AccAddress
+		feedId        string
+		feedData      []byte
+		signatures    [][]byte
+		cosmosPubKeys [][]byte
+		expPass       bool
 	}{
 		{
-			description: "MsgFeedDataTestSuite: passing case - all valid values",
-			submitter:   ts.submitter,
-			feedId:      ts.feedId,
-			feedData:    ts.feedData,
-			signatures:  ts.signatures,
-			expPass:     true,
+			description:   "MsgFeedDataTestSuite: passing case - all valid values",
+			submitter:     ts.submitter,
+			feedId:        ts.feedId,
+			feedData:      ts.feedData,
+			signatures:    ts.signatures,
+			cosmosPubKeys: ts.cosmosPubKeys,
+			expPass:       true,
 		},
 		{
-			description: "MsgFeedDataTestSuite: failing case - empty submitter",
-			submitter:   nil,
-			feedId:      ts.feedId,
-			feedData:    ts.feedData,
-			signatures:  ts.signatures,
-			expPass:     false,
+			description:   "MsgFeedDataTestSuite: failing case - empty submitter",
+			submitter:     nil,
+			feedId:        ts.feedId,
+			feedData:      ts.feedData,
+			signatures:    ts.signatures,
+			cosmosPubKeys: ts.cosmosPubKeys,
+			expPass:       false,
 		},
 		{
-			description: "MsgFeedDataTestSuite: failing case - empty feedId",
-			submitter:   ts.submitter,
-			feedId:      "",
-			feedData:    ts.feedData,
-			signatures:  ts.signatures,
-			expPass:     false,
+			description:   "MsgFeedDataTestSuite: failing case - empty feedId",
+			submitter:     ts.submitter,
+			feedId:        "",
+			feedData:      ts.feedData,
+			signatures:    ts.signatures,
+			cosmosPubKeys: ts.cosmosPubKeys,
+			expPass:       false,
 		},
 		{
-			description: "MsgFeedDataTestSuite: failing case - invalid feedId format",
-			submitter:   ts.submitter,
-			feedId:      "BAD/FEED/ID",
-			feedData:    ts.feedData,
-			signatures:  ts.signatures,
-			expPass:     false,
+			description:   "MsgFeedDataTestSuite: failing case - invalid feedId format",
+			submitter:     ts.submitter,
+			feedId:        "BAD/FEED/ID",
+			feedData:      ts.feedData,
+			signatures:    ts.signatures,
+			cosmosPubKeys: ts.cosmosPubKeys,
+			expPass:       false,
 		},
 		{
-			description: "MsgFeedDataTestSuite: failing case - empty feedData",
-			submitter:   ts.submitter,
-			feedId:      ts.feedId,
-			feedData:    nil,
-			signatures:  ts.signatures,
-			expPass:     false,
+			description:   "MsgFeedDataTestSuite: failing case - empty feedData",
+			submitter:     ts.submitter,
+			feedId:        ts.feedId,
+			feedData:      nil,
+			signatures:    ts.signatures,
+			cosmosPubKeys: ts.cosmosPubKeys,
+			expPass:       false,
 		},
 		{
-			description: "MsgFeedDataTestSuite: failing case - empty signatures",
-			submitter:   ts.submitter,
-			feedId:      ts.feedId,
-			feedData:    ts.feedData,
-			signatures:  [][]byte{},
-			expPass:     false,
+			description:   "MsgFeedDataTestSuite: failing case - empty signatures",
+			submitter:     ts.submitter,
+			feedId:        ts.feedId,
+			feedData:      ts.feedData,
+			signatures:    [][]byte{},
+			cosmosPubKeys: ts.cosmosPubKeys,
+			expPass:       false,
+		},
+		{
+			description:   "MsgFeedDataTestSuite: failing case - empty cosmos public keys",
+			submitter:     ts.submitter,
+			feedId:        ts.feedId,
+			feedData:      ts.feedData,
+			signatures:    [][]byte{},
+			cosmosPubKeys: nil,
+			expPass:       false,
 		},
 	}
 
@@ -123,6 +142,7 @@ func (ts *MsgFeedDataTestSuite) TestMsgFeedDataValidateBasic() {
 			tc.feedId,
 			tc.feedData,
 			tc.signatures,
+			tc.cosmosPubKeys,
 		)
 		err := msg.ValidateBasic()
 
@@ -359,6 +379,7 @@ func (ts *MsgFeedTestSuite) MsgFeedConstructor() {
 		heartbeatTrigger,
 		deviationThresholdTrigger,
 		feedReward,
+		"",
 	)
 
 	bz := ModuleCdc.MustMarshalJSON(msg)
@@ -449,6 +470,7 @@ func (ts *MsgFeedTestSuite) TestMsgFeedValidateBasic() {
 			tc.heartbeatTrigger,
 			tc.deviationThresholdTrigger,
 			tc.feedReward,
+			"",
 		)
 		err := msg.ValidateBasic()
 
@@ -888,6 +910,7 @@ func (ts *MsgSetFeedRewardTestSuite) MsgSetFeedRewardConstructor() {
 		ts.signer,
 		"feedId1",
 		uint32(1),
+		"",
 	)
 
 	bz := ModuleCdc.MustMarshalJSON(msg)
@@ -935,6 +958,7 @@ func (ts *MsgSetFeedRewardTestSuite) MsgSetFeedRewardValidateBasic() {
 			tc.signer,
 			tc.feedId,
 			tc.feedReward,
+			"",
 		)
 		err := msg.ValidateBasic()
 
