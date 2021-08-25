@@ -122,7 +122,7 @@ func (m *MsgFeedData) RewardCalculator(feed *MsgFeed, feedData *MsgFeedData) ([]
 	}
 
 	// strategy of a feed here has already been checked in anteHandler when set, ok must be true
-	strategyFn, _ := FeedRewardStrategyConvertor[feed.GetFeedReward().GetStrategy()]// nolint
+	strategyFn, _ := FeedRewardStrategyConvertor[feed.GetFeedReward().GetStrategy()] // nolint
 
 	RewardPayoutList, err := strategyFn(feed, feedData)
 	if err != nil {

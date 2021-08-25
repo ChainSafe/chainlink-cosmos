@@ -162,6 +162,8 @@ message MsgFeedData {
   bool isFeedDataValid = 5;
   // cosmosPubKeys is the cosmos account pubkey slice of the data providers who signed this round
   repeated bytes cosmosPubKeys = 6;
+  // txFee is the tx fee of submitting feed data
+  Coin txFee = 7;
   // TODO: we need to include chainlink pubKeys of the data providers who signed this round, and each observation data here to verify observation signatures in OCR go lib
 }
 
@@ -176,21 +178,21 @@ message MsgRequestNewRound {
 // MsgAccount is the type defined for account associated with the Chainlink node
 message MsgAccount {
   // submitter - associated cosmos account address
-  bytes submitter  = 1 [(gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"];
+  bytes submitter = 1 [(gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"];
   // chainlinkPublicKey - public key of the associated Chainlink Oracle account
   bytes chainlinkPublicKey = 2;
   // chainlinkSigningKey - signing key of the associated Chainlink Oracle account
   bytes chainlinkSigningKey = 3;
   // piggyAddress - cosmos account address receivable for reward and fee distribution
-  bytes piggyAddress  = 4 [(gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"];
+  bytes piggyAddress = 4 [(gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"];
 }
 
 // MsgEditAccount is the type defined to edit a Chainlink account
 message MsgEditAccount {
   // submitter - associated cosmos account address
-  bytes submitter  = 1 [(gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"];
+  bytes submitter = 1 [(gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"];
   // piggyAddress - cosmos account address receivable for reward and fee distribution
-  bytes piggyAddress  = 2 [(gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"];
+  bytes piggyAddress = 2 [(gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"];
 }
 
 message MsgResponse {
@@ -220,4 +222,9 @@ message OCRFeedDataInStore {
   MsgFeedData feedData = 1;
   OCRAbiEncoded deserializedOCRReport = 2;
   uint64 RoundId = 3;
+}
+
+message Coin {
+  string denom = 1;
+  uint32 amount = 2;
 }
