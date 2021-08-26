@@ -194,13 +194,12 @@ func TestKeeper_GetRoundFeedDataByFilter(t *testing.T) {
 
 			if tc.insert {
 				require.Equal(t, 1, len(roundData))
-				require.Equal(t, strconv.FormatUint(tc.roundId, 10), string(roundData[0].GetFeedData().Context))
-				require.Equal(t, tc.feedId, roundData[0].FeedId)
-				require.Equal(t, tc.submitter, roundData[0].FeedData.Oracles)
+				require.Equal(t, tc.roundId, roundData[0].GetFeedData().GetContext().GetRound())
+				require.Equal(t, tc.feedId, roundData[0].GetFeedId())
 
-				observations := roundData[0].GetFeedData().GetObservations()
+				observations := roundData[0].GetFeedData().GetReport().GetAttributedObservations()
 				for i := 0; i < len(tc.feedData); i++ {
-					require.Equal(t, tc.feedData[i], observations[i].Data[0])
+					require.Equal(t, tc.feedData[i], observations[i].GetObservation().GetValue()[0])
 				}
 			} else {
 				require.Equal(t, 0, len(roundData))
@@ -257,7 +256,7 @@ func TestKeeper_GetLatestRoundFeedDataByFilter(t *testing.T) {
 			// if roundId is expected
 			if tc.expected > 0 {
 				require.Equal(t, 1, len(roundData))
-				require.Equal(t, strconv.FormatUint(tc.expected, 10), string(roundData[0].GetFeedData().Context))
+				require.Equal(t, tc.expected, roundData[0].GetFeedData().GetContext().GetRound())
 				require.Equal(t, tc.feedId, roundData[0].FeedId)
 			} else {
 				require.Equal(t, 0, len(roundData))

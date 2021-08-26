@@ -13,13 +13,12 @@ import (
 )
 
 var (
-	testfeedid      = "testfeed"
-	testfeedData    = []byte("feedData")
-	testRoundID     = uint64(310)
-	testsignatures  = [][]byte{[]byte("signatures")}
-	testContext     = []byte{}
-	testOracles     = []byte{}
-	testObservation = [](*types.Observation){}
+	testfeedid     = "testfeed"
+	testfeedData   = []byte("feedData")
+	testRoundID    = uint64(310)
+	testsignatures = [][]byte{[]byte("signatures")}
+	testContext    = &types.ReportContext{}
+	testReport     = &types.AttestedReportMany{}
 
 	testNum      = uint64(310)
 	testNumBytes = []uint8([]byte{0x36, 0x1, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0})
@@ -32,14 +31,14 @@ func GenerateAccount() sdk.AccAddress {
 
 func TestFeedDataFilter(t *testing.T) {
 	feedData := types.OCRFeedDataInStore{
-		FeedData:              &types.MsgFeedData{FeedId: testfeedid, Submitter: GenerateAccount(), FeedData: testfeedData, Signatures: testsignatures},
-		DeserializedOCRReport: &types.OCRAbiEncoded{Context: testContext, Oracles: testOracles, Observations: testObservation},
-		RoundId:               testRoundID,
+		FeedData: &types.MsgFeedData{FeedId: testfeedid, Submitter: GenerateAccount(), FeedData: testfeedData, Signatures: testsignatures},
+		RoundId:  testRoundID,
+		Report:   &types.OffChainReport{Context: testContext, Report: testReport},
 	}
 
 	expRoundData := &types.RoundData{
 		FeedId:   feedData.GetFeedData().GetFeedId(),
-		FeedData: feedData.GetDeserializedOCRReport(),
+		FeedData: feedData.GetReport(),
 	}
 
 	require.Equal(t, feedDataFilter(testfeedid, testRoundID, feedData), expRoundData)

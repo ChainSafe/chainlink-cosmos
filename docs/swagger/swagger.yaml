@@ -23,39 +23,57 @@ paths:
                     feedData:
                       type: object
                       properties:
-                        Context:
-                          type: string
-                          format: byte
-                          description: Context should be a 32-byte array struct.
-                        Oracles:
-                          type: string
-                          format: byte
-                          title: >-
-                            Oracles should be a 32-byte record of all
-                            participating oracles. Assuming this is data
-                            provider address?
-                        Observations:
-                          type: array
-                          items:
-                            type: object
-                            properties:
-                              data:
+                        context:
+                          type: object
+                          properties:
+                            configDigest:
+                              type: string
+                              format: byte
+                            epoch:
+                              type: string
+                              format: uint64
+                            round:
+                              type: string
+                              format: uint64
+                        report:
+                          type: object
+                          properties:
+                            attributedObservations:
+                              type: array
+                              items:
+                                type: object
+                                properties:
+                                  observation:
+                                    type: object
+                                    properties:
+                                      value:
+                                        type: string
+                                        format: byte
+                                  observer:
+                                    type: integer
+                                    format: int64
+                                title: >-
+                                  AttributedObservation succinctly attributes a
+                                  value reported to an oracle
+                            signatures:
+                              type: array
+                              items:
                                 type: string
                                 format: byte
                           description: >-
-                            Observations should be an array on int192 containing
-                            the providers' independent observations.
-                      description: >-
-                        this will be the implementation used later will use
-                        pseudo OCR ABI encoded data instead
+                            AttestedReportMany consists of attributed
+                            observations with
 
-                        because the structure of how the OCR will be generalized
-                        is still unknown
+                            aggregated signatures from the oracles which have
+                            sent this report to the
 
-                        OCRAbiEncoded implments the OCR data that is ABCI
-                        encoded. The use and form will conform to the 
+                            current epoch leader.
+                      title: >-
+                        OffChainReport corresponds to the "final" message. It is
+                        sent by the
 
-                        Chainlink protocol specification.
+                        current leader with the aggregated signature(s) of all
+                        participating oracles
         default:
           description: An unexpected error response.
           schema:
@@ -104,39 +122,57 @@ paths:
                     feedData:
                       type: object
                       properties:
-                        Context:
-                          type: string
-                          format: byte
-                          description: Context should be a 32-byte array struct.
-                        Oracles:
-                          type: string
-                          format: byte
-                          title: >-
-                            Oracles should be a 32-byte record of all
-                            participating oracles. Assuming this is data
-                            provider address?
-                        Observations:
-                          type: array
-                          items:
-                            type: object
-                            properties:
-                              data:
+                        context:
+                          type: object
+                          properties:
+                            configDigest:
+                              type: string
+                              format: byte
+                            epoch:
+                              type: string
+                              format: uint64
+                            round:
+                              type: string
+                              format: uint64
+                        report:
+                          type: object
+                          properties:
+                            attributedObservations:
+                              type: array
+                              items:
+                                type: object
+                                properties:
+                                  observation:
+                                    type: object
+                                    properties:
+                                      value:
+                                        type: string
+                                        format: byte
+                                  observer:
+                                    type: integer
+                                    format: int64
+                                title: >-
+                                  AttributedObservation succinctly attributes a
+                                  value reported to an oracle
+                            signatures:
+                              type: array
+                              items:
                                 type: string
                                 format: byte
                           description: >-
-                            Observations should be an array on int192 containing
-                            the providers' independent observations.
-                      description: >-
-                        this will be the implementation used later will use
-                        pseudo OCR ABI encoded data instead
+                            AttestedReportMany consists of attributed
+                            observations with
 
-                        because the structure of how the OCR will be generalized
-                        is still unknown
+                            aggregated signatures from the oracles which have
+                            sent this report to the
 
-                        OCRAbiEncoded implments the OCR data that is ABCI
-                        encoded. The use and form will conform to the 
+                            current epoch leader.
+                      title: >-
+                        OffChainReport corresponds to the "final" message. It is
+                        sent by the
 
-                        Chainlink protocol specification.
+                        current leader with the aggregated signature(s) of all
+                        participating oracles
               pagination:
                 type: object
                 properties:
@@ -242,6 +278,110 @@ paths:
           type: boolean
       tags:
         - Query
+  '/chainlink/module/account/{accountAddress}':
+    get:
+      operationId: GetAccountInfo
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              account:
+                type: object
+                properties:
+                  submitter:
+                    type: string
+                    format: byte
+                    title: submitter - associated cosmos account address
+                  chainlinkPublicKey:
+                    type: string
+                    format: byte
+                    title: >-
+                      chainlinkPublicKey - public key of the associated
+                      Chainlink Oracle account
+                  chainlinkSigningKey:
+                    type: string
+                    format: byte
+                    title: >-
+                      chainlinkSigningKey - signing key of the associated
+                      Chainlink Oracle account
+                  piggyAddress:
+                    type: string
+                    format: byte
+                    title: >-
+                      piggyAddress - cosmos account address receivable for
+                      reward and fee distribution
+                title: >-
+                  MsgAccount is the type defined for account associated with the
+                  Chainlink node
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      parameters:
+        - name: accountAddress
+          in: path
+          required: true
+          type: string
+          format: byte
+      tags:
+        - Query
+  /chainlink/module/feed/reward/strategy:
+    get:
+      operationId: GetFeedRewardAvailStrategy
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              availStrategies:
+                type: array
+                items:
+                  type: string
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      tags:
+        - Query
   '/chainlink/module/feed/{feedId}':
     get:
       operationId: GetFeedByFeedId
@@ -307,11 +447,27 @@ paths:
                     format: byte
                     title: Module owner who signs the add feed tx
                   feedReward:
-                    type: integer
-                    format: int64
-                    title: >-
-                      TODO: RewardConfig: Struct describing how rewards should
-                      be paid
+                    title: feedReward struct describing how rewards should be paid
+                    type: object
+                    properties:
+                      amount:
+                        type: integer
+                        format: int64
+                        title: >-
+                          amount is the base value that rewarded to each valid
+                          data provider before designated strategy applied
+
+                          amount is not allowed to be zero
+                      strategy:
+                        type: string
+                        title: >-
+                          reward strategy name, must be a registered strategy
+
+                          this is allowed to be empty, in which case every data
+                          provider will be rewarded the same amount token
+                  desc:
+                    type: string
+                    title: Feed description
                 title: MsgFeed is the type defined for new feed
         default:
           description: An unexpected error response.
@@ -393,6 +549,48 @@ paths:
       tags:
         - Query
 definitions:
+  chainlink.v1beta.AttestedReportMany:
+    type: object
+    properties:
+      attributedObservations:
+        type: array
+        items:
+          type: object
+          properties:
+            observation:
+              type: object
+              properties:
+                value:
+                  type: string
+                  format: byte
+            observer:
+              type: integer
+              format: int64
+          title: >-
+            AttributedObservation succinctly attributes a value reported to an
+            oracle
+      signatures:
+        type: array
+        items:
+          type: string
+          format: byte
+    description: |-
+      AttestedReportMany consists of attributed observations with
+      aggregated signatures from the oracles which have sent this report to the
+      current epoch leader.
+  chainlink.v1beta.AttributedObservation:
+    type: object
+    properties:
+      observation:
+        type: object
+        properties:
+          value:
+            type: string
+            format: byte
+      observer:
+        type: integer
+        format: int64
+    title: AttributedObservation succinctly attributes a value reported to an oracle
   chainlink.v1beta.DataProvider:
     type: object
     properties:
@@ -403,6 +601,55 @@ definitions:
         type: string
         format: byte
     title: DataProvider is the type defined for feed data provider
+  chainlink.v1beta.FeedRewardSchema:
+    type: object
+    properties:
+      amount:
+        type: integer
+        format: int64
+        title: >-
+          amount is the base value that rewarded to each valid data provider
+          before designated strategy applied
+
+          amount is not allowed to be zero
+      strategy:
+        type: string
+        title: >-
+          reward strategy name, must be a registered strategy
+
+          this is allowed to be empty, in which case every data provider will be
+          rewarded the same amount token
+  chainlink.v1beta.GetAccountResponse:
+    type: object
+    properties:
+      account:
+        type: object
+        properties:
+          submitter:
+            type: string
+            format: byte
+            title: submitter - associated cosmos account address
+          chainlinkPublicKey:
+            type: string
+            format: byte
+            title: >-
+              chainlinkPublicKey - public key of the associated Chainlink Oracle
+              account
+          chainlinkSigningKey:
+            type: string
+            format: byte
+            title: >-
+              chainlinkSigningKey - signing key of the associated Chainlink
+              Oracle account
+          piggyAddress:
+            type: string
+            format: byte
+            title: >-
+              piggyAddress - cosmos account address receivable for reward and
+              fee distribution
+        title: >-
+          MsgAccount is the type defined for account associated with the
+          Chainlink node
   chainlink.v1beta.GetFeedByIdResponse:
     type: object
     properties:
@@ -460,10 +707,35 @@ definitions:
             format: byte
             title: Module owner who signs the add feed tx
           feedReward:
-            type: integer
-            format: int64
-            title: 'TODO: RewardConfig: Struct describing how rewards should be paid'
+            title: feedReward struct describing how rewards should be paid
+            type: object
+            properties:
+              amount:
+                type: integer
+                format: int64
+                title: >-
+                  amount is the base value that rewarded to each valid data
+                  provider before designated strategy applied
+
+                  amount is not allowed to be zero
+              strategy:
+                type: string
+                title: >-
+                  reward strategy name, must be a registered strategy
+
+                  this is allowed to be empty, in which case every data provider
+                  will be rewarded the same amount token
+          desc:
+            type: string
+            title: Feed description
         title: MsgFeed is the type defined for new feed
+  chainlink.v1beta.GetFeedRewardAvailStrategiesResponse:
+    type: object
+    properties:
+      availStrategies:
+        type: array
+        items:
+          type: string
   chainlink.v1beta.GetLatestRoundDataResponse:
     type: object
     properties:
@@ -477,38 +749,56 @@ definitions:
             feedData:
               type: object
               properties:
-                Context:
-                  type: string
-                  format: byte
-                  description: Context should be a 32-byte array struct.
-                Oracles:
-                  type: string
-                  format: byte
-                  title: >-
-                    Oracles should be a 32-byte record of all participating
-                    oracles. Assuming this is data provider address?
-                Observations:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      data:
+                context:
+                  type: object
+                  properties:
+                    configDigest:
+                      type: string
+                      format: byte
+                    epoch:
+                      type: string
+                      format: uint64
+                    round:
+                      type: string
+                      format: uint64
+                report:
+                  type: object
+                  properties:
+                    attributedObservations:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          observation:
+                            type: object
+                            properties:
+                              value:
+                                type: string
+                                format: byte
+                          observer:
+                            type: integer
+                            format: int64
+                        title: >-
+                          AttributedObservation succinctly attributes a value
+                          reported to an oracle
+                    signatures:
+                      type: array
+                      items:
                         type: string
                         format: byte
                   description: >-
-                    Observations should be an array on int192 containing the
-                    providers' independent observations.
-              description: >-
-                this will be the implementation used later will use pseudo OCR
-                ABI encoded data instead
+                    AttestedReportMany consists of attributed observations with
 
-                because the structure of how the OCR will be generalized is
-                still unknown
+                    aggregated signatures from the oracles which have sent this
+                    report to the
 
-                OCRAbiEncoded implments the OCR data that is ABCI encoded. The
-                use and form will conform to the 
+                    current epoch leader.
+              title: >-
+                OffChainReport corresponds to the "final" message. It is sent by
+                the
 
-                Chainlink protocol specification.
+                current leader with the aggregated signature(s) of all
+                participating oracles
   chainlink.v1beta.GetModuleOwnerResponse:
     type: object
     properties:
@@ -542,38 +832,56 @@ definitions:
             feedData:
               type: object
               properties:
-                Context:
-                  type: string
-                  format: byte
-                  description: Context should be a 32-byte array struct.
-                Oracles:
-                  type: string
-                  format: byte
-                  title: >-
-                    Oracles should be a 32-byte record of all participating
-                    oracles. Assuming this is data provider address?
-                Observations:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      data:
+                context:
+                  type: object
+                  properties:
+                    configDigest:
+                      type: string
+                      format: byte
+                    epoch:
+                      type: string
+                      format: uint64
+                    round:
+                      type: string
+                      format: uint64
+                report:
+                  type: object
+                  properties:
+                    attributedObservations:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          observation:
+                            type: object
+                            properties:
+                              value:
+                                type: string
+                                format: byte
+                          observer:
+                            type: integer
+                            format: int64
+                        title: >-
+                          AttributedObservation succinctly attributes a value
+                          reported to an oracle
+                    signatures:
+                      type: array
+                      items:
                         type: string
                         format: byte
                   description: >-
-                    Observations should be an array on int192 containing the
-                    providers' independent observations.
-              description: >-
-                this will be the implementation used later will use pseudo OCR
-                ABI encoded data instead
+                    AttestedReportMany consists of attributed observations with
 
-                because the structure of how the OCR will be generalized is
-                still unknown
+                    aggregated signatures from the oracles which have sent this
+                    report to the
 
-                OCRAbiEncoded implments the OCR data that is ABCI encoded. The
-                use and form will conform to the 
+                    current epoch leader.
+              title: >-
+                OffChainReport corresponds to the "final" message. It is sent by
+                the
 
-                Chainlink protocol specification.
+                current leader with the aggregated signature(s) of all
+                participating oracles
       pagination:
         type: object
         properties:
@@ -601,6 +909,34 @@ definitions:
                    repeated Bar results = 1;
                    PageResponse page = 2;
            }
+  chainlink.v1beta.MsgAccount:
+    type: object
+    properties:
+      submitter:
+        type: string
+        format: byte
+        title: submitter - associated cosmos account address
+      chainlinkPublicKey:
+        type: string
+        format: byte
+        title: >-
+          chainlinkPublicKey - public key of the associated Chainlink Oracle
+          account
+      chainlinkSigningKey:
+        type: string
+        format: byte
+        title: >-
+          chainlinkSigningKey - signing key of the associated Chainlink Oracle
+          account
+      piggyAddress:
+        type: string
+        format: byte
+        title: >-
+          piggyAddress - cosmos account address receivable for reward and fee
+          distribution
+    title: >-
+      MsgAccount is the type defined for account associated with the Chainlink
+      node
   chainlink.v1beta.MsgFeed:
     type: object
     properties:
@@ -655,9 +991,27 @@ definitions:
         format: byte
         title: Module owner who signs the add feed tx
       feedReward:
-        type: integer
-        format: int64
-        title: 'TODO: RewardConfig: Struct describing how rewards should be paid'
+        title: feedReward struct describing how rewards should be paid
+        type: object
+        properties:
+          amount:
+            type: integer
+            format: int64
+            title: >-
+              amount is the base value that rewarded to each valid data provider
+              before designated strategy applied
+
+              amount is not allowed to be zero
+          strategy:
+            type: string
+            title: >-
+              reward strategy name, must be a registered strategy
+
+              this is allowed to be empty, in which case every data provider
+              will be rewarded the same amount token
+      desc:
+        type: string
+        title: Feed description
     title: MsgFeed is the type defined for new feed
   chainlink.v1beta.MsgModuleOwner:
     type: object
@@ -674,46 +1028,76 @@ definitions:
         type: string
         format: byte
         title: the module owner who assigned this new module owner
-  chainlink.v1beta.OCRAbiEncoded:
-    type: object
-    properties:
-      Context:
-        type: string
-        format: byte
-        description: Context should be a 32-byte array struct.
-      Oracles:
-        type: string
-        format: byte
-        title: >-
-          Oracles should be a 32-byte record of all participating oracles.
-          Assuming this is data provider address?
-      Observations:
-        type: array
-        items:
-          type: object
-          properties:
-            data:
-              type: string
-              format: byte
-        description: >-
-          Observations should be an array on int192 containing the providers'
-          independent observations.
-    description: >-
-      this will be the implementation used later will use pseudo OCR ABI encoded
-      data instead
-
-      because the structure of how the OCR will be generalized is still unknown
-
-      OCRAbiEncoded implments the OCR data that is ABCI encoded. The use and
-      form will conform to the 
-
-      Chainlink protocol specification.
   chainlink.v1beta.Observation:
     type: object
     properties:
-      data:
+      value:
         type: string
         format: byte
+  chainlink.v1beta.OffChainReport:
+    type: object
+    properties:
+      context:
+        type: object
+        properties:
+          configDigest:
+            type: string
+            format: byte
+          epoch:
+            type: string
+            format: uint64
+          round:
+            type: string
+            format: uint64
+      report:
+        type: object
+        properties:
+          attributedObservations:
+            type: array
+            items:
+              type: object
+              properties:
+                observation:
+                  type: object
+                  properties:
+                    value:
+                      type: string
+                      format: byte
+                observer:
+                  type: integer
+                  format: int64
+              title: >-
+                AttributedObservation succinctly attributes a value reported to
+                an oracle
+          signatures:
+            type: array
+            items:
+              type: string
+              format: byte
+        description: >-
+          AttestedReportMany consists of attributed observations with
+
+          aggregated signatures from the oracles which have sent this report to
+          the
+
+          current epoch leader.
+    title: >-
+      OffChainReport corresponds to the "final" message. It is sent by the
+
+      current leader with the aggregated signature(s) of all participating
+      oracles
+  chainlink.v1beta.ReportContext:
+    type: object
+    properties:
+      configDigest:
+        type: string
+        format: byte
+      epoch:
+        type: string
+        format: uint64
+      round:
+        type: string
+        format: uint64
   chainlink.v1beta.RoundData:
     type: object
     properties:
@@ -722,38 +1106,55 @@ definitions:
       feedData:
         type: object
         properties:
-          Context:
-            type: string
-            format: byte
-            description: Context should be a 32-byte array struct.
-          Oracles:
-            type: string
-            format: byte
-            title: >-
-              Oracles should be a 32-byte record of all participating oracles.
-              Assuming this is data provider address?
-          Observations:
-            type: array
-            items:
-              type: object
-              properties:
-                data:
+          context:
+            type: object
+            properties:
+              configDigest:
+                type: string
+                format: byte
+              epoch:
+                type: string
+                format: uint64
+              round:
+                type: string
+                format: uint64
+          report:
+            type: object
+            properties:
+              attributedObservations:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    observation:
+                      type: object
+                      properties:
+                        value:
+                          type: string
+                          format: byte
+                    observer:
+                      type: integer
+                      format: int64
+                  title: >-
+                    AttributedObservation succinctly attributes a value reported
+                    to an oracle
+              signatures:
+                type: array
+                items:
                   type: string
                   format: byte
             description: >-
-              Observations should be an array on int192 containing the
-              providers' independent observations.
-        description: >-
-          this will be the implementation used later will use pseudo OCR ABI
-          encoded data instead
+              AttestedReportMany consists of attributed observations with
 
-          because the structure of how the OCR will be generalized is still
-          unknown
+              aggregated signatures from the oracles which have sent this report
+              to the
 
-          OCRAbiEncoded implments the OCR data that is ABCI encoded. The use and
-          form will conform to the 
+              current epoch leader.
+        title: >-
+          OffChainReport corresponds to the "final" message. It is sent by the
 
-          Chainlink protocol specification.
+          current leader with the aggregated signature(s) of all participating
+          oracles
   cosmos.base.query.v1beta1.PageRequest:
     type: object
     properties:

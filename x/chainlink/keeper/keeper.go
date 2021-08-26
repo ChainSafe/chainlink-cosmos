@@ -6,6 +6,7 @@ package keeper
 import (
 	"fmt"
 	"strconv"
+	"time"
 
 	"github.com/cosmos/cosmos-sdk/types/query"
 	"google.golang.org/grpc/codes"
@@ -85,30 +86,43 @@ func (k Keeper) SetFeedData(ctx sdk.Context, feedData *types.MsgFeedData) (int64
 	// TODO: add more complex feed validation here such as verify against other modules
 
 	// TODO: deserialize the feedData.FeedData if it's an OCR report, assume all the feedData is OCR report for now.
-	// this is simulating the OCR report deserialization lib
-	/****************/
-	observations := make([]*types.Observation, 0, len(feedData.GetFeedData()))
-	for _, b := range feedData.GetFeedData() {
-		o := &types.Observation{Data: []byte(string(b))}
-		observations = append(observations, o)
+
+	// ************************************
+	// Simulate fake OffChainReport for now
+	// ************************************
+	var attributedObservations []*types.AttributedObservation
+	var signatures [][]byte
+	for _, data := range feedData.GetFeedData() {
+		attributedObservations = append(attributedObservations, &types.AttributedObservation{
+			Observation: &types.Observation{Value: []byte{data}},
+			Observer:    uint32(data),
+		})
+		signatures = append(signatures, []byte{data + 1})
 	}
-	deserializedOCRReport := types.OCRAbiEncoded{
-		Context:      []byte(fmt.Sprintf("%d", roundId)),
-		Oracles:      feedData.Submitter.Bytes(),
-		Observations: observations,
+
+	report := &types.OffChainReport{
+		Context: &types.ReportContext{
+			ConfigDigest: []byte("fakeConfigDigest"),
+			Epoch:        uint64(time.Now().Unix()),
+			Round:        roundId,
+		},
+		Report: &types.AttestedReportMany{
+			AttributedObservations: attributedObservations,
+			Signatures:             signatures,
+		},
 	}
-	/****************/
-	// TODO: verify deserializedOCRReport here
+	// ************************************
+
+	// TODO: verify OffChainReport here
+
 	finalFeedDataInStore := types.OCRFeedDataInStore{
-		FeedData:              feedData,
-		DeserializedOCRReport: &deserializedOCRReport,
-		RoundId:               roundId,
+		FeedData: feedData,
+		RoundId:  roundId,
+		Report:   report,
 	}
 
 	feedDataStore := ctx.KVStore(k.feedDataStoreKey)
-
 	f := k.cdc.MustMarshalBinaryBare(&finalFeedDataInStore)
-
 	feedDataStore.Set(types.GetFeedDataKey(feedData.GetFeedId(), strconv.FormatUint(roundId, 10)), f)
 
 	// emit NewRoundData event

@@ -13,14 +13,14 @@ func feedDataFilter(requiredFeedID string, requiredRoundID uint64, feedData type
 		if requiredFeedID == feedData.GetFeedData().GetFeedId() {
 			roundData := &types.RoundData{
 				FeedId:   feedData.GetFeedData().GetFeedId(),
-				FeedData: feedData.GetDeserializedOCRReport(),
+				FeedData: feedData.GetReport(),
 			}
 			return roundData
 		}
 		if requiredFeedID == "" {
 			roundData := &types.RoundData{
 				FeedId:   feedData.GetFeedData().GetFeedId(),
-				FeedData: feedData.GetDeserializedOCRReport(),
+				FeedData: feedData.GetReport(),
 			}
 			return roundData
 		}

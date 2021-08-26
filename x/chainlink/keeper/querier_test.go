@@ -72,14 +72,13 @@ func TestQuerier_GetRoundFeedData(t *testing.T) {
 			if tc.insert {
 				require.Equal(t, 1, len(roundDataResponse.GetRoundData()))
 				require.Equal(t, tc.feedId, roundDataResponse.GetRoundData()[0].GetFeedId())
-				require.Equal(t, strconv.FormatUint(tc.roundId, 10), string(roundDataResponse.GetRoundData()[0].GetFeedData().GetContext()))
-				require.Equal(t, tc.submitter.Bytes(), roundDataResponse.GetRoundData()[0].GetFeedData().GetOracles())
+				require.Equal(t, tc.roundId, roundDataResponse.GetRoundData()[0].GetFeedData().GetContext().GetRound())
 
 				// TODO if tc.isFeedDataValid is true, check if event is emitted with correct signature
 
-				observations := roundDataResponse.GetRoundData()[0].GetFeedData().GetObservations()
+				observations := roundDataResponse.GetRoundData()[0].GetFeedData().GetReport().GetAttributedObservations()
 				for i := 0; i < len(tc.feedData); i++ {
-					require.Equal(t, tc.feedData[i], observations[i].Data[0])
+					require.Equal(t, tc.feedData[i], observations[i].GetObservation().GetValue()[0])
 				}
 			} else {
 				require.Equal(t, 0, len(roundDataResponse.GetRoundData()))
@@ -142,7 +141,7 @@ func TestQuerier_LatestRoundFeedData(t *testing.T) {
 			if tc.expected > 0 {
 				require.Equal(t, 1, len(roundDataResponse.GetRoundData()))
 				require.Equal(t, tc.feedId, roundDataResponse.GetRoundData()[0].GetFeedId())
-				require.Equal(t, strconv.FormatUint(tc.expected, 10), string(roundDataResponse.GetRoundData()[0].GetFeedData().GetContext()))
+				require.Equal(t, tc.expected, roundDataResponse.GetRoundData()[0].GetFeedData().GetContext().GetRound())
 
 				// TODO if tc.isFeedDataValid is true, check if event is emitted with correct signature
 			} else {

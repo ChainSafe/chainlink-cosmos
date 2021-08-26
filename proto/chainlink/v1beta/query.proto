@@ -67,7 +67,7 @@ message GetLatestRoundDataResponse {
 
 message RoundData {
   string feedId = 1;
-  OCRAbiEncoded feedData = 2;
+  OffChainReport feedData = 2;
 }
 
 message GetAccountRequest {
