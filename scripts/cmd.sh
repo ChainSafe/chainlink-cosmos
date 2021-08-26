@@ -18,10 +18,10 @@ cerloPK=$(chainlinkd keys show cerlo -p)
 chainlinkd query chainlink get-module-owner-list --chain-id testchain -o json
 
 # Add new module owner by alice
-chainlinkd tx chainlink add-module-owner "$bobAddr" "$bobPK" --from alice --keyring-backend test --chain-id testchain --fees 2link
+chainlinkd tx chainlink add-module-owner "$bobAddr" "$bobPK" --from alice --keyring-backend test --chain-id testchain --fees 3link
 
 # Module ownership transfer by bob to alice
-chainlinkd tx chainlink module-ownership-transfer "$aliceAddr" "$alicePK" --from bob --keyring-backend test --chain-id testchain
+chainlinkd tx chainlink module-ownership-transfer "$aliceAddr" "$alicePK" --from bob --keyring-backend test --chain-id testchain --fees 3link
 
 # ====
 # Feed
@@ -37,34 +37,34 @@ chainlinkd query chainlink get-feed-info feedid1 --chain-id testchain
 chainlinkd query chainlink get-feed-reward-avail-strategy --chain-id testchain
 
 # Add feed data provider
-chainlinkd tx chainlink add-data-provider feedid1 "$bobAddr" "$bobPK" --from cerlo --keyring-backend test --chain-id testchain
+chainlinkd tx chainlink add-data-provider feedid1 "$bobAddr" "$bobPK" --from cerlo --keyring-backend test --chain-id testchain --fees 3link
 
 # Query feed info by feedId
 chainlinkd query chainlink get-feed-info feedid1 --chain-id testchain
 
 # Remove feed data provider
-chainlinkd tx chainlink remove-data-provider feedid1 "$cerloAddr" --from cerlo --keyring-backend test --chain-id testchain
+chainlinkd tx chainlink remove-data-provider feedid1 "$cerloAddr" --from cerlo --keyring-backend test --chain-id testchain --fees 3link
 
 # Query feed info by feedId
 chainlinkd query chainlink get-feed-info feedid1 --chain-id testchain
 
 # Feed ownership transfer by cerlo to bob
-chainlinkd tx chainlink feed-ownership-transfer feedid1 "$bobAddr" --from cerlo --keyring-backend test --chain-id testchain
+chainlinkd tx chainlink feed-ownership-transfer feedid1 "$bobAddr" --from cerlo --keyring-backend test --chain-id testchain --fees 3link
 
 # Query feed info by feedId
 chainlinkd query chainlink get-feed-info feedid1 --chain-id testchain
 
 # Update submission count parameter
-chainlinkd tx chainlink set-submission-count feedid1 100 --from bob --keyring-backend test --chain-id testchain
+chainlinkd tx chainlink set-submission-count feedid1 100 --from bob --keyring-backend test --chain-id testchain --fees 3link
 
 # Update heartbeat trigger parameter
-chainlinkd tx chainlink set-heartbeat-trigger feedid1 200 --from bob --keyring-backend test --chain-id testchain
+chainlinkd tx chainlink set-heartbeat-trigger feedid1 200 --from bob --keyring-backend test --chain-id testchain --fees 3link
 
 # Update deviation threshold trigger parameter
-chainlinkd tx chainlink set-deviation-threshold-trigger feedid1 300 --from bob --keyring-backend test --chain-id testchain
+chainlinkd tx chainlink set-deviation-threshold-trigger feedid1 300 --from bob --keyring-backend test --chain-id testchain --fees 3link
 
 # Update feed reward parameter
-chainlinkd tx chainlink set-feed-reward feedid1 1000 "" --from cerlo --keyring-backend test --chain-id testchain
+chainlinkd tx chainlink set-feed-reward feedid1 1000 "" --from cerlo --keyring-backend test --chain-id testchain --fees 3link
 
 # ==================
 # Feed Data (Report)

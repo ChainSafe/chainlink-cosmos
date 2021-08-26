@@ -4,8 +4,8 @@
 package types
 
 import (
-	"testing"
 	"github.com/stretchr/testify/require"
+	"testing"
 )
 
 func TestTypes_MsgModuleOwners_Contains(t *testing.T) {
