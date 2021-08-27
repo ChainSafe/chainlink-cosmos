@@ -27,14 +27,17 @@ paths:
                           type: object
                           properties:
                             configDigest:
-                              type: string
-                              format: byte
+                              type: object
+                              properties:
+                                value:
+                                  type: string
+                                  format: byte
                             epoch:
-                              type: string
-                              format: uint64
+                              type: integer
+                              format: int64
                             round:
-                              type: string
-                              format: uint64
+                              type: integer
+                              format: int32
                         report:
                           type: object
                           properties:
@@ -126,14 +129,17 @@ paths:
                           type: object
                           properties:
                             configDigest:
-                              type: string
-                              format: byte
+                              type: object
+                              properties:
+                                value:
+                                  type: string
+                                  format: byte
                             epoch:
-                              type: string
-                              format: uint64
+                              type: integer
+                              format: int64
                             round:
-                              type: string
-                              format: uint64
+                              type: integer
+                              format: int32
                         report:
                           type: object
                           properties:
@@ -591,6 +597,12 @@ definitions:
         type: integer
         format: int64
     title: AttributedObservation succinctly attributes a value reported to an oracle
+  chainlink.v1beta.ConfigDigest:
+    type: object
+    properties:
+      value:
+        type: string
+        format: byte
   chainlink.v1beta.DataProvider:
     type: object
     properties:
@@ -753,14 +765,17 @@ definitions:
                   type: object
                   properties:
                     configDigest:
-                      type: string
-                      format: byte
+                      type: object
+                      properties:
+                        value:
+                          type: string
+                          format: byte
                     epoch:
-                      type: string
-                      format: uint64
+                      type: integer
+                      format: int64
                     round:
-                      type: string
-                      format: uint64
+                      type: integer
+                      format: int32
                 report:
                   type: object
                   properties:
@@ -836,14 +851,17 @@ definitions:
                   type: object
                   properties:
                     configDigest:
-                      type: string
-                      format: byte
+                      type: object
+                      properties:
+                        value:
+                          type: string
+                          format: byte
                     epoch:
-                      type: string
-                      format: uint64
+                      type: integer
+                      format: int64
                     round:
-                      type: string
-                      format: uint64
+                      type: integer
+                      format: int32
                 report:
                   type: object
                   properties:
@@ -1041,14 +1059,17 @@ definitions:
         type: object
         properties:
           configDigest:
-            type: string
-            format: byte
+            type: object
+            properties:
+              value:
+                type: string
+                format: byte
           epoch:
-            type: string
-            format: uint64
+            type: integer
+            format: int64
           round:
-            type: string
-            format: uint64
+            type: integer
+            format: int32
       report:
         type: object
         properties:
@@ -1090,14 +1111,17 @@ definitions:
     type: object
     properties:
       configDigest:
-        type: string
-        format: byte
+        type: object
+        properties:
+          value:
+            type: string
+            format: byte
       epoch:
-        type: string
-        format: uint64
+        type: integer
+        format: int64
       round:
-        type: string
-        format: uint64
+        type: integer
+        format: int32
   chainlink.v1beta.RoundData:
     type: object
     properties:
@@ -1110,14 +1134,17 @@ definitions:
             type: object
             properties:
               configDigest:
-                type: string
-                format: byte
+                type: object
+                properties:
+                  value:
+                    type: string
+                    format: byte
               epoch:
-                type: string
-                format: uint64
+                type: integer
+                format: int64
               round:
-                type: string
-                format: uint64
+                type: integer
+                format: int32
           report:
             type: object
             properties:

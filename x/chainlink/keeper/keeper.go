@@ -6,8 +6,9 @@ package keeper
 import (
 	"fmt"
 	"strconv"
-	"time"
 
+	"github.com/ChainSafe/chainlink-cosmos/x/chainlink/ocr"
+	"github.com/ChainSafe/chainlink-cosmos/x/chainlink/ocr/signature"
 	"github.com/cosmos/cosmos-sdk/types/query"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -59,9 +60,10 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 }
 
 func (k Keeper) SetFeedData(ctx sdk.Context, feedData *types.MsgFeedData) (int64, []byte, error) {
+	feed := k.GetFeed(ctx, feedData.GetFeedId())
+
 	// emit FeedDataValidationFailedEvent event if feedData validation is false
 	if !feedData.IsFeedDataValid {
-		feed := k.GetFeed(ctx, feedData.GetFeedId())
 		err := types.EmitEvent(&types.MsgFeedDataValidationFailedEvent{
 			FeedId:        feedData.GetFeedId(),
 			DataProviders: feed.GetFeed().GetDataProviders(),
@@ -85,40 +87,24 @@ func (k Keeper) SetFeedData(ctx sdk.Context, feedData *types.MsgFeedData) (int64
 
 	// TODO: add more complex feed validation here such as verify against other modules
 
-	// TODO: deserialize the feedData.FeedData if it's an OCR report, assume all the feedData is OCR report for now.
-
-	// ************************************
-	// Simulate fake OffChainReport for now
-	// ************************************
-	var attributedObservations []*types.AttributedObservation
-	var signatures [][]byte
-	for _, data := range feedData.GetFeedData() {
-		attributedObservations = append(attributedObservations, &types.AttributedObservation{
-			Observation: &types.Observation{Value: []byte{data}},
-			Observer:    uint32(data),
-		})
-		signatures = append(signatures, []byte{data + 1})
+	offchainReport, err := ocr.Unpack(feedData.GetFeedData())
+	if err != nil {
+		return 0, nil, err
 	}
 
-	report := &types.OffChainReport{
-		Context: &types.ReportContext{
-			ConfigDigest: []byte("fakeConfigDigest"),
-			Epoch:        uint64(time.Now().Unix()),
-			Round:        roundId,
-		},
-		Report: &types.AttestedReportMany{
-			AttributedObservations: attributedObservations,
-			Signatures:             signatures,
-		},
-	}
-	// ************************************
+	// TODO add feed.GetFeed().GetDataProviders() in the whitelist
+	// TODO providers public key must be ECDSA format
+	whitelist := signature.Addresses{}
 
-	// TODO: verify OffChainReport here
+	err = offchainReport.GetReport().VerifySignatures(offchainReport.GetContext(), whitelist)
+	if err != nil {
+		//return 0, nil, err // FIXME uncomment
+	}
 
 	finalFeedDataInStore := types.OCRFeedDataInStore{
 		FeedData: feedData,
 		RoundId:  roundId,
-		Report:   report,
+		Report:   offchainReport,
 	}
 
 	feedDataStore := ctx.KVStore(k.feedDataStoreKey)
@@ -126,7 +112,7 @@ func (k Keeper) SetFeedData(ctx sdk.Context, feedData *types.MsgFeedData) (int64
 	feedDataStore.Set(types.GetFeedDataKey(feedData.GetFeedId(), strconv.FormatUint(roundId, 10)), f)
 
 	// emit NewRoundData event
-	err := types.EmitEvent(&types.MsgNewRoundDataEvent{
+	err = types.EmitEvent(&types.MsgNewRoundDataEvent{
 		FeedId:   feedData.FeedId,
 		RoundId:  roundId,
 		FeedData: feedData.FeedData,

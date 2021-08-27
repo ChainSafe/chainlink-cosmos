@@ -223,10 +223,14 @@ message AttestedReportMany {
   repeated bytes signatures = 2;
 }
 
+message ConfigDigest {
+  bytes value = 1;
+}
+
 message ReportContext {
-  bytes configDigest = 1;
-  uint64 epoch = 2;
-  uint64 round = 3;
+  ConfigDigest configDigest = 1;
+  uint32 epoch = 2;
+  int32 round = 3 [(gogoproto.casttype) = "uint8"];
 }
 
 // OffChainReport corresponds to the "final" message. It is sent by the

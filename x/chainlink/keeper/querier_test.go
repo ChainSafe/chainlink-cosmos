@@ -48,7 +48,7 @@ func TestQuerier_GetRoundFeedData(t *testing.T) {
 
 		msgFeedData := types.MsgFeedData{
 			FeedId:          tc.feedId,
-			FeedData:        tc.feedData,
+			FeedData:        dummyFeedData,
 			Submitter:       tc.submitter,
 			Signatures:      tc.signature,
 			IsFeedDataValid: tc.isFeedDataValid,
@@ -120,7 +120,7 @@ func TestQuerier_LatestRoundFeedData(t *testing.T) {
 
 				msgFeedData := types.MsgFeedData{
 					FeedId:          tc.feedId,
-					FeedData:        tc.feedData,
+					FeedData:        dummyFeedData,
 					Submitter:       tc.submitter,
 					Signatures:      tc.signature,
 					IsFeedDataValid: tc.isFeedDataValid,

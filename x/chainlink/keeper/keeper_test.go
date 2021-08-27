@@ -15,11 +15,14 @@ import (
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/status-im/keycard-go/hexutils"
 	"github.com/stretchr/testify/require"
 	"github.com/tendermint/tendermint/libs/log"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	tmdb "github.com/tendermint/tm-db"
 )
+
+var dummyFeedData = hexutils.HexToBytes("0000000000000000000000000000000000000000000000000000000000000080000000000000000000000000000000000000000000000000000000000000016000000000000000000000000000000000000000000000000000000000000001c0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000c00000000000000000000000f21eff4aee6829a54fadb965bead9b326128f753012a5800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000006400000000000000000000000000000000000000000000000000000000000000650000000000000000000000000000000000000000000000000000000000000002f14bcfb32dadb8c754d6493b4f864c2744754d2ff8c60cded66127de8440a53137314bfe7278781f758531e103e28ee0e2532525dfbd04787d945a2dc585971700000000000000000000000000000000000000000000000000000000000000026d377788996001c883b1adac090bf6fc5477a3ccefe2cdb084c3ec364a5b3d100c937db9f208e9509cbf425caf738474342546b3acd61a16cf132c132504917e")
 
 // nolint
 func setupKeeper(t testing.TB) (*Keeper, sdk.Context) {
@@ -71,6 +74,7 @@ func TestFeedKeyStructure(t *testing.T) {
 
 			feedData := types.MsgFeedData{
 				FeedId:    tc.feedId,
+				FeedData:  dummyFeedData,
 				Submitter: []byte(fmt.Sprintf("%s/%d", tc.feedId, roundId)),
 			}
 
@@ -126,7 +130,8 @@ func TestKeeper_SetFeedData(t *testing.T) {
 			roundStore.Set(types.GetRoundIdKey(tc.feedId), i64tob(tc.roundId-1))
 
 			msgFeedData := types.MsgFeedData{
-				FeedId: tc.feedId,
+				FeedId:   tc.feedId,
+				FeedData: dummyFeedData,
 			}
 
 			_, _, err := k.SetFeedData(ctx, &msgFeedData)
@@ -171,7 +176,7 @@ func TestKeeper_GetRoundFeedDataByFilter(t *testing.T) {
 
 		msgFeedData := types.MsgFeedData{
 			FeedId:    tc.feedId,
-			FeedData:  tc.feedData,
+			FeedData:  dummyFeedData,
 			Submitter: tc.submitter,
 		}
 
@@ -238,7 +243,7 @@ func TestKeeper_GetLatestRoundFeedDataByFilter(t *testing.T) {
 
 				msgFeedData := types.MsgFeedData{
 					FeedId:    tc.feedId,
-					FeedData:  tc.feedData,
+					FeedData:  dummyFeedData,
 					Submitter: tc.submitter,
 				}
 
