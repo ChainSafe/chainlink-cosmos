@@ -6,7 +6,7 @@ package types
 // RewardPayout describes the calculated reward that data provider gets after the selected strategy applied
 type RewardPayout struct {
 	DataProvider *DataProvider `json:"dataProvider"`
-	Amount       uint32        `json:"amount"`
+	Amount       uint64        `json:"amount"`
 }
 
 type FeedRewardStrategyFunc func(*MsgFeed, *MsgFeedData) ([]RewardPayout, error)

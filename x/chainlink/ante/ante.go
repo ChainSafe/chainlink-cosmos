@@ -5,7 +5,6 @@ package ante
 
 import (
 	"bytes"
-
 	chainlinkkeeper "github.com/ChainSafe/chainlink-cosmos/x/chainlink/keeper"
 	"github.com/ChainSafe/chainlink-cosmos/x/chainlink/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -255,6 +254,22 @@ func (fd FeedDataDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool
 	for _, msg := range tx.GetMsgs() {
 		switch t := msg.(type) {
 		case *types.MsgFeedData:
+			feeTx, ok := tx.(sdk.FeeTx)
+			if !ok {
+				return ctx, sdkerrors.Wrap(sdkerrors.ErrTxDecode, "Tx must be a FeeTx")
+			}
+
+			txFee := feeTx.GetFee()
+			if len(txFee) == 0 {
+				return ctx, sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, "empty tx fee coin slices")
+			}
+
+			// get the first coin from txFee as the tx fee charged for MsgFeedData tx
+			t.TxFee = &types.Coin{
+				Denom:  txFee[0].Denom,
+				Amount: txFee[0].Amount.Uint64(),
+			}
+
 			feed := fd.chainLinkKeeper.GetFeed(ctx, t.GetFeedId())
 			if feed.Feed.Empty() {
 				return ctx, sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, "feed not exist")

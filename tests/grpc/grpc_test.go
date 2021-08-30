@@ -223,7 +223,7 @@ func (s *GRPCTestSuite) BroadcastTx(ctx context.Context, submitter *testAccount,
 	s.Require().NoError(err)
 
 	txBuilder.SetGasLimit(testdata.NewTestGasLimit())
-	//txBuilder.SetFeeAmount(...)
+	txBuilder.SetFeeAmount(sdk.NewCoins(sdk.NewInt64Coin("link", 3)))
 	//txBuilder.SetMemo(...)
 	//txBuilder.SetTimeoutHeight(...)
 
