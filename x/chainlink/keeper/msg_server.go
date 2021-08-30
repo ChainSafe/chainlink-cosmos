@@ -5,7 +5,6 @@ package keeper
 
 import (
 	"context"
-
 	"github.com/ChainSafe/chainlink-cosmos/x/chainlink/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"

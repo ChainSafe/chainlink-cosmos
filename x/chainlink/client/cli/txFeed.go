@@ -85,7 +85,7 @@ func CmdAddFeed() *cobra.Command {
 
 			msg := types.NewMsgFeed(argsFeedId, argsFeedDesc, feedOwnerAddr, clientCtx.GetFromAddress(),
 				initDataProviderList, uint32(submissionCount), uint32(heartbeatTrigger), uint32(deviationThresholdTrigger),
-				uint32(feedRewardBaseAmount), argsFeedRewardSchemaStrategy)
+				feedRewardBaseAmount, argsFeedRewardSchemaStrategy)
 			if err := msg.ValidateBasic(); err != nil {
 				return err
 			}
@@ -286,7 +286,7 @@ func CmdSetFeedReward() *cobra.Command {
 				return err
 			}
 
-			msg := types.NewMsgSetFeedReward(clientCtx.GetFromAddress(), argsFeedId, uint32(feedRewardAmount), argsFeedRewardSchemaStrategy)
+			msg := types.NewMsgSetFeedReward(clientCtx.GetFromAddress(), argsFeedId, feedRewardAmount, argsFeedRewardSchemaStrategy)
 			if err := msg.ValidateBasic(); err != nil {
 				return err
 			}

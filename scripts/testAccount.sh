@@ -32,7 +32,7 @@ cerloPK=$(chainlinkd keys show cerlo -p)
 
 # aDd AlIcE aS cHaInLiNk oRaClE iN aCcOuNt StOrE
 echo "adding alice chainlink account"
-addChainlinkAccountTx=$(chainlinkd tx chainlink add-chainlink-account "aliceChainlinkPubKey" "aliceChainlinkSigningKey" --from alice --keyring-backend test --chain-id testchain <<< 'y\n')
+addChainlinkAccountTx=$(chainlinkd tx chainlink add-chainlink-account "aliceChainlinkPubKey" "aliceChainlinkSigningKey" --from alice --keyring-backend test --chain-id testchain --fees 3link <<< 'y\n')
 checkReturn
 sleep 1
 addChainlinkAccountTxResp=$(echo ${addChainlinkAccountTx#*\]} | jq '.height')
@@ -82,7 +82,7 @@ echo "empty account found succesfully..."
 
 # dIsAlLoW rEpEaT aCcOuNt CrEaTiOn
 echo "attempting to add alice chainlink account again"
-addChainlinkAccountTx=$(chainlinkd tx chainlink add-chainlink-account "aliceChainlinkPubKey" "aliceChainlinkSigningKey" --from alice --keyring-backend test --chain-id testchain <<< 'y\n')
+addChainlinkAccountTx=$(chainlinkd tx chainlink add-chainlink-account "aliceChainlinkPubKey" "aliceChainlinkSigningKey" --from alice --keyring-backend test --chain-id testchain --fees 3link <<< 'y\n')
 checkReturn
 sleep 1
 addChainlinkAccountTxResp=$(echo ${addChainlinkAccountTx#*\]} | jq '.height')
@@ -94,7 +94,7 @@ echo "blocked repeat account successfully..."
 
 # eDiT aLiCe PiGgY aDdReSs tO bOb'S aDdReSs
 echo "edit alice piggy address"
-editAlicePiggyAddressTx=$(chainlinkd tx chainlink edit-piggy-address $bobAddr --from alice --keyring-backend test --chain-id testchain <<< 'y\n')
+editAlicePiggyAddressTx=$(chainlinkd tx chainlink edit-piggy-address $bobAddr --from alice --keyring-backend test --chain-id testchain --fees 3link <<< 'y\n')
 
 # gEt AlIcE cHaInLiNk AcCoUnT iNfO
 echo "getting alice chainlink account information again"
