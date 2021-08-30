@@ -386,7 +386,7 @@ func (k Keeper) SetFeedReward(ctx sdk.Context, setFeedReward *types.MsgSetFeedRe
 
 // DistributeReward will mint the reward from the module
 // then transfer the reward to the receiver (data provider)
-func (k Keeper) DistributeReward(ctx sdk.Context, msg *types.MsgFeedData, feedRewardDecision []types.RewardPayout, totalRewardVal uint32) error {
+func (k Keeper) DistributeReward(ctx sdk.Context, msg *types.MsgFeedData, feedRewardDecision []types.RewardPayout, totalRewardVal uint64) error {
 	tokensToMint := types.NewLinkCoinInt64(int64(totalRewardVal) + int64(msg.GetTxFee().GetAmount()))
 
 	// mint new tokens if the source of the transfer is the same chain
@@ -419,7 +419,7 @@ func (k Keeper) DistributeReward(ctx sdk.Context, msg *types.MsgFeedData, feedRe
 
 		// emit OraclePaid event for valid data providers
 		event.Account = dataProvider.GetAddress()
-		event.Value = uint64(payoutAmount)
+		event.Value = payoutAmount
 
 		err := types.EmitEvent(&event, ctx.EventManager())
 		if err != nil {

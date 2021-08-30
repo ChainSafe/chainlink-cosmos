@@ -267,7 +267,7 @@ func (fd FeedDataDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool
 			// get the first coin from txFee as the tx fee charged for MsgFeedData tx
 			t.TxFee = &types.Coin{
 				Denom:  txFee[0].Denom,
-				Amount: uint32(txFee[0].Amount.Uint64()),
+				Amount: txFee[0].Amount.Uint64(),
 			}
 
 			feed := fd.chainLinkKeeper.GetFeed(ctx, t.GetFeedId())

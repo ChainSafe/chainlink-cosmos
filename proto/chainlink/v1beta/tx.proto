@@ -63,7 +63,7 @@ message MsgFeed {
 message FeedRewardSchema {
   // amount is the base value that rewarded to each valid data provider before designated strategy applied
   // amount is not allowed to be zero
-  uint32 amount = 1;
+  uint64 amount = 1;
   // reward strategy name, must be a registered strategy
   // this is allowed to be empty, in which case every data provider will be rewarded the same amount token
   string strategy = 2;
@@ -226,5 +226,5 @@ message OCRFeedDataInStore {
 
 message Coin {
   string denom = 1;
-  uint32 amount = 2;
+  uint64 amount = 2;
 }
