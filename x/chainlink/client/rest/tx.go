@@ -25,7 +25,7 @@ func registerTxHandlers(clientCtx client.Context, r *mux.Router) {
 type FeedDataRequest struct {
 	BaseReq       rest.BaseReq `json:"baseReq"`
 	FeedId        string       `json:"feedId"`
-	FeedData      []byte       `json:"feedData"`
+	FeedData      [][]byte     `json:"feedData"`
 	Signatures    [][]byte     `json:"signature"`
 	CosmosPubKeys [][]byte     `json:"cosmosPubKeys"`
 }

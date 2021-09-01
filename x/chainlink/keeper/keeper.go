@@ -66,8 +66,8 @@ func (k Keeper) SetFeedData(ctx sdk.Context, feedData *types.MsgFeedData) (int64
 			DataProviders: feed.GetFeed().GetDataProviders(),
 			FeedOwner:     feed.GetFeed().GetFeedOwner(),
 			Submitter:     feedData.GetSubmitter(),
-			FeedData:      feedData.GetFeedData(),
-			Signatures:    feedData.GetSignatures(),
+			FeedData:      feedData.GetObservationFeedData(),
+			Signatures:    feedData.GetObservationFeedDataSignatures(),
 		}, ctx.EventManager())
 		if err != nil {
 			// only trigger error message here cuz this will not affect the whole flow
@@ -87,8 +87,8 @@ func (k Keeper) SetFeedData(ctx sdk.Context, feedData *types.MsgFeedData) (int64
 	// TODO: deserialize the feedData.FeedData if it's an OCR report, assume all the feedData is OCR report for now.
 	// this is simulating the OCR report deserialization lib
 	/****************/
-	observations := make([]*types.Observation, 0, len(feedData.GetFeedData()))
-	for _, b := range feedData.GetFeedData() {
+	observations := make([]*types.Observation, 0, len(feedData.GetObservationFeedData()))
+	for _, b := range feedData.GetObservationFeedData() {
 		o := &types.Observation{Data: []byte(string(b))}
 		observations = append(observations, o)
 	}
@@ -115,7 +115,7 @@ func (k Keeper) SetFeedData(ctx sdk.Context, feedData *types.MsgFeedData) (int64
 	err := types.EmitEvent(&types.MsgNewRoundDataEvent{
 		FeedId:   feedData.FeedId,
 		RoundId:  roundId,
-		FeedData: feedData.FeedData,
+		FeedData: feedData.ObservationFeedData,
 	}, ctx.EventManager())
 	if err != nil {
 		return 0, nil, err

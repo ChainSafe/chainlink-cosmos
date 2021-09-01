@@ -18,3 +18,14 @@ func feedRewardSchemaStrategyChecker(strategy string) error {
 
 	return nil
 }
+
+// TODO: chainlink pubKey against observation signature :resp.GetAccount().GetChainlinkPublicKey() VS signature
+// TODO: replace with validation logic here
+func pubKeySignatureValidate(chainlinkPubKey, signature []byte) bool {
+	return true
+}
+
+// TODO: observation VS observationSignature
+func signaturePlainDataValidate(signature, data []byte) bool {
+	return true
+}
