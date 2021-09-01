@@ -61,12 +61,47 @@ func TestTypes_RegisterCodec(t *testing.T) {
 func TestTypes_RegisterInterfaces(t *testing.T) {
 	nir := types.NewInterfaceRegistry()
 
-	t.Log("1: ", nir.ListImplementations(proto.MessageName(&MsgFeedData{})))
+	_, e := nir.Resolve("/" + proto.MessageName(&MsgFeedData{}))
+	require.Error(t, e)
 
 	RegisterInterfaces(nir)
 
-	t.Log("2: ", nir.ListImplementations(proto.MessageName(&MsgFeedData{})))
+	_, e = nir.Resolve("/" + proto.MessageName(&MsgFeedData{}))
+	require.NoError(t, e)
 
-	t.Log("3: ", proto.MessageName(&MsgFeedData{}))
+	_, e = nir.Resolve("/" + proto.MessageName(&MsgModuleOwner{}))
+	require.NoError(t, e)
 
+	_, e = nir.Resolve("/" + proto.MessageName(&MsgModuleOwnershipTransfer{}))
+	require.NoError(t, e)
+
+	_, e = nir.Resolve("/" + proto.MessageName(&MsgFeed{}))
+	require.NoError(t, e)
+
+	_, e = nir.Resolve("/" + proto.MessageName(&MsgAddDataProvider{}))
+	require.NoError(t, e)
+
+	_, e = nir.Resolve("/" + proto.MessageName(&MsgRemoveDataProvider{}))
+	require.NoError(t, e)
+
+	_, e = nir.Resolve("/" + proto.MessageName(&MsgSetSubmissionCount{}))
+	require.NoError(t, e)
+
+	_, e = nir.Resolve("/" + proto.MessageName(&MsgSetHeartbeatTrigger{}))
+	require.NoError(t, e)
+
+	_, e = nir.Resolve("/" + proto.MessageName(&MsgSetDeviationThresholdTrigger{}))
+	require.NoError(t, e)
+
+	_, e = nir.Resolve("/" + proto.MessageName(&MsgSetFeedReward{}))
+	require.NoError(t, e)
+
+	_, e = nir.Resolve("/" + proto.MessageName(&MsgFeedOwnershipTransfer{}))
+	require.NoError(t, e)
+
+	_, e = nir.Resolve("/" + proto.MessageName(&MsgAccount{}))
+	require.NoError(t, e)
+
+	_, e = nir.Resolve("/" + proto.MessageName(&MsgEditAccount{}))
+	require.NoError(t, e)
 }
