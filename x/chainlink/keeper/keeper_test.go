@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"testing"
 
+	"github.com/ChainSafe/chainlink-cosmos/x/chainlink/ocr/utils"
 	"github.com/ChainSafe/chainlink-cosmos/x/chainlink/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
@@ -15,14 +16,11 @@ import (
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/status-im/keycard-go/hexutils"
 	"github.com/stretchr/testify/require"
 	"github.com/tendermint/tendermint/libs/log"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	tmdb "github.com/tendermint/tm-db"
 )
-
-var dummyFeedData = hexutils.HexToBytes("0000000000000000000000000000000000000000000000000000000000000080000000000000000000000000000000000000000000000000000000000000016000000000000000000000000000000000000000000000000000000000000001c0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000c00000000000000000000000f21eff4aee6829a54fadb965bead9b326128f753012a5800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000006400000000000000000000000000000000000000000000000000000000000000650000000000000000000000000000000000000000000000000000000000000002f14bcfb32dadb8c754d6493b4f864c2744754d2ff8c60cded66127de8440a53137314bfe7278781f758531e103e28ee0e2532525dfbd04787d945a2dc585971700000000000000000000000000000000000000000000000000000000000000026d377788996001c883b1adac090bf6fc5477a3ccefe2cdb084c3ec364a5b3d100c937db9f208e9509cbf425caf738474342546b3acd61a16cf132c132504917e")
 
 // nolint
 func setupKeeper(t testing.TB) (*Keeper, sdk.Context) {
@@ -74,7 +72,7 @@ func TestFeedKeyStructure(t *testing.T) {
 
 			feedData := types.MsgFeedData{
 				FeedId:    tc.feedId,
-				FeedData:  dummyFeedData,
+				FeedData:  utils.MustGenerateFakeABIReport(roundId, []int64{100, 101}),
 				Submitter: []byte(fmt.Sprintf("%s/%d", tc.feedId, roundId)),
 			}
 
@@ -131,7 +129,7 @@ func TestKeeper_SetFeedData(t *testing.T) {
 
 			msgFeedData := types.MsgFeedData{
 				FeedId:   tc.feedId,
-				FeedData: dummyFeedData,
+				FeedData: utils.MustGenerateFakeABIReport(tc.roundId, []int64{100, 101}),
 			}
 
 			_, _, err := k.SetFeedData(ctx, &msgFeedData)
@@ -156,14 +154,14 @@ func TestKeeper_GetRoundFeedDataByFilter(t *testing.T) {
 	testCases := []struct {
 		feedId    string
 		roundId   uint64
-		feedData  []byte
+		obs       []int64
 		submitter []byte
 		insert    bool
 	}{
-		{feedId: "feed1", roundId: 100, feedData: []byte{'a', 'b', 'c'}, submitter: []byte("addressMock1"), insert: true},
-		{feedId: "feed1", roundId: 200, feedData: []byte{'d', 'e', 'f'}, submitter: []byte("addressMock2"), insert: true},
-		{feedId: "feed1", roundId: 300, feedData: []byte{'g', 'h', 'i'}, submitter: []byte("addressMock3"), insert: false},
-		{feedId: "feed2", roundId: 400, feedData: []byte{'j', 'k', 'l'}, submitter: []byte("addressMock4"), insert: false},
+		{feedId: "feed1", roundId: 100, obs: []int64{100, 101, 102}, submitter: []byte("addressMock1"), insert: true},
+		{feedId: "feed1", roundId: 200, obs: []int64{103, 104, 105}, submitter: []byte("addressMock2"), insert: true},
+		{feedId: "feed1", roundId: 300, obs: []int64{106, 107, 108}, submitter: []byte("addressMock3"), insert: false},
+		{feedId: "feed2", roundId: 400, obs: []int64{109, 110, 111}, submitter: []byte("addressMock4"), insert: false},
 	}
 
 	// Add all feed cases to store
@@ -176,7 +174,7 @@ func TestKeeper_GetRoundFeedDataByFilter(t *testing.T) {
 
 		msgFeedData := types.MsgFeedData{
 			FeedId:    tc.feedId,
-			FeedData:  dummyFeedData,
+			FeedData:  utils.MustGenerateFakeABIReport(tc.roundId, tc.obs),
 			Submitter: tc.submitter,
 		}
 
@@ -199,12 +197,12 @@ func TestKeeper_GetRoundFeedDataByFilter(t *testing.T) {
 
 			if tc.insert {
 				require.Equal(t, 1, len(roundData))
-				require.Equal(t, tc.roundId, roundData[0].GetFeedData().GetContext().GetRound())
+				require.EqualValues(t, tc.roundId, roundData[0].GetFeedData().GetContext().GetRound())
 				require.Equal(t, tc.feedId, roundData[0].GetFeedId())
 
 				observations := roundData[0].GetFeedData().GetReport().GetAttributedObservations()
-				for i := 0; i < len(tc.feedData); i++ {
-					require.Equal(t, tc.feedData[i], observations[i].GetObservation().GetValue()[0])
+				for i := 0; i < len(tc.obs); i++ {
+					require.EqualValues(t, tc.obs[i], observations[i].GetObservation().GetValue()[0])
 				}
 			} else {
 				require.Equal(t, 0, len(roundData))
@@ -222,15 +220,15 @@ func TestKeeper_GetLatestRoundFeedDataByFilter(t *testing.T) {
 		feedId    string
 		roundId   uint64
 		expected  uint64
-		feedData  []byte
+		obs       []int64
 		submitter []byte
 		insert    bool
 	}{
-		{feedId: "feed1", roundId: 100, expected: 100, feedData: []byte{'a', 'b', 'c'}, submitter: []byte("addressMock1"), insert: true},
-		{feedId: "feed1", roundId: 200, expected: 200, feedData: []byte{'d', 'e', 'f'}, submitter: []byte("addressMock2"), insert: true},
-		{feedId: "feed1", roundId: 300, expected: 200, feedData: []byte{'g', 'h', 'i'}, submitter: []byte("addressMock3"), insert: false},
-		{feedId: "feed2", roundId: 400, expected: 000, feedData: []byte{'j', 'k', 'l'}, submitter: []byte("addressMock4"), insert: false},
-		{feedId: "feed3", roundId: 500, expected: 500, feedData: []byte{'m', 'n', 'o'}, submitter: []byte("addressMock5"), insert: true},
+		{feedId: "feed1", roundId: 100, expected: 100, obs: []int64{100, 101, 102}, submitter: []byte("addressMock1"), insert: true},
+		{feedId: "feed1", roundId: 200, expected: 200, obs: []int64{103, 104, 105}, submitter: []byte("addressMock2"), insert: true},
+		{feedId: "feed1", roundId: 300, expected: 200, obs: []int64{106, 107, 108}, submitter: []byte("addressMock3"), insert: false},
+		{feedId: "feed2", roundId: 400, expected: 000, obs: []int64{109, 110, 111}, submitter: []byte("addressMock4"), insert: false},
+		{feedId: "feed3", roundId: 500, expected: 500, obs: []int64{112, 113, 114}, submitter: []byte("addressMock5"), insert: true},
 	}
 
 	// Add all feed cases to store and try retrieve the latest round
@@ -243,7 +241,7 @@ func TestKeeper_GetLatestRoundFeedDataByFilter(t *testing.T) {
 
 				msgFeedData := types.MsgFeedData{
 					FeedId:    tc.feedId,
-					FeedData:  dummyFeedData,
+					FeedData:  utils.MustGenerateFakeABIReport(tc.roundId, tc.obs),
 					Submitter: tc.submitter,
 				}
 
@@ -261,7 +259,7 @@ func TestKeeper_GetLatestRoundFeedDataByFilter(t *testing.T) {
 			// if roundId is expected
 			if tc.expected > 0 {
 				require.Equal(t, 1, len(roundData))
-				require.Equal(t, tc.expected, roundData[0].GetFeedData().GetContext().GetRound())
+				require.EqualValues(t, tc.expected, roundData[0].GetFeedData().GetContext().GetRound())
 				require.Equal(t, tc.feedId, roundData[0].FeedId)
 			} else {
 				require.Equal(t, 0, len(roundData))

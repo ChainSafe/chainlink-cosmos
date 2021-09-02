@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"testing"
 
+	"github.com/ChainSafe/chainlink-cosmos/x/chainlink/ocr/utils"
 	"github.com/ChainSafe/chainlink-cosmos/x/chainlink/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
@@ -26,16 +27,16 @@ func TestQuerier_GetRoundFeedData(t *testing.T) {
 	testCases := []struct {
 		feedId          string
 		roundId         uint64
-		feedData        []byte
+		obs             []int64
 		submitter       sdk.AccAddress
 		signature       [][]byte
 		isFeedDataValid bool
 		insert          bool
 	}{
-		{feedId: "feed1", roundId: 100, feedData: []byte{'a', 'b', 'c'}, submitter: sdk.AccAddress("addressMock1"), signature: [][]byte{{'a', 'b'}, {'c', 'd'}}, isFeedDataValid: true, insert: true},
-		{feedId: "feed1", roundId: 200, feedData: []byte{'d', 'e', 'f'}, submitter: sdk.AccAddress("addressMock2"), signature: [][]byte{{'e', 'f'}, {'g', 'h'}}, isFeedDataValid: false, insert: true},
-		{feedId: "feed1", roundId: 300, feedData: []byte{'g', 'h', 'i'}, submitter: sdk.AccAddress("addressMock3"), signature: [][]byte{{'i', 'j'}, {'k', 'l'}}, isFeedDataValid: true, insert: false},
-		{feedId: "feed2", roundId: 400, feedData: []byte{'j', 'k', 'l'}, submitter: sdk.AccAddress("addressMock4"), signature: [][]byte{{'m', 'n'}, {'o', 'p'}}, isFeedDataValid: false, insert: false},
+		{feedId: "feed1", roundId: 100, obs: []int64{101, 102, 103}, submitter: sdk.AccAddress("addressMock1"), signature: [][]byte{{'a', 'b'}, {'c', 'd'}}, isFeedDataValid: true, insert: true},
+		{feedId: "feed1", roundId: 200, obs: []int64{104, 105, 106}, submitter: sdk.AccAddress("addressMock2"), signature: [][]byte{{'e', 'f'}, {'g', 'h'}}, isFeedDataValid: false, insert: true},
+		{feedId: "feed1", roundId: 300, obs: []int64{107, 108, 109}, submitter: sdk.AccAddress("addressMock3"), signature: [][]byte{{'i', 'j'}, {'k', 'l'}}, isFeedDataValid: true, insert: false},
+		{feedId: "feed2", roundId: 400, obs: []int64{110, 111, 112}, submitter: sdk.AccAddress("addressMock4"), signature: [][]byte{{'m', 'n'}, {'o', 'p'}}, isFeedDataValid: false, insert: false},
 	}
 
 	// Add all feed cases to store
@@ -48,7 +49,7 @@ func TestQuerier_GetRoundFeedData(t *testing.T) {
 
 		msgFeedData := types.MsgFeedData{
 			FeedId:          tc.feedId,
-			FeedData:        dummyFeedData,
+			FeedData:        utils.MustGenerateFakeABIReport(tc.roundId, tc.obs),
 			Submitter:       tc.submitter,
 			Signatures:      tc.signature,
 			IsFeedDataValid: tc.isFeedDataValid,
@@ -72,13 +73,13 @@ func TestQuerier_GetRoundFeedData(t *testing.T) {
 			if tc.insert {
 				require.Equal(t, 1, len(roundDataResponse.GetRoundData()))
 				require.Equal(t, tc.feedId, roundDataResponse.GetRoundData()[0].GetFeedId())
-				require.Equal(t, tc.roundId, roundDataResponse.GetRoundData()[0].GetFeedData().GetContext().GetRound())
+				require.EqualValues(t, tc.roundId, roundDataResponse.GetRoundData()[0].GetFeedData().GetContext().GetRound())
 
 				// TODO if tc.isFeedDataValid is true, check if event is emitted with correct signature
 
 				observations := roundDataResponse.GetRoundData()[0].GetFeedData().GetReport().GetAttributedObservations()
-				for i := 0; i < len(tc.feedData); i++ {
-					require.Equal(t, tc.feedData[i], observations[i].GetObservation().GetValue()[0])
+				for i := 0; i < len(tc.obs); i++ {
+					require.EqualValues(t, tc.obs[i], observations[i].GetObservation().GetValue()[0])
 				}
 			} else {
 				require.Equal(t, 0, len(roundDataResponse.GetRoundData()))
@@ -97,17 +98,17 @@ func TestQuerier_LatestRoundFeedData(t *testing.T) {
 		feedId          string
 		roundId         uint64
 		expected        uint64
-		feedData        []byte
+		obs             []int64
 		submitter       []byte
 		signature       [][]byte
 		isFeedDataValid bool
 		insert          bool
 	}{
-		{feedId: "feed1", roundId: 100, expected: 100, feedData: []byte{'a', 'b', 'c'}, submitter: sdk.AccAddress("addressMock1"), signature: [][]byte{{'a', 'b'}, {'c', 'd'}}, isFeedDataValid: true, insert: true},
-		{feedId: "feed1", roundId: 200, expected: 200, feedData: []byte{'d', 'e', 'f'}, submitter: sdk.AccAddress("addressMock2"), signature: [][]byte{{'e', 'f'}, {'g', 'h'}}, isFeedDataValid: false, insert: true},
-		{feedId: "feed1", roundId: 300, expected: 200, feedData: []byte{'g', 'h', 'i'}, submitter: sdk.AccAddress("addressMock3"), signature: [][]byte{{'i', 'j'}, {'k', 'l'}}, isFeedDataValid: true, insert: false},
-		{feedId: "feed2", roundId: 400, expected: 000, feedData: []byte{'j', 'k', 'l'}, submitter: sdk.AccAddress("addressMock4"), signature: [][]byte{{'m', 'n'}, {'o', 'p'}}, isFeedDataValid: false, insert: false},
-		{feedId: "feed3", roundId: 500, expected: 500, feedData: []byte{'m', 'n', 'o'}, submitter: sdk.AccAddress("addressMock5"), signature: [][]byte{{'q', 'r'}, {'s', 't'}}, isFeedDataValid: true, insert: true},
+		{feedId: "feed1", roundId: 100, expected: 100, obs: []int64{101, 102, 103}, submitter: sdk.AccAddress("addressMock1"), signature: [][]byte{{'a', 'b'}, {'c', 'd'}}, isFeedDataValid: true, insert: true},
+		{feedId: "feed1", roundId: 200, expected: 200, obs: []int64{104, 105, 106}, submitter: sdk.AccAddress("addressMock2"), signature: [][]byte{{'e', 'f'}, {'g', 'h'}}, isFeedDataValid: false, insert: true},
+		{feedId: "feed1", roundId: 300, expected: 200, obs: []int64{107, 108, 109}, submitter: sdk.AccAddress("addressMock3"), signature: [][]byte{{'i', 'j'}, {'k', 'l'}}, isFeedDataValid: true, insert: false},
+		{feedId: "feed2", roundId: 400, expected: 000, obs: []int64{110, 111, 112}, submitter: sdk.AccAddress("addressMock4"), signature: [][]byte{{'m', 'n'}, {'o', 'p'}}, isFeedDataValid: false, insert: false},
+		{feedId: "feed3", roundId: 500, expected: 500, obs: []int64{113, 114, 115}, submitter: sdk.AccAddress("addressMock5"), signature: [][]byte{{'q', 'r'}, {'s', 't'}}, isFeedDataValid: true, insert: true},
 	}
 
 	// Add all feed cases to store and try retrieve the latest round
@@ -120,7 +121,7 @@ func TestQuerier_LatestRoundFeedData(t *testing.T) {
 
 				msgFeedData := types.MsgFeedData{
 					FeedId:          tc.feedId,
-					FeedData:        dummyFeedData,
+					FeedData:        utils.MustGenerateFakeABIReport(tc.roundId, tc.obs),
 					Submitter:       tc.submitter,
 					Signatures:      tc.signature,
 					IsFeedDataValid: tc.isFeedDataValid,
@@ -141,7 +142,7 @@ func TestQuerier_LatestRoundFeedData(t *testing.T) {
 			if tc.expected > 0 {
 				require.Equal(t, 1, len(roundDataResponse.GetRoundData()))
 				require.Equal(t, tc.feedId, roundDataResponse.GetRoundData()[0].GetFeedId())
-				require.Equal(t, tc.expected, roundDataResponse.GetRoundData()[0].GetFeedData().GetContext().GetRound())
+				require.EqualValues(t, tc.expected, roundDataResponse.GetRoundData()[0].GetFeedData().GetContext().GetRound())
 
 				// TODO if tc.isFeedDataValid is true, check if event is emitted with correct signature
 			} else {
