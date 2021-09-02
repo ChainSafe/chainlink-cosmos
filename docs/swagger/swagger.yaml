@@ -457,8 +457,8 @@ paths:
                     type: object
                     properties:
                       amount:
-                        type: integer
-                        format: int64
+                        type: string
+                        format: uint64
                         title: >-
                           amount is the base value that rewarded to each valid
                           data provider before designated strategy applied
@@ -617,8 +617,8 @@ definitions:
     type: object
     properties:
       amount:
-        type: integer
-        format: int64
+        type: string
+        format: uint64
         title: >-
           amount is the base value that rewarded to each valid data provider
           before designated strategy applied
@@ -723,8 +723,8 @@ definitions:
             type: object
             properties:
               amount:
-                type: integer
-                format: int64
+                type: string
+                format: uint64
                 title: >-
                   amount is the base value that rewarded to each valid data
                   provider before designated strategy applied
@@ -1013,8 +1013,8 @@ definitions:
         type: object
         properties:
           amount:
-            type: integer
-            format: int64
+            type: string
+            format: uint64
             title: >-
               amount is the base value that rewarded to each valid data provider
               before designated strategy applied
