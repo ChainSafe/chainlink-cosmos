@@ -32,4 +32,4 @@ chainlinkd validate-genesis
 perl -0777 -i.original -pe 's/API server should be enabled.\nenable = false/API server should be enabled.\nenable = true/igs' ~/.chainlinkd/config/app.toml
 
 # Start chain
-chainlinkd start
+chainlinkd start --minimum-gas-prices 0.000006link

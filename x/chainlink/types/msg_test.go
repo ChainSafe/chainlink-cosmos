@@ -367,7 +367,7 @@ func (ts *MsgFeedTestSuite) MsgFeedConstructor() {
 	submissionCount := uint32(1)
 	heartbeatTrigger := uint32(2)
 	deviationThresholdTrigger := uint32(3)
-	feedReward := uint32(4)
+	feedReward := uint64(4)
 
 	msg := NewMsgFeed(
 		feedId,
@@ -402,7 +402,7 @@ func (ts *MsgFeedTestSuite) TestMsgFeedValidateBasic() {
 		submissionCount           uint32
 		heartbeatTrigger          uint32
 		deviationThresholdTrigger uint32
-		feedReward                uint32
+		feedReward                uint64
 		expPass                   bool
 	}{
 		{
@@ -415,7 +415,7 @@ func (ts *MsgFeedTestSuite) TestMsgFeedValidateBasic() {
 			submissionCount:           uint32(1),
 			heartbeatTrigger:          uint32(2),
 			deviationThresholdTrigger: uint32(3),
-			feedReward:                uint32(4),
+			feedReward:                uint64(4),
 			expPass:                   true,
 		},
 		{
@@ -428,7 +428,7 @@ func (ts *MsgFeedTestSuite) TestMsgFeedValidateBasic() {
 			submissionCount:           uint32(1),
 			heartbeatTrigger:          uint32(2),
 			deviationThresholdTrigger: uint32(3),
-			feedReward:                uint32(4),
+			feedReward:                uint64(4),
 			expPass:                   false,
 		},
 		{
@@ -441,7 +441,7 @@ func (ts *MsgFeedTestSuite) TestMsgFeedValidateBasic() {
 			submissionCount:           uint32(1),
 			heartbeatTrigger:          uint32(2),
 			deviationThresholdTrigger: uint32(3),
-			feedReward:                uint32(4),
+			feedReward:                uint64(4),
 			expPass:                   false,
 		},
 		{
@@ -454,7 +454,7 @@ func (ts *MsgFeedTestSuite) TestMsgFeedValidateBasic() {
 			submissionCount:           uint32(1),
 			heartbeatTrigger:          uint32(2),
 			deviationThresholdTrigger: uint32(3),
-			feedReward:                uint32(4),
+			feedReward:                uint64(4),
 			expPass:                   false,
 		},
 	}
@@ -909,7 +909,7 @@ func (ts *MsgSetFeedRewardTestSuite) MsgSetFeedRewardConstructor() {
 	msg := NewMsgSetFeedReward(
 		ts.signer,
 		"feedId1",
-		uint32(1),
+		uint64(1),
 		"",
 	)
 
@@ -926,7 +926,7 @@ func (ts *MsgSetFeedRewardTestSuite) MsgSetFeedRewardValidateBasic() {
 	testCases := []struct {
 		description string
 		feedId      string
-		feedReward  uint32
+		feedReward  uint64
 		signer      sdk.AccAddress
 		expPass     bool
 	}{
@@ -934,21 +934,21 @@ func (ts *MsgSetFeedRewardTestSuite) MsgSetFeedRewardValidateBasic() {
 			description: "MsgSetFeedRewardTestSuite: passing case - all valid values",
 			feedId:      "feedId1",
 			signer:      ts.signer,
-			feedReward:  uint32(1),
+			feedReward:  uint64(1),
 			expPass:     true,
 		},
 		{
 			description: "MsgSetFeedRewardTestSuite: failing case - invalid feedId",
 			feedId:      "",
 			signer:      ts.signer,
-			feedReward:  uint32(1),
+			feedReward:  uint64(1),
 			expPass:     false,
 		},
 		{
 			description: "MsgSetFeedRewardTestSuite: failing case - feedReward must not be 0",
 			feedId:      "feedId1",
 			signer:      ts.signer,
-			feedReward:  uint32(0),
+			feedReward:  uint64(0),
 			expPass:     false,
 		},
 	}

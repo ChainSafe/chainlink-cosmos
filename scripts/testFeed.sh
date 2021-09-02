@@ -26,7 +26,7 @@ cerloPK=$(chainlinkd keys show cerlo -p)
 # aDd NeW fEeD bY aLiCe
 # wIlL aDd AlIcE aDdReSs AnD pUbLiC kEy
 echo "adding new feed by alice"
-addFeedTx=$($chainlinkCMD add-feed feedid1 "this is the test feed 1" $aliceAddr 1 2 3 100 "" $aliceAddr,$alicePK --from alice --keyring-backend test --chain-id testchain <<< 'y\n')
+addFeedTx=$($chainlinkCMD add-feed feedid1 "this is the test feed 1" $aliceAddr 1 2 3 100 "" $aliceAddr,$alicePK --from alice --keyring-backend test --chain-id testchain --fees 3link <<< 'y\n')
 addFeedTxResp=$(echo "$addFeedTx" | jq '.logs')
 if [ ${#addFeedTxResp} == 2 ] # log: [] if tx failed
 then
@@ -35,9 +35,9 @@ fi
 
 # iNiTiAl BaLaNcE oF aLiCe b4 rEwArD
 aliceCurrBal=$(chainlinkd query bank balances $(chainlinkd keys show alice -a) --denom link --output json | jq '.amount')
-if [ "$aliceCurrBal" != "\"1000000\"" ]
+if [ "$aliceCurrBal" != "\"999997\"" ]
 then
-  errorAndExit "Error in initial distribution; expected 1000000, got $aliceCurrBal"
+  errorAndExit "Error in initial distribution; expected 999997, got $aliceCurrBal"
 fi
 
 # iNiTiAl BaLaNcE oF bOb B4 rEwArD
@@ -49,7 +49,7 @@ fi
 
 # sUbMiT fEeD dAtA bY aLiCe
 echo "submitting feed data by alice"
-submitFeedTx1=$($chainlinkCMD submit-feed-data feedid1 "feed 1 test data" "signatures_alice" "$alicePK" --from alice --keyring-backend test --chain-id testchain <<< 'y\n')
+submitFeedTx1=$($chainlinkCMD submit-feed-data feedid1 "feed 1 test data" "signatures_alice" "$alicePK" --from alice --keyring-backend test --chain-id testchain --fees 3link <<< 'y\n')
 submitFeedTx1Resp=$(echo "$submitFeedTx1" | jq '.height')
 if [ "$submitFeedTx1Resp" == "\"0\"" ]
 then
@@ -59,9 +59,9 @@ fi
 # cHeCk If AlIcE gOt ThE rEwArD
 echo "checking alice's reward distribution #1"
 aliceCurrBal=$(chainlinkd query bank balances $(chainlinkd keys show alice -a) --denom link --output json | jq '.amount')
-if [ "$aliceCurrBal" != "\"1000100\"" ]
+if [ "$aliceCurrBal" != "\"1000097\"" ]
 then
-  errorAndExit "Error in reward distribution for alice; expected \"1000100\", got $aliceCurrBal"
+  errorAndExit "Error in reward distribution for alice; expected \"1000097\", got $aliceCurrBal"
 fi
 
 # bOb ShOuLd NoT aNy rEwArD
@@ -74,7 +74,7 @@ fi
 
 # sUbMiT fEeD dAtA bY cErLo (nOn-AuThOrIzEd DaTa PrOvIdEr)...
 echo "submitting feed data by unauthorized data provider"
-badSubmitFeedTx=$($chainlinkCMD submit-feed-data feedid1 "feed 1 test data" "signatures_bob" "$bobPK" --from bob --keyring-backend test --chain-id testchain <<< 'y\n')
+badSubmitFeedTx=$($chainlinkCMD submit-feed-data feedid1 "feed 1 test data" "signatures_bob" "$bobPK" --from bob --keyring-backend test --chain-id testchain --fees 3link <<< 'y\n')
 badSubmitFeedTxResp=$(echo "$badSubmitFeedTx" | jq '.raw_log')
 if [ "$badSubmitFeedTxResp" != "\"submitter is not a valid data provider: unauthorized\"" ]
 then
@@ -85,7 +85,7 @@ fi
 
 # aDd BoB aS dAtA pRoViDeR
 echo "adding bob as a data provider"
-addBobTx=$($chainlinkCMD add-data-provider feedid1 $bobAddr $bobPK --from alice --keyring-backend test --chain-id testchain <<< 'y\n')
+addBobTx=$($chainlinkCMD add-data-provider feedid1 $bobAddr $bobPK --from alice --keyring-backend test --chain-id testchain --fees 3link <<< 'y\n')
 addBobTxResp=$(echo $addBobTx | jq '.height')
 if [ "$addBobTxResp" == "\"0\"" ]
 then
@@ -95,7 +95,7 @@ fi
 # uPdAtE fEeD rEwArD
 echo "updating feed reward to $newFeedReward"
 newFeedReward=10
-updateFeedReward=$($chainlinkCMD set-feed-reward feedid1 $newFeedReward "" --from alice --keyring-backend test --chain-id testchain <<< 'y\n')
+updateFeedReward=$($chainlinkCMD set-feed-reward feedid1 $newFeedReward "" --from alice --keyring-backend test --chain-id testchain --fees 3link <<< 'y\n')
 updateFeedRewardResp=$(echo "$updateFeedReward" | jq '.height')
 if [ "$updateFeedRewardResp" == "\"0\"" ]
 then
@@ -104,7 +104,7 @@ fi
 
 # sUbMiT fEeD dAtA bY bOb
 echo "submitting feed data by bob"
-submitFeedTx2=$($chainlinkCMD submit-feed-data feedid1 "feed 1 test data" "signatures_bob" "$bobPK" --from bob --keyring-backend test --chain-id testchain <<< 'y\n')
+submitFeedTx2=$($chainlinkCMD submit-feed-data feedid1 "feed 1 test data" "signatures_bob" "$bobPK" --from bob --keyring-backend test --chain-id testchain --fees 3link <<< 'y\n')
 submitFeedTx2Resp=$(echo "$submitFeedTx2" | jq '.height')
 if [ "$submitFeedTx2Resp" == "\"0\"" ]
 then
@@ -114,9 +114,9 @@ fi
 # cHeCk If AlIcE gOt ThE uPdAtEd ReWaRd
 echo "checking alice's reward distribution #2"
 aliceCurrBal=$(chainlinkd query bank balances $(chainlinkd keys show alice -a) --denom link --output json | jq '.amount')
-if [ "$aliceCurrBal" != "\"1000100\"" ]
+if [ "$aliceCurrBal" != "\"1000091\"" ]
 then
-  errorAndExit "Error in reward distribution; expected \"1000100\", got $aliceCurrBal"
+  errorAndExit "Error in reward distribution; expected \"1000091\", got $aliceCurrBal"
 fi
 
 # bOb ShOuLd NoW gEt rEwArD
@@ -132,7 +132,7 @@ fi
 # fEeD oWnEr WiLl eDiT
 # eDiT sUbMiSsIoN cOuNt 
 echo "edit feed's submission count by alice"
-setSubmissionCountTx=$($chainlinkCMD set-submission-count feedid1 10 --from alice --keyring-backend test --chain-id testchain <<< 'y\n')
+setSubmissionCountTx=$($chainlinkCMD set-submission-count feedid1 10 --from alice --keyring-backend test --chain-id testchain --fees 3link <<< 'y\n')
 setSubmissionCountTxResp=$(echo "$setSubmissionCountTx" | jq '.height')
 if [ "$setSubmissionCountTxResp" == "\"0\"" ]
 then
@@ -141,7 +141,7 @@ fi
 
 # eDiT hEaRtBeAt TrIgGeR
 echo "edit feed's heartbeat trigger by alice"
-setHeartbeatTriggerTx=$($chainlinkCMD set-heartbeat-trigger feedid1 20 --from alice --keyring-backend test --chain-id testchain <<< 'y\n')
+setHeartbeatTriggerTx=$($chainlinkCMD set-heartbeat-trigger feedid1 20 --from alice --keyring-backend test --chain-id testchain --fees 3link <<< 'y\n')
 setHeartbeatTriggerTxResp=$(echo "$setHeartbeatTriggerTx" | jq '.height')
 if [ "$setHeartbeatTriggerTxResp" == "\"0\"" ]
 then
@@ -150,7 +150,7 @@ fi
 
 # eDiT dEvIaTiOn ThReShOlD tRiGgEr
 echo "edit feed's deviation threshold trigger by alice"
-setDeviationThresholdTriggerTx=$($chainlinkCMD set-deviation-threshold-trigger feedid1 30 --from alice --keyring-backend test --chain-id testchain <<< 'y\n')
+setDeviationThresholdTriggerTx=$($chainlinkCMD set-deviation-threshold-trigger feedid1 30 --from alice --keyring-backend test --chain-id testchain --fees 3link <<< 'y\n')
 setDeviationThresholdTriggerTxResp=$(echo "$setDeviationThresholdTriggerTx" | jq '.height')
 if [ "$setHeartbeatTriggerTxResp" == "\"0\"" ]
 then
@@ -159,7 +159,7 @@ fi
 
 # eDiT fEeD rEwArD
 echo "edit feed's reward by alice"
-setFeedRewardTx=$($chainlinkCMD set-feed-reward feedid1 40 "" --from alice --keyring-backend test --chain-id testchain <<< 'y\n')
+setFeedRewardTx=$($chainlinkCMD set-feed-reward feedid1 40 "" --from alice --keyring-backend test --chain-id testchain --fees 3link <<< 'y\n')
 setFeedRewardTxResp=$(echo "$setFeedRewardTx" | jq '.height')
 if [ "$setFeedRewardTxResp" == "\"0\"" ]
 then
@@ -169,7 +169,7 @@ fi
 # nOn-FeEd OwMeR cAnNoT eDiT
 # eDiT sUbMiSsIoN cOuNt 
 echo "edit feed's submission count by cerlo"
-setSubmissionCountTx=$($chainlinkCMD set-submission-count feedid1 10 --from cerlo --keyring-backend test --chain-id testchain <<< 'y\n')
+setSubmissionCountTx=$($chainlinkCMD set-submission-count feedid1 10 --from cerlo --keyring-backend test --chain-id testchain --fees 3link <<< 'y\n')
 setSubmissionCountTxResp=$(echo "$setSubmissionCountTx" | jq '.height')
 if [ "$setSubmissionCountTxResp" != "\"0\"" ]
 then
@@ -178,7 +178,7 @@ fi
 
 # eDiT hEaRtBeAt TrIgGeR
 echo "edit feed's heartbeat trigger by cerlo"
-setHeartbeatTriggerTx=$($chainlinkCMD set-heartbeat-trigger feedid1 20 --from cerlo --keyring-backend test --chain-id testchain <<< 'y\n')
+setHeartbeatTriggerTx=$($chainlinkCMD set-heartbeat-trigger feedid1 20 --from cerlo --keyring-backend test --chain-id testchain --fees 3link <<< 'y\n')
 setHeartbeatTriggerTxResp=$(echo "$setHeartbeatTriggerTx" | jq '.height')
 if [ "$setHeartbeatTriggerTxResp" != "\"0\"" ]
 then
@@ -187,7 +187,7 @@ fi
 
 # eDiT dEvIaTiOn ThReShOlD tRiGgEr
 echo "edit feed's deviation threshold trigger by cerlo"
-setDeviationThresholdTriggerTx=$($chainlinkCMD set-deviation-threshold-trigger feedid1 30 --from cerlo --keyring-backend test --chain-id testchain <<< 'y\n')
+setDeviationThresholdTriggerTx=$($chainlinkCMD set-deviation-threshold-trigger feedid1 30 --from cerlo --keyring-backend test --chain-id testchain --fees 3link <<< 'y\n')
 setDeviationThresholdTriggerTxResp=$(echo "$setDeviationThresholdTriggerTx" | jq '.height')
 if [ "$setDeviationThresholdTriggerTxResp" != "\"0\"" ]
 then
@@ -196,7 +196,7 @@ fi
 
 # eDiT fEeD rEwArD
 echo "edit feed's reward by cerlo"
-setFeedRewardTx=$($chainlinkCMD set-feed-reward feedid1 40 "" --from cerlo --keyring-backend test --chain-id testchain <<< 'y\n')
+setFeedRewardTx=$($chainlinkCMD set-feed-reward feedid1 40 "" --from cerlo --keyring-backend test --chain-id testchain --fees 3link <<< 'y\n')
 setFeedRewardTxResp=$(echo "$setFeedRewardTx" | jq '.height')
 if [ "$setFeedRewardTxResp" != "\"0\"" ]
 then

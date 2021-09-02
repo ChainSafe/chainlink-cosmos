@@ -99,7 +99,7 @@ func (m *MsgFeedData) Validate(fn func(msg sdk.Msg) bool) bool {
 // RewardCalculator calculates the reward for each data provider in the current submit feed data tx
 // base on the registered reward strategy
 // return the slice of reward payout and the total reward amount
-func (m *MsgFeedData) RewardCalculator(feed *MsgFeed, feedData *MsgFeedData) ([]RewardPayout, uint32, error) {
+func (m *MsgFeedData) RewardCalculator(feed *MsgFeed, feedData *MsgFeedData) ([]RewardPayout, uint64, error) {
 	// every one gets the base amount if no strategy configured when chain launching
 	// or the owner of the current feed does not set a strategy
 	if len(FeedRewardStrategyConvertor) == 0 || feed.GetFeedReward().GetStrategy() == "" {
@@ -118,18 +118,18 @@ func (m *MsgFeedData) RewardCalculator(feed *MsgFeed, feedData *MsgFeedData) ([]
 			}
 			rewardPayout = append(rewardPayout, rp)
 		}
-		return rewardPayout, feed.GetFeedReward().GetAmount() * uint32(len(feedData.GetSignatures())), nil
+		return rewardPayout, feed.GetFeedReward().GetAmount() * uint64(len(feedData.GetSignatures())), nil
 	}
 
 	// strategy of a feed here has already been checked in anteHandler when set, ok must be true
-	strategyFn, _ := FeedRewardStrategyConvertor[feed.GetFeedReward().GetStrategy()]// nolint
+	strategyFn, _ := FeedRewardStrategyConvertor[feed.GetFeedReward().GetStrategy()] // nolint
 
 	RewardPayoutList, err := strategyFn(feed, feedData)
 	if err != nil {
 		return nil, 0, err
 	}
 
-	totalRewardAmount := uint32(0)
+	totalRewardAmount := uint64(0)
 	for _, payout := range RewardPayoutList {
 		totalRewardAmount += payout.Amount
 	}
@@ -215,7 +215,7 @@ func (m *MsgModuleOwnershipTransfer) GetSigners() []githubcosmossdktypes.AccAddr
 }
 
 func NewMsgFeed(feedId, feedDesc string, feedOwner, moduleOwner sdk.Address, initDataProviders []*DataProvider,
-	submissionCount, heartbeatTrigger, deviationThresholdTrigger, baseFeedRewardAmount uint32, feedRewardStrategy string) *MsgFeed {
+	submissionCount, heartbeatTrigger, deviationThresholdTrigger uint32, baseFeedRewardAmount uint64, feedRewardStrategy string) *MsgFeed {
 	return &MsgFeed{
 		FeedId:                    feedId,
 		Desc:                      feedDesc,
@@ -477,7 +477,7 @@ func (m *MsgSetDeviationThresholdTrigger) GetSigners() []githubcosmossdktypes.Ac
 	return []sdk.AccAddress{m.Signer}
 }
 
-func NewMsgSetFeedReward(signer githubcosmossdktypes.AccAddress, feedId string, baseFeedRewardAmount uint32, feedRewardStrategy string) *MsgSetFeedReward {
+func NewMsgSetFeedReward(signer githubcosmossdktypes.AccAddress, feedId string, baseFeedRewardAmount uint64, feedRewardStrategy string) *MsgSetFeedReward {
 	return &MsgSetFeedReward{
 		FeedId: feedId,
 		FeedReward: &FeedRewardSchema{

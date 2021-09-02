@@ -73,7 +73,7 @@ message MsgFeedDataValidationFailedEvent{
 message MsgFeedRewardSchemaChangeEvent{
   string feedId = 1;
   string newStrategy = 2;
-  uint32 newBaseAmount = 3;
+  uint64 newBaseAmount = 3;
   bytes signer = 4 [(gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"];
 }
 
