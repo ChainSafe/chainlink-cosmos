@@ -7,14 +7,12 @@ import (
 	"crypto/ecdsa"
 	"crypto/rand"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/crypto/secp256k1"
 )
 
 type KeyBundle struct {
 	onChainSigning *onChainPrivateKey
-	address        sdk.AccAddress
 }
 
 var curve = secp256k1.S256()

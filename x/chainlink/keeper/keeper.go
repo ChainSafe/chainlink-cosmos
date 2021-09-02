@@ -97,6 +97,7 @@ func (k Keeper) SetFeedData(ctx sdk.Context, feedData *types.MsgFeedData) (int64
 	whitelist := signature.Addresses{}
 
 	err = offchainReport.GetReport().VerifySignatures(offchainReport.GetContext(), whitelist)
+	// nolint
 	if err != nil {
 		//return 0, nil, err // FIXME uncomment
 	}
