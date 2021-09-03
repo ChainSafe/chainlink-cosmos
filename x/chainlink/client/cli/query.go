@@ -27,6 +27,7 @@ func GetQueryCmd() *cobra.Command {
 	cmd.AddCommand(CmdGetFeedInfo())
 	cmd.AddCommand(CmdGetAccountInfo())
 	cmd.AddCommand(CmdGetFeedRewardAvailStrategy())
+	cmd.AddCommand(CmdGenerateFakeOCR())
 
 	return cmd
 }

@@ -14,6 +14,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/spf13/cobra"
 )
 
@@ -361,7 +362,12 @@ func CmdSubmitFeedData() *cobra.Command {
 				p = append(p, []byte(key))
 			}
 
-			msg := types.NewMsgFeedData(clientCtx.GetFromAddress(), argsFeedId, []byte(argsFeedData), s, p)
+			abiEncodedOCR, err := hexutil.Decode(argsFeedData)
+			if err != nil {
+				return err
+			}
+
+			msg := types.NewMsgFeedData(clientCtx.GetFromAddress(), argsFeedId, abiEncodedOCR, s, p)
 			if err := msg.ValidateBasic(); err != nil {
 				return err
 			}

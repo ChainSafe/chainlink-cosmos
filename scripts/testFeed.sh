@@ -21,6 +21,8 @@ bobPK=$(chainlinkd keys show bob -p)
 cerloAddr=$(chainlinkd keys show cerlo -a)
 cerloPK=$(chainlinkd keys show cerlo -p)
 
+fakeOCR=$(chainlinkd query chainlink generate-fake-ocr)
+
 ### ~~~ BEGIN FEED ADD TESTS ~~~ ###
 
 # aDd NeW fEeD bY aLiCe
@@ -49,7 +51,7 @@ fi
 
 # sUbMiT fEeD dAtA bY aLiCe
 echo "submitting feed data by alice"
-submitFeedTx1=$($chainlinkCMD submit-feed-data feedid1 "feed 1 test data" "signatures_alice" "$alicePK" --from alice --keyring-backend test --chain-id testchain --fees 3link <<< 'y\n')
+submitFeedTx1=$($chainlinkCMD submit-feed-data feedid1 "$fakeOCR" "signatures_alice" "$alicePK" --from alice --keyring-backend test --chain-id testchain --fees 3link <<< 'y\n')
 submitFeedTx1Resp=$(echo "$submitFeedTx1" | jq '.height')
 if [ "$submitFeedTx1Resp" == "\"0\"" ]
 then
@@ -74,7 +76,7 @@ fi
 
 # sUbMiT fEeD dAtA bY cErLo (nOn-AuThOrIzEd DaTa PrOvIdEr)...
 echo "submitting feed data by unauthorized data provider"
-badSubmitFeedTx=$($chainlinkCMD submit-feed-data feedid1 "feed 1 test data" "signatures_bob" "$bobPK" --from bob --keyring-backend test --chain-id testchain --fees 3link <<< 'y\n')
+badSubmitFeedTx=$($chainlinkCMD submit-feed-data feedid1 "$fakeOCR" "signatures_bob" "$bobPK" --from bob --keyring-backend test --chain-id testchain --fees 3link <<< 'y\n')
 badSubmitFeedTxResp=$(echo "$badSubmitFeedTx" | jq '.raw_log')
 if [ "$badSubmitFeedTxResp" != "\"submitter is not a valid data provider: unauthorized\"" ]
 then
@@ -104,7 +106,7 @@ fi
 
 # sUbMiT fEeD dAtA bY bOb
 echo "submitting feed data by bob"
-submitFeedTx2=$($chainlinkCMD submit-feed-data feedid1 "feed 1 test data" "signatures_bob" "$bobPK" --from bob --keyring-backend test --chain-id testchain --fees 3link <<< 'y\n')
+submitFeedTx2=$($chainlinkCMD submit-feed-data feedid1 "$fakeOCR" "signatures_bob" "$bobPK" --from bob --keyring-backend test --chain-id testchain --fees 3link <<< 'y\n')
 submitFeedTx2Resp=$(echo "$submitFeedTx2" | jq '.height')
 if [ "$submitFeedTx2Resp" == "\"0\"" ]
 then
