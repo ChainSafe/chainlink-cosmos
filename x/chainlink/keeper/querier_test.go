@@ -26,16 +26,16 @@ func TestQuerier_GetRoundFeedData(t *testing.T) {
 	testCases := []struct {
 		feedId          string
 		roundId         uint64
-		feedData        []byte
+		feedData        [][]byte
 		submitter       sdk.AccAddress
 		signature       [][]byte
 		isFeedDataValid bool
 		insert          bool
 	}{
-		{feedId: "feed1", roundId: 100, feedData: []byte{'a', 'b', 'c'}, submitter: sdk.AccAddress("addressMock1"), signature: [][]byte{{'a', 'b'}, {'c', 'd'}}, isFeedDataValid: true, insert: true},
-		{feedId: "feed1", roundId: 200, feedData: []byte{'d', 'e', 'f'}, submitter: sdk.AccAddress("addressMock2"), signature: [][]byte{{'e', 'f'}, {'g', 'h'}}, isFeedDataValid: false, insert: true},
-		{feedId: "feed1", roundId: 300, feedData: []byte{'g', 'h', 'i'}, submitter: sdk.AccAddress("addressMock3"), signature: [][]byte{{'i', 'j'}, {'k', 'l'}}, isFeedDataValid: true, insert: false},
-		{feedId: "feed2", roundId: 400, feedData: []byte{'j', 'k', 'l'}, submitter: sdk.AccAddress("addressMock4"), signature: [][]byte{{'m', 'n'}, {'o', 'p'}}, isFeedDataValid: false, insert: false},
+		{feedId: "feed1", roundId: 100, feedData: [][]byte{[]byte("a"), []byte("b"), []byte("c")}, submitter: sdk.AccAddress("addressMock1"), signature: [][]byte{{'a', 'b'}, {'c', 'd'}}, isFeedDataValid: true, insert: true},
+		{feedId: "feed1", roundId: 200, feedData: [][]byte{[]byte("a"), []byte("b"), []byte("c")}, submitter: sdk.AccAddress("addressMock2"), signature: [][]byte{{'e', 'f'}, {'g', 'h'}}, isFeedDataValid: false, insert: true},
+		{feedId: "feed1", roundId: 300, feedData: [][]byte{[]byte("a"), []byte("b"), []byte("c")}, submitter: sdk.AccAddress("addressMock3"), signature: [][]byte{{'i', 'j'}, {'k', 'l'}}, isFeedDataValid: true, insert: false},
+		{feedId: "feed2", roundId: 400, feedData: [][]byte{[]byte("a"), []byte("b"), []byte("c")}, submitter: sdk.AccAddress("addressMock4"), signature: [][]byte{{'m', 'n'}, {'o', 'p'}}, isFeedDataValid: false, insert: false},
 	}
 
 	// Add all feed cases to store
@@ -47,11 +47,11 @@ func TestQuerier_GetRoundFeedData(t *testing.T) {
 		roundStore.Set(types.GetRoundIdKey(tc.feedId), i64tob(tc.roundId-1))
 
 		msgFeedData := types.MsgFeedData{
-			FeedId:          tc.feedId,
-			FeedData:        tc.feedData,
-			Submitter:       tc.submitter,
-			Signatures:      tc.signature,
-			IsFeedDataValid: tc.isFeedDataValid,
+			FeedId:                        tc.feedId,
+			ObservationFeedData:           tc.feedData,
+			Submitter:                     tc.submitter,
+			ObservationFeedDataSignatures: tc.signature,
+			IsFeedDataValid:               tc.isFeedDataValid,
 		}
 
 		_, _, err := keeper.SetFeedData(ctx, &msgFeedData)
@@ -79,7 +79,7 @@ func TestQuerier_GetRoundFeedData(t *testing.T) {
 
 				observations := roundDataResponse.GetRoundData()[0].GetFeedData().GetObservations()
 				for i := 0; i < len(tc.feedData); i++ {
-					require.Equal(t, tc.feedData[i], observations[i].Data[0])
+					require.Equal(t, string(tc.feedData[i]), string(observations[i].Data[0]))
 				}
 			} else {
 				require.Equal(t, 0, len(roundDataResponse.GetRoundData()))
@@ -98,17 +98,17 @@ func TestQuerier_LatestRoundFeedData(t *testing.T) {
 		feedId          string
 		roundId         uint64
 		expected        uint64
-		feedData        []byte
+		feedData        [][]byte
 		submitter       []byte
 		signature       [][]byte
 		isFeedDataValid bool
 		insert          bool
 	}{
-		{feedId: "feed1", roundId: 100, expected: 100, feedData: []byte{'a', 'b', 'c'}, submitter: sdk.AccAddress("addressMock1"), signature: [][]byte{{'a', 'b'}, {'c', 'd'}}, isFeedDataValid: true, insert: true},
-		{feedId: "feed1", roundId: 200, expected: 200, feedData: []byte{'d', 'e', 'f'}, submitter: sdk.AccAddress("addressMock2"), signature: [][]byte{{'e', 'f'}, {'g', 'h'}}, isFeedDataValid: false, insert: true},
-		{feedId: "feed1", roundId: 300, expected: 200, feedData: []byte{'g', 'h', 'i'}, submitter: sdk.AccAddress("addressMock3"), signature: [][]byte{{'i', 'j'}, {'k', 'l'}}, isFeedDataValid: true, insert: false},
-		{feedId: "feed2", roundId: 400, expected: 000, feedData: []byte{'j', 'k', 'l'}, submitter: sdk.AccAddress("addressMock4"), signature: [][]byte{{'m', 'n'}, {'o', 'p'}}, isFeedDataValid: false, insert: false},
-		{feedId: "feed3", roundId: 500, expected: 500, feedData: []byte{'m', 'n', 'o'}, submitter: sdk.AccAddress("addressMock5"), signature: [][]byte{{'q', 'r'}, {'s', 't'}}, isFeedDataValid: true, insert: true},
+		{feedId: "feed1", roundId: 100, expected: 100, feedData: [][]byte{[]byte("a"), []byte("b"), []byte("c")}, submitter: sdk.AccAddress("addressMock1"), signature: [][]byte{{'a', 'b'}, {'c', 'd'}}, isFeedDataValid: true, insert: true},
+		{feedId: "feed1", roundId: 200, expected: 200, feedData: [][]byte{[]byte("a"), []byte("b"), []byte("c")}, submitter: sdk.AccAddress("addressMock2"), signature: [][]byte{{'e', 'f'}, {'g', 'h'}}, isFeedDataValid: false, insert: true},
+		{feedId: "feed1", roundId: 300, expected: 200, feedData: [][]byte{[]byte("a"), []byte("b"), []byte("c")}, submitter: sdk.AccAddress("addressMock3"), signature: [][]byte{{'i', 'j'}, {'k', 'l'}}, isFeedDataValid: true, insert: false},
+		{feedId: "feed2", roundId: 400, expected: 000, feedData: [][]byte{[]byte("a"), []byte("b"), []byte("c")}, submitter: sdk.AccAddress("addressMock4"), signature: [][]byte{{'m', 'n'}, {'o', 'p'}}, isFeedDataValid: false, insert: false},
+		{feedId: "feed3", roundId: 500, expected: 500, feedData: [][]byte{[]byte("a"), []byte("b"), []byte("c")}, submitter: sdk.AccAddress("addressMock5"), signature: [][]byte{{'q', 'r'}, {'s', 't'}}, isFeedDataValid: true, insert: true},
 	}
 
 	// Add all feed cases to store and try retrieve the latest round
@@ -120,11 +120,11 @@ func TestQuerier_LatestRoundFeedData(t *testing.T) {
 				roundStore.Set(types.GetRoundIdKey(tc.feedId), i64tob(tc.roundId-1))
 
 				msgFeedData := types.MsgFeedData{
-					FeedId:          tc.feedId,
-					FeedData:        tc.feedData,
-					Submitter:       tc.submitter,
-					Signatures:      tc.signature,
-					IsFeedDataValid: tc.isFeedDataValid,
+					FeedId:                        tc.feedId,
+					ObservationFeedData:           tc.feedData,
+					Submitter:                     tc.submitter,
+					ObservationFeedDataSignatures: tc.signature,
+					IsFeedDataValid:               tc.isFeedDataValid,
 				}
 
 				_, _, err := keeper.SetFeedData(ctx, &msgFeedData)

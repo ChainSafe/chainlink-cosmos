@@ -47,6 +47,17 @@ then
   errorAndExit "Error in initial distribution; expected \"1000000\", got $bobCurrBal"
 fi
 
+# aDd AlIcE aS cHaInLiNk oRaClE iN aCcOuNt StOrE
+echo "adding alice chainlink account"
+addChainlinkAccountTx=$(chainlinkd tx chainlink add-chainlink-account "aliceChainlinkPubKey" "aliceChainlinkSigningKey" --from alice --keyring-backend test --chain-id testchain --fees 3link <<< 'y\n')
+sleep 1
+addChainlinkAccountTxResp=$(echo ${addChainlinkAccountTx#*\]} | jq '.height')
+if [ "$addChainlinkAccountTxResp" == "\"0\"" ]
+then
+  errorAndExit "Error in adding alice's chainlink account: $addChainlinkAccountTx"
+fi
+echo "added alice account successfully..."
+
 # sUbMiT fEeD dAtA bY aLiCe
 echo "submitting feed data by alice"
 submitFeedTx1=$($chainlinkCMD submit-feed-data feedid1 "feed 1 test data" "signatures_alice" "$alicePK" --from alice --keyring-backend test --chain-id testchain --fees 3link <<< 'y\n')
@@ -59,9 +70,9 @@ fi
 # cHeCk If AlIcE gOt ThE rEwArD
 echo "checking alice's reward distribution #1"
 aliceCurrBal=$(chainlinkd query bank balances $(chainlinkd keys show alice -a) --denom link --output json | jq '.amount')
-if [ "$aliceCurrBal" != "\"1000097\"" ]
+if [ "$aliceCurrBal" != "\"1000094\"" ]
 then
-  errorAndExit "Error in reward distribution for alice; expected \"1000097\", got $aliceCurrBal"
+  errorAndExit "Error in reward distribution for alice; expected \"1000094\", got $aliceCurrBal"
 fi
 
 # bOb ShOuLd NoT aNy rEwArD
@@ -92,6 +103,17 @@ then
   errorAndExit "Error in adding bob as a data provider: $addBobTx"
 fi
 
+# aDd bob aS cHaInLiNk oRaClE iN aCcOuNt StOrE
+echo "adding bob chainlink account"
+addChainlinkAccountTx=$(chainlinkd tx chainlink add-chainlink-account "bobChainlinkPubKey" "bobChainlinkSigningKey" --from bob --keyring-backend test --chain-id testchain --fees 3link <<< 'y\n')
+sleep 1
+addChainlinkAccountTxResp=$(echo ${addChainlinkAccountTx#*\]} | jq '.height')
+if [ "$addChainlinkAccountTxResp" == "\"0\"" ]
+then
+  errorAndExit "Error in adding bob's chainlink account: $addChainlinkAccountTx"
+fi
+echo "added bob account successfully..."
+
 # uPdAtE fEeD rEwArD
 echo "updating feed reward to $newFeedReward"
 newFeedReward=10
@@ -114,17 +136,20 @@ fi
 # cHeCk If AlIcE gOt ThE uPdAtEd ReWaRd
 echo "checking alice's reward distribution #2"
 aliceCurrBal=$(chainlinkd query bank balances $(chainlinkd keys show alice -a) --denom link --output json | jq '.amount')
-if [ "$aliceCurrBal" != "\"1000091\"" ]
+if [ "$aliceCurrBal" != "\"1000088\"" ]
 then
-  errorAndExit "Error in reward distribution; expected \"1000091\", got $aliceCurrBal"
+  errorAnd
+
+
+  Exit "Error in reward distribution; expected \"1000088\", got $aliceCurrBal"
 fi
 
 # bOb ShOuLd NoW gEt rEwArD
 echo "checking bob's reward distribution #2"
 bobCurrBal=$(chainlinkd query bank balances $(chainlinkd keys show bob -a) --denom link --output json | jq '.amount')
-if [ "$bobCurrBal" != "\"1000010\"" ]
+if [ "$bobCurrBal" != "\"1000007\"" ]
 then
-  errorAndExit "Error in reward distribution; expected \"1000010\", got $bobCurrBal"
+  errorAndExit "Error in reward distribution; expected \"1000007\", got $bobCurrBal"
 fi
 
 ### ~~~ BEGIN FEED EDIT TESTS ~~~ ###

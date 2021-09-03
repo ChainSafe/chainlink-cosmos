@@ -14,12 +14,12 @@ import (
 
 var (
 	testfeedid      = "testfeed"
-	testfeedData    = []byte("feedData")
+	testfeedData    = [][]byte{[]byte("feedData")}
 	testRoundID     = uint64(310)
 	testsignatures  = [][]byte{[]byte("signatures")}
 	testContext     = []byte{}
 	testOracles     = []byte{}
-	testObservation = [](*types.Observation){}
+	testObservation = []*types.Observation{}
 
 	testNum      = uint64(310)
 	testNumBytes = []uint8([]byte{0x36, 0x1, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0})
@@ -32,7 +32,8 @@ func GenerateAccount() sdk.AccAddress {
 
 func TestFeedDataFilter(t *testing.T) {
 	feedData := types.OCRFeedDataInStore{
-		FeedData:              &types.MsgFeedData{FeedId: testfeedid, Submitter: GenerateAccount(), FeedData: testfeedData, Signatures: testsignatures},
+		FeedData: &types.MsgFeedData{FeedId: testfeedid, Submitter: GenerateAccount(), ObservationFeedData: testfeedData,
+			ObservationFeedDataSignatures: testsignatures},
 		DeserializedOCRReport: &types.OCRAbiEncoded{Context: testContext, Oracles: testOracles, Observations: testObservation},
 		RoundId:               testRoundID,
 	}
