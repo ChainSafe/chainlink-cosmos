@@ -49,7 +49,7 @@ add-genesis-module-owner [address] [pubKey]
    Can be signed by existing module owner only.
 
 ```bash
-addModuleOwner [address] [pubKey]
+add-module-owner [address] [pubKey]
 ```
 
 3. Module ownership transfer  
@@ -57,7 +57,7 @@ addModuleOwner [address] [pubKey]
    The address and pubKey should match the new module owner.
 
 ```bash
-moduleOwnershipTransfer [address] [pubKey]
+module-ownership-transfer [address] [pubKey]
 ```
 
 4. Add new feed  
@@ -66,7 +66,7 @@ moduleOwnershipTransfer [address] [pubKey]
    For example:`address1,keyKey1,address2,pubKey2`
 
 ```bash
-addFeed [feedId] [feedOwnerAddress] [submissionCount] [heartbeatTrigger] [deviationThresholdTrigger] [baseFeedRewardAmount] [feedRewardStrategy] [initDataProviderList]
+add-feed [feedId] [feedOwnerAddress] [submissionCount] [heartbeatTrigger] [deviationThresholdTrigger] [baseFeedRewardAmount] [feedRewardStrategy] [initDataProviderList]
 ```
 
 #### Query
@@ -74,7 +74,7 @@ addFeed [feedId] [feedOwnerAddress] [submissionCount] [heartbeatTrigger] [deviat
 1. Get all current module owners
 
 ```bash
-getModuleOwnerList
+get-module-owner-list
 ```
 
 ### Feed Owner
@@ -88,7 +88,7 @@ getModuleOwnerList
    `address` and `publicKey` must match
 
 ```bash
-addDataProvider [feedId] [address] [publicKey]
+add-data-provider [feedId] [address] [publicKey]
 ```
 
 2. Remove data provider from a feed    
@@ -98,7 +98,7 @@ addDataProvider [feedId] [address] [publicKey]
    `address` and `publicKey` must match
 
 ```bash
-removeDataProvider [feedId] [address] [publicKey]
+remove-data-provider [feedId] [address] [publicKey]
 ```
 
 3. Set a new submission count of a feed   
@@ -106,7 +106,7 @@ removeDataProvider [feedId] [address] [publicKey]
    `count` is the number of valid signatures required
 
 ```bash
-setSubmissionCount [feedId] [count]
+set-submission-count [feedId] [count]
 ```
 
 4. Set a new heart beat trigger of a feed   
@@ -114,7 +114,7 @@ setSubmissionCount [feedId] [count]
    `heartbeatTrigger` is a number of milliseconds
 
 ```bash
-setHeartbeatTrigger [feedId] [heartbeatTrigger]
+set-heartbeat-trigger [feedId] [heartbeatTrigger]
 ```
 
 5. Set a new deviation threshold of a feed   
@@ -124,7 +124,7 @@ setHeartbeatTrigger [feedId] [heartbeatTrigger]
    not elapsed.
 
 ```bash
-setDeviationThresholdTrigger [feedId] [deviationThresholdTrigger]
+set-deviation-threshold-trigger [feedId] [deviationThresholdTrigger]
 ```
 
 6. Set a new data provider reward schema of a feed  
@@ -134,14 +134,14 @@ setDeviationThresholdTrigger [feedId] [deviationThresholdTrigger]
    `feedRewardStrategy` is the strategy name in effect.
 
 ```bash
-setFeedReward [feedId] [baseFeedRewardAmount] [feedRewardStrategy]
+set-feed-reward [feedId] [baseFeedRewardAmount] [feedRewardStrategy]
 ```
 
 7. Feed ownership transfer  
    Can be signed by feed owner only.
 
 ```bash
-feedOwnershipTransfer [feedId] [newFeedOwnerAddress]
+feed-ownership-transfer [feedId] [newFeedOwnerAddress]
 ```
 
 #### Query
@@ -149,13 +149,13 @@ feedOwnershipTransfer [feedId] [newFeedOwnerAddress]
 1. Get feed info by feedId
 
 ```bash
-getFeedInfo [feedId]
+get-feed-info [feedId]
 ```
 
 2. Get available feed reward payout strategy list
 
 ```bash
-getFeedRewardAvailStrategy
+get-feed-reward-avail-strategy
 ```
 
 ### Feed Data Provider
@@ -166,7 +166,7 @@ getFeedRewardAvailStrategy
    Only valid data provider(signer of this transaction) is able to submit feed data to particular feed base on feedId.
 
 ```bash
-submitFeedData [feedId] [feedData] [signatures] [cosmosPubKeys]
+submit-feed-data [feedId] [feedData] [signatures] [cosmosPubKeys]
 ```
 
 #### Query
@@ -175,14 +175,14 @@ submitFeedData [feedId] [feedData] [signatures] [cosmosPubKeys]
    `feedId` is optional
 
 ```bash
-getRoundFeedData [roundId] [feedId]
+get-round-feed-data [roundId] [feedId]
 ```
 
 2. Query the latest round of feed data  
    `feedId` is optional
 
 ```bash
-getLatestFeedData [feedId]
+get-latest-feed-data [feedId]
 ```
 
 ## Configurable Transaction Data Validation Interface
@@ -263,7 +263,7 @@ well.
 Only registered strategies are available for a feed, CLI to query the list of available strategies:
 
 ```bash
-getFeedRewardAvailStrategy
+get-feed-reward-avail-strategy
 ```
 
 
