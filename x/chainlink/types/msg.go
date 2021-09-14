@@ -37,12 +37,12 @@ var _ sdk.Tx = &MsgModuleOwner{}
 
 var _ Validation = &MsgFeedData{}
 
-func NewMsgFeedData(submitter sdk.Address, feedId string, feedData []byte, signatures [][]byte, cosmosPubKeys [][]byte) *MsgFeedData {
+func NewMsgFeedData(submitter sdk.Address, feedId string, observationFeedData [][]byte, signatures [][]byte, cosmosPubKeys [][]byte) *MsgFeedData {
 	return &MsgFeedData{
-		FeedId:     feedId,
-		Submitter:  submitter.Bytes(),
-		FeedData:   feedData,
-		Signatures: signatures,
+		FeedId:                        feedId,
+		Submitter:                     submitter.Bytes(),
+		ObservationFeedData:           observationFeedData,
+		ObservationFeedDataSignatures: signatures,
 		// IsFeedDataValid will be true by default
 		IsFeedDataValid: true,
 		CosmosPubKeys:   cosmosPubKeys,
@@ -76,13 +76,13 @@ func (m *MsgFeedData) ValidateBasic() error {
 	if strings.Contains(m.GetFeedId(), "/") {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "feedId can not contain character '/'")
 	}
-	if len(m.GetFeedData()) == 0 {
+	if len(m.GetObservationFeedData()) == 0 {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "feedData can not be empty")
 	}
-	if len(m.GetSignatures()) == 0 {
+	if len(m.GetObservationFeedDataSignatures()) == 0 {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "number of oracle signatures does not meet the required number")
 	}
-	if len(m.Signatures) != len(m.CosmosPubKeys) {
+	if len(m.GetObservationFeedDataSignatures()) != len(m.CosmosPubKeys) {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "number of oracle signatures does not match the data provider cosmos pubkey number")
 	}
 
@@ -118,7 +118,7 @@ func (m *MsgFeedData) RewardCalculator(feed *MsgFeed, feedData *MsgFeedData) ([]
 			}
 			rewardPayout = append(rewardPayout, rp)
 		}
-		return rewardPayout, feed.GetFeedReward().GetAmount() * uint64(len(feedData.GetSignatures())), nil
+		return rewardPayout, feed.GetFeedReward().GetAmount() * uint64(len(feedData.GetObservationFeedDataSignatures())), nil
 	}
 
 	// strategy of a feed here has already been checked in anteHandler when set, ok must be true
