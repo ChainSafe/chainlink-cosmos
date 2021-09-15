@@ -17,11 +17,12 @@ import (
 )
 
 const (
-	ErrFeedDoesNotExist      = "feed does not exist"
-	ErrSignerIsNotFeedOwner  = "account %s (%s) is not a feed owner"
-	ErrAccountAlreadyExists  = "there is already a chainlink account associated with this cosmos address"
-	ErrDoesNotExist          = "no chainlink account associated with this cosmos address"
-	ErrSubmitterDoesNotMatch = "submitter address does not match"
+	ErrFeedDoesNotExist         = "feed does not exist"
+	ErrSignerIsNotFeedOwner     = "account %s (%s) is not a feed owner"
+	ErrAccountAlreadyExists     = "there is already a chainlink account associated with this cosmos address"
+	ErrUnregisteredDataProvider = "linked account not found in account store"
+	ErrDoesNotExist             = "no chainlink account associated with this cosmos address"
+	ErrSubmitterDoesNotMatch    = "submitter address does not match"
 )
 
 func NewAnteHandler(
@@ -254,29 +255,50 @@ func (fd FeedDataDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool
 	for _, msg := range tx.GetMsgs() {
 		switch t := msg.(type) {
 		case *types.MsgFeedData:
+			// get tx fee
 			feeTx, ok := tx.(sdk.FeeTx)
 			if !ok {
 				return ctx, sdkerrors.Wrap(sdkerrors.ErrTxDecode, "Tx must be a FeeTx")
 			}
-
 			txFee := feeTx.GetFee()
 			if len(txFee) == 0 {
 				return ctx, sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, "empty tx fee coin slices")
 			}
-
 			// get the first coin from txFee as the tx fee charged for MsgFeedData tx
 			t.TxFee = &types.Coin{
 				Denom:  txFee[0].Denom,
 				Amount: txFee[0].Amount.Uint64(),
 			}
 
+			// get feed by feedId
 			feed := fd.chainLinkKeeper.GetFeed(ctx, t.GetFeedId())
 			if feed.Feed.Empty() {
 				return ctx, sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, "feed not exist")
 			}
 
+			// basic checking
 			if !(types.DataProviders)(feed.GetFeed().GetDataProviders()).Contains(t.GetSubmitter()) {
 				return ctx, sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "submitter is not a valid data provider")
+			}
+			if uint32(len(t.GetObservationFeedDataSignatures())) < feed.GetFeed().GetSubmissionCount() {
+				return ctx, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "not enough signatures")
+			}
+
+			// observation signatures VS original observation data
+			if len(t.GetObservationFeedData()) != len(t.GetObservationFeedDataSignatures()) {
+				return ctx, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "number of observation signatures and observation data does not match")
+			}
+			feedDataValidationFlag := len(t.GetObservationFeedData())
+			for _, observation := range t.GetObservationFeedData() {
+				for _, observationSignature := range t.GetObservationFeedDataSignatures() {
+					if signaturePlainDataValidate(observationSignature, observation) {
+						feedDataValidationFlag--
+						break
+					}
+				}
+			}
+			if feedDataValidationFlag != 0 {
+				return ctx, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "observation signatures validation against observation data failed")
 			}
 
 			for _, pubKey := range t.GetCosmosPubKeys() {
@@ -290,14 +312,29 @@ func (fd FeedDataDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool
 					return ctx, sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "invalid data provider: failed to derive cosmos address, invalid cosmos pubkey")
 				}
 
+				// valid data provider checking
 				if !(types.DataProviders)(feed.GetFeed().GetDataProviders()).Contains(dataProviderAddr) {
 					return ctx, sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "invalid data provider: data provider not in the list")
 				}
+
+				resp := fd.chainLinkKeeper.GetAccount(ctx, &types.GetAccountRequest{AccountAddress: dataProviderAddr})
+				if resp.GetAccount().GetSubmitter().String() == "" {
+					return ctx, sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, ErrUnregisteredDataProvider)
+				}
+
+				// chainlink pubKey VS observation signature validation
+				chainlinkPubKeyValidationFlag := false
+				for _, signature := range t.GetObservationFeedDataSignatures() {
+					if pubKeySignatureValidate(resp.GetAccount().GetChainlinkPublicKey(), signature) {
+						chainlinkPubKeyValidationFlag = true
+						break
+					}
+				}
+				if !chainlinkPubKeyValidationFlag {
+					return ctx, sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, "observation signature validation against chainlink pubKey failed")
+				}
 			}
 
-			if uint32(len(t.GetSignatures())) < feed.GetFeed().GetSubmissionCount() {
-				return ctx, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "not enough signatures")
-			}
 		default:
 			continue
 		}

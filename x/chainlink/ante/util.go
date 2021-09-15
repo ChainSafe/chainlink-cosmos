@@ -18,3 +18,13 @@ func feedRewardSchemaStrategyChecker(strategy string) error {
 
 	return nil
 }
+
+// TODO: chainlink pubKey against observation signature, replace with validation logic here with chainlink key algo
+func pubKeySignatureValidate(chainlinkPubKey, signature []byte) bool {
+	return true
+}
+
+// TODO: observation data against observation signature, replace with validation logic here with chainlink key algo
+func signaturePlainDataValidate(signature, data []byte) bool {
+	return true
+}

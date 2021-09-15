@@ -26,7 +26,7 @@ type MsgFeedDataTestSuite struct {
 	suite.Suite
 	submitter     sdk.AccAddress
 	feedId        string
-	feedData      []byte
+	feedData      [][]byte
 	signatures    [][]byte
 	cosmosPubKeys [][]byte
 }
@@ -38,7 +38,7 @@ func TestMsgFeedDataTestSuite(t *testing.T) {
 func (ts *MsgFeedDataTestSuite) SetupTest() {
 	_, _, ts.submitter = GenerateAccount()
 	ts.feedId = "testfeed"
-	ts.feedData = []byte("feedData")
+	ts.feedData = [][]byte{[]byte("feedData")}
 	ts.signatures = [][]byte{[]byte("signatures")}
 	ts.cosmosPubKeys = [][]byte{[]byte("cosmosPubKey")}
 }
@@ -66,7 +66,7 @@ func (ts *MsgFeedDataTestSuite) TestMsgFeedDataValidateBasic() {
 		description   string
 		submitter     sdk.AccAddress
 		feedId        string
-		feedData      []byte
+		feedData      [][]byte
 		signatures    [][]byte
 		cosmosPubKeys [][]byte
 		expPass       bool

@@ -348,20 +348,26 @@ func CmdSubmitFeedData() *cobra.Command {
 				return err
 			}
 
+			observationData := strings.Split(argsFeedData, ",")
+			dataList := make([][]byte, 0)
+			for _, data := range observationData {
+				dataList = append(dataList, []byte(data))
+			}
+
 			// TODO: this is dummy data to simulate the data providers signature set
 			signatures := strings.Split(argsSignatures, ",")
-			s := make([][]byte, 0)
+			signatureList := make([][]byte, 0)
 			for _, sign := range signatures {
-				s = append(s, []byte(sign))
+				signatureList = append(signatureList, []byte(sign))
 			}
 
-			pubkeys := strings.Split(argsCosmosPubKeys, ",")
-			p := make([][]byte, 0)
-			for _, key := range pubkeys {
-				p = append(p, []byte(key))
+			pubKeys := strings.Split(argsCosmosPubKeys, ",")
+			pubKeyList := make([][]byte, 0)
+			for _, key := range pubKeys {
+				pubKeyList = append(pubKeyList, []byte(key))
 			}
 
-			msg := types.NewMsgFeedData(clientCtx.GetFromAddress(), argsFeedId, []byte(argsFeedData), s, p)
+			msg := types.NewMsgFeedData(clientCtx.GetFromAddress(), argsFeedId, dataList, signatureList, pubKeyList)
 			if err := msg.ValidateBasic(); err != nil {
 				return err
 			}

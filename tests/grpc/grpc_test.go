@@ -469,12 +469,25 @@ func (s *GRPCTestSuite) TestIntegration() {
 
 	s.T().Log("9 - Submit feed data by bob")
 
+
+	// add bob in account store first before submitting feed data
+	addBobInAccountStoreTx := &types.MsgAccount{
+		Submitter:           bob.Addr,
+		ChainlinkPublicKey:  []byte("bobChainlinkPublicKey"),
+		ChainlinkSigningKey: []byte("ChainlinkSigningKey"),
+		PiggyAddress:        bob.Addr,
+	}
+	s.Require().NoError(addBobInAccountStoreTx.ValidateBasic())
+	addBobInAccountStoreTxResponse := s.BroadcastTx(ctx, bob, addBobInAccountStoreTx)
+	s.Require().EqualValues(0, addBobInAccountStoreTxResponse.TxResponse.Code)
+
+
 	submitFeedDataTx := &types.MsgFeedData{
-		FeedId:        feedId,
-		FeedData:      []byte("test data"),
-		Signatures:    [][]byte{[]byte("signature_bob")},
-		Submitter:     bob.Addr,
-		CosmosPubKeys: [][]byte{[]byte(bob.Cosmos)},
+		FeedId:                        feedId,
+		ObservationFeedData:           [][]byte{[]byte("data")},
+		ObservationFeedDataSignatures: [][]byte{[]byte("signature_bob")},
+		Submitter:                     bob.Addr,
+		CosmosPubKeys:                 [][]byte{[]byte(bob.Cosmos)},
 	}
 	s.Require().NoError(submitFeedDataTx.ValidateBasic())
 	submitFeedDataResponse := s.BroadcastTx(ctx, bob, submitFeedDataTx)

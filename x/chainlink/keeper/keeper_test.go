@@ -151,14 +151,14 @@ func TestKeeper_GetRoundFeedDataByFilter(t *testing.T) {
 	testCases := []struct {
 		feedId    string
 		roundId   uint64
-		feedData  []byte
+		feedData  [][]byte
 		submitter []byte
 		insert    bool
 	}{
-		{feedId: "feed1", roundId: 100, feedData: []byte{'a', 'b', 'c'}, submitter: []byte("addressMock1"), insert: true},
-		{feedId: "feed1", roundId: 200, feedData: []byte{'d', 'e', 'f'}, submitter: []byte("addressMock2"), insert: true},
-		{feedId: "feed1", roundId: 300, feedData: []byte{'g', 'h', 'i'}, submitter: []byte("addressMock3"), insert: false},
-		{feedId: "feed2", roundId: 400, feedData: []byte{'j', 'k', 'l'}, submitter: []byte("addressMock4"), insert: false},
+		{feedId: "feed1", roundId: 100, feedData: [][]byte{[]byte("a"), []byte("b"), []byte("c")}, submitter: []byte("addressMock1"), insert: true},
+		{feedId: "feed1", roundId: 200, feedData: [][]byte{[]byte("a"), []byte("b"), []byte("c")}, submitter: []byte("addressMock2"), insert: true},
+		{feedId: "feed1", roundId: 300, feedData: [][]byte{[]byte("a"), []byte("b"), []byte("c")}, submitter: []byte("addressMock3"), insert: false},
+		{feedId: "feed2", roundId: 400, feedData: [][]byte{[]byte("a"), []byte("b"), []byte("c")}, submitter: []byte("addressMock4"), insert: false},
 	}
 
 	// Add all feed cases to store
@@ -170,9 +170,9 @@ func TestKeeper_GetRoundFeedDataByFilter(t *testing.T) {
 		roundStore.Set(types.GetRoundIdKey(tc.feedId), i64tob(tc.roundId-1))
 
 		msgFeedData := types.MsgFeedData{
-			FeedId:    tc.feedId,
-			FeedData:  tc.feedData,
-			Submitter: tc.submitter,
+			FeedId:              tc.feedId,
+			ObservationFeedData: tc.feedData,
+			Submitter:           tc.submitter,
 		}
 
 		_, _, err := k.SetFeedData(ctx, &msgFeedData)
@@ -200,7 +200,7 @@ func TestKeeper_GetRoundFeedDataByFilter(t *testing.T) {
 
 				observations := roundData[0].GetFeedData().GetObservations()
 				for i := 0; i < len(tc.feedData); i++ {
-					require.Equal(t, tc.feedData[i], observations[i].Data[0])
+					require.Equal(t, string(tc.feedData[i]), string(observations[i].Data[0]))
 				}
 			} else {
 				require.Equal(t, 0, len(roundData))
@@ -218,15 +218,15 @@ func TestKeeper_GetLatestRoundFeedDataByFilter(t *testing.T) {
 		feedId    string
 		roundId   uint64
 		expected  uint64
-		feedData  []byte
+		feedData  [][]byte
 		submitter []byte
 		insert    bool
 	}{
-		{feedId: "feed1", roundId: 100, expected: 100, feedData: []byte{'a', 'b', 'c'}, submitter: []byte("addressMock1"), insert: true},
-		{feedId: "feed1", roundId: 200, expected: 200, feedData: []byte{'d', 'e', 'f'}, submitter: []byte("addressMock2"), insert: true},
-		{feedId: "feed1", roundId: 300, expected: 200, feedData: []byte{'g', 'h', 'i'}, submitter: []byte("addressMock3"), insert: false},
-		{feedId: "feed2", roundId: 400, expected: 000, feedData: []byte{'j', 'k', 'l'}, submitter: []byte("addressMock4"), insert: false},
-		{feedId: "feed3", roundId: 500, expected: 500, feedData: []byte{'m', 'n', 'o'}, submitter: []byte("addressMock5"), insert: true},
+		{feedId: "feed1", roundId: 100, expected: 100, feedData: [][]byte{[]byte("a"), []byte("b"), []byte("c")}, submitter: []byte("addressMock1"), insert: true},
+		{feedId: "feed1", roundId: 200, expected: 200, feedData: [][]byte{[]byte("a"), []byte("b"), []byte("c")}, submitter: []byte("addressMock2"), insert: true},
+		{feedId: "feed1", roundId: 300, expected: 200, feedData: [][]byte{[]byte("a"), []byte("b"), []byte("c")}, submitter: []byte("addressMock3"), insert: false},
+		{feedId: "feed2", roundId: 400, expected: 000, feedData: [][]byte{[]byte("a"), []byte("b"), []byte("c")}, submitter: []byte("addressMock4"), insert: false},
+		{feedId: "feed3", roundId: 500, expected: 500, feedData: [][]byte{[]byte("a"), []byte("b"), []byte("c")}, submitter: []byte("addressMock5"), insert: true},
 	}
 
 	// Add all feed cases to store and try retrieve the latest round
@@ -238,9 +238,9 @@ func TestKeeper_GetLatestRoundFeedDataByFilter(t *testing.T) {
 				roundStore.Set(types.GetRoundIdKey(tc.feedId), i64tob(tc.roundId-1))
 
 				msgFeedData := types.MsgFeedData{
-					FeedId:    tc.feedId,
-					FeedData:  tc.feedData,
-					Submitter: tc.submitter,
+					FeedId:              tc.feedId,
+					ObservationFeedData: tc.feedData,
+					Submitter:           tc.submitter,
 				}
 
 				_, _, err := k.SetFeedData(ctx, &msgFeedData)
