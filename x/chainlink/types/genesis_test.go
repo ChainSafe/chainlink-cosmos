@@ -39,27 +39,3 @@ func TestTypes_MsgModuleOwner_Validate(t *testing.T) {
 
 	require.Error(t, imo.Validate())
 }
-
-func TestTypes_GetGenesisStateFromAppState(t *testing.T) {
-	// TODO: figure out how to get appstate to pass into GetGenesisStateFromAppState
-	// issue with cyclic import if i import chainlink-cosmos/app
-
-	// userHomeDir, err := os.UserHomeDir()
-	// require.NoError(t, err)
-	// home := filepath.Join(userHomeDir, ".chainlinkd")
-	// encodingConfig := &params.EncodingConfig{}
-	// clientCtx := client.Context{}.
-	// 	WithHomeDir(home).
-	// 	WithViper("").
-	// 	WithAccountRetriever(authtypes.AccountRetriever{}).
-	// 	WithInterfaceRegistry(encodingConfig.InterfaceRegistry)
-
-	// depCdc := clientCtx.JSONMarshaler
-	// cdc := depCdc.(codec.Marshaler)
-
-	// appstate := map[string]json.RawMessage{}
-
-	// genstate := GetGenesisStateFromAppState(cdc, appstate)
-
-	// require.NoError(t, genstate.Validate())
-}
