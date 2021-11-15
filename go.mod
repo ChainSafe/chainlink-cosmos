@@ -18,10 +18,10 @@ require (
 	github.com/stretchr/testify v1.7.0
 	github.com/tendermint/spm v0.0.0-20210524110815-6d7452d2dc4a
 	github.com/tendermint/tendermint v0.34.10
-	github.com/tendermint/tm-db v0.6.4
+	github.com/tendermint/tm-db v0.6.6
 	golang.org/x/sys v0.0.0-20210608053332-aa57babbf139 // indirect
 	google.golang.org/genproto v0.0.0-20210617175327-b9e0b3197ced
-	google.golang.org/grpc v1.39.1
+	google.golang.org/grpc v1.42.0
 )
 
 replace google.golang.org/grpc => google.golang.org/grpc v1.33.2
